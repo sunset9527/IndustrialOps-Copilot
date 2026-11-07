@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 
 def exclude_non_operational_records(records: list[dict[str, object]]) -> list[dict[str, object]]:
     """Exclude non-operational document pages while preserving technical records."""
@@ -9,7 +11,8 @@ def exclude_non_operational_records(records: list[dict[str, object]]) -> list[di
     for record in records:
         updated = dict(record)
         text = str(record["text"]).casefold()
-        if "declaration of conformity" in text:
+        compact_text = re.sub(r"\s+", "", text)
+        if "declarationofconformity" in compact_text:
             updated["applicability"] = "excluded"
             updated["applicability_reasons"] = ["non_operational_document_type:conformity_declaration"]
         elif text.startswith("contents\n") or text.startswith("contents "):

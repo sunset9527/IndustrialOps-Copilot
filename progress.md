@@ -38,3 +38,4 @@
 - 已增加目录页过滤：目录仅指向内容，不能作为运维结论或诊断证据。重新生成后：435 条 `provisionally_in_scope`、179 条 `mixed_scope_review`、669 条 `review_required`、12 条 `excluded`；审核队列仍为 848 条。全量测试：23 通过。
 - 已增加版权出版说明页过滤：仅对以 `Copyright notice` 开头、且仅含版权与关联资料的页面排除，不以宽泛版权词匹配。重新生成后：434 条 `provisionally_in_scope`、177 条 `mixed_scope_review`、669 条 `review_required`、15 条 `excluded`；审核队列为 846 条。全量测试：24 通过。
 - 已增加仅范围外 nXDS 型号页过滤：页面列出的型号若全部是 C/R 变体，则排除；同时列出标准 `nXDS*i` 的页面仍保留审核。已排除 Tip Seal 手册中仅写 `nXDS15iR/nXDS20iR` 的 1 页。重新生成后：434 条 `provisionally_in_scope`、176 条 `mixed_scope_review`、669 条 `review_required`、16 条 `excluded`；审核队列为 845 条。全量测试：26 通过。
+- 审核队列现含 `source_file`、`evidence_locator`、500 字符正文预览和 `pending` 状态，可不重新定位 PDF 即逐项审核。发现 Edwards PDF 的 `Declaration of Conformity` 被提取为 `Con formity`，新增去空白识别后排除 3 个漏检合规页。重新生成后：434 条 `provisionally_in_scope`、173 条 `mixed_scope_review`、669 条 `review_required`、19 条 `excluded`；审核队列为 842 条。全量测试：27 通过。

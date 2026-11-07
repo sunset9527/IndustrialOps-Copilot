@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 
+def _preview(text: object, limit: int = 500) -> str:
+    """Create a compact, deterministic evidence preview for a review task."""
+    return " ".join(str(text).split())[:limit]
+
+
 def build_scope_review_queue(records: list[dict[str, object]]) -> list[dict[str, object]]:
     """Return unresolved candidates ordered by scope-review risk."""
     queue: list[dict[str, object]] = []
@@ -25,6 +30,10 @@ def build_scope_review_queue(records: list[dict[str, object]]) -> list[dict[str,
                 "page_number": record["page_number"],
                 "priority": priority,
                 "reason": reason,
+                "source_file": record.get("source_file"),
+                "evidence_locator": record.get("evidence_locator"),
+                "text_preview": _preview(record.get("text", "")),
+                "review_status": "pending",
             }
         )
     return sorted(queue, key=lambda item: (item["priority"] != "high", item["source_id"], item["page_number"]))
