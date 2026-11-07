@@ -36,3 +36,4 @@
 - 发现目录/导航来源的排除优先级低于关键词筛选，已修正为目录来源无条件排除。重新生成后：438 条 `provisionally_in_scope`、181 条 `mixed_scope_review`、670 条 `review_required`、6 条 `excluded`；审核队列为 851 条。全量测试：20 通过。
 - 已增加非运维文档类型过滤：合规声明页无法支持诊断、维修或安全结论，统一以可追溯理由排除。重新生成后：438 条 `provisionally_in_scope`、179 条 `mixed_scope_review`、669 条 `review_required`、9 条 `excluded`；审核队列为 848 条。全量测试：22 通过。
 - 已增加目录页过滤：目录仅指向内容，不能作为运维结论或诊断证据。重新生成后：435 条 `provisionally_in_scope`、179 条 `mixed_scope_review`、669 条 `review_required`、12 条 `excluded`；审核队列仍为 848 条。全量测试：23 通过。
+- 已增加版权出版说明页过滤：仅对以 `Copyright notice` 开头、且仅含版权与关联资料的页面排除，不以宽泛版权词匹配。重新生成后：434 条 `provisionally_in_scope`、177 条 `mixed_scope_review`、669 条 `review_required`、15 条 `excluded`；审核队列为 846 条。全量测试：24 通过。

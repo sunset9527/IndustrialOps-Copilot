@@ -15,5 +15,8 @@ def exclude_non_operational_records(records: list[dict[str, object]]) -> list[di
         elif text.startswith("contents\n") or text.startswith("contents "):
             updated["applicability"] = "excluded"
             updated["applicability_reasons"] = ["non_operational_document_type:table_of_contents"]
+        elif text.startswith("copyright notice\n") or text.startswith("copyright notice "):
+            updated["applicability"] = "excluded"
+            updated["applicability_reasons"] = ["non_operational_document_type:copyright_notice"]
         filtered.append(updated)
     return filtered
