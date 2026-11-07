@@ -12,12 +12,11 @@ def apply_source_scope_policy(
     result: list[dict[str, object]] = []
     for record in records:
         updated = dict(record)
-        if updated["applicability"] != "review_required":
-            result.append(updated)
-            continue
         source_id = str(updated["source_id"])
         if source_id in catalog_sources:
             updated["applicability"] = "excluded"
+        elif updated["applicability"] != "review_required":
+            pass
         elif source_id not in broad_review_sources:
             updated["applicability"] = "provisionally_in_scope"
         result.append(updated)
