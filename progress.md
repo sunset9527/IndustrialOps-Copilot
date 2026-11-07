@@ -14,3 +14,12 @@
 - 已增加正式模块命令 `python -m industrialops.phase0.source_audit`；全部 4 个来源审计测试通过。
 - 已通过该命令重新审计真实归档：40 份 PDF、1332 页、101285488 字节，输出 `data/source_manifests/source_audit_v1.jsonl`。
 - 下一步：补齐来源清单的文档号、版本、语言、获取日期和分发边界，然后开始页级解析。
+- 复核既有下载 CSV：它保留了一个已删除的无效中文报警快照，且遗漏两个后来有效归档的文件。下一步会建立以实际归档文件为准的来源登记，而不是直接继承旧 CSV 的状态。
+- 已建立 `source_registry`：以实际存在的 PDF 为准，忽略历史下载状态，但保留官方 URL、来源 ID、语言、类型和获取日期。
+- 已用 `config/phase0_source_overrides.json` 补齐 Haas 英文报警帮助页、Edwards 英文产品册，并纠正两份 OSHA 快照和多语言起吊指南的语言标签。
+- `source_registry_v1.jsonl` 已校验为 40 条、40 个唯一来源 ID；语言为 27 份 `zh-CN`、12 份 `en`、1 份 `multi_zh-CN`。全量测试：7 通过。
+- 下一步：建立页级文本解析器；所有输出保留文件哈希、来源 ID 和页码。
+- 已实现页级解析器和正式模块命令；每页记录 `pack_id`、来源 ID、原文件、来源 SHA-256、页码、文本、提取状态与证据定位。
+- 已增加终端实时进度与状态文件：每处理完一份来源就输出文件/页进度，并更新 `data/derived_corpus/pages/parse_status.json`。
+- 真实全量解析完成：40/40 份、1332/1332 页；1296 页文本已提取，36 页为空文本，失败为 0。页级语料输出为 `data/derived_corpus/pages/page_corpus_v1.jsonl`。
+- 下一步：审计 36 个空文本页，区分正常封面/图片页与需要 OCR 的正文页，再做片段、白名单与双语派生。

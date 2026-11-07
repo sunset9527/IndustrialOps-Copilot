@@ -1,0 +1,42 @@
+[
+  {
+    "relative_path": "cnc_haas_vf2_ngc/03_ngc_alarm_and_evidence/haas_alarm_search_help_en_snapshot_2026-11-04.pdf",
+    "source_id": "HAAS-ALARM-HELP-EN",
+    "language": "en",
+    "kind": "page_snapshot",
+    "url": "https://www.haascnc.com/service/troubleshooting-and-how-to/reference-documents/alarm-search-help.html",
+    "accessed_at": "2026-11-04"
+  },
+  {
+    "relative_path": "dry_vacuum_edwards_nxds/00_scope_and_versions/edwards_nxds_brochure_3601-0088-01_en.pdf",
+    "source_id": "EDW-NXDS-BROCHURE-EN",
+    "language": "en",
+    "kind": "pdf",
+    "url": "https://www.edwardsvacuum.cn/content/dam/brands/edwards-vacuum/general-vacuum/downloads/dry-scroll-pumps/3601-0088-01-nXDS-brochure.pdf",
+    "accessed_at": "2026-11-04"
+  },
+  {
+    "relative_path": "cnc_haas_vf2_ngc/02_installation_and_safety/osha_1910_147_loto_en_snapshot_2026-11-04.pdf",
+    "source_id": "OSHA-1910-147",
+    "language": "en",
+    "kind": "web_snapshot_pdf",
+    "url": "https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147",
+    "accessed_at": "2026-11-04"
+  },
+  {
+    "relative_path": "cnc_haas_vf2_ngc/02_installation_and_safety/osha_1910_212_machine_guarding_en_snapshot_2026-11-04.pdf",
+    "source_id": "OSHA-1910-212",
+    "language": "en",
+    "kind": "web_snapshot_pdf",
+    "url": "https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.212",
+    "accessed_at": "2026-11-04"
+  },
+  {
+    "relative_path": "dry_vacuum_edwards_nxds/03_safety_and_installation/edwards_nxds_lifting_guide_P41100260_multi.pdf",
+    "source_id": "EDW-NXDS-LIFT-MULTI",
+    "language": "multi_zh-CN",
+    "kind": "pdf",
+    "url": "https://global.my.edwardsvacuum.com/medias/P41100260-Instructions.pdf?attachment=true&context=bWFzdGVyfHJvb3R8MTM4ODA4fGFwcGxpY2F0aW9uL3BkZnxhRFJsTDJnMlpTOHhNVGd5TnpnNE5UVTBNall3TnpndlVEUXhNVEF3TWpZd0lDMGdTVzV6ZEhKMVkzUnBiMjV6TG5Ca1pnfGFlMjc3ZjY0OTIwYzQ5N2Y0NTAzOGRjYjNhYmVhODA4MjZiODAzYzRkNWMzZjY2NDYxNDYzOGQ3NDg0M2Q3YzA",
+    "accessed_at": "2026-11-04"
+  }
+]
