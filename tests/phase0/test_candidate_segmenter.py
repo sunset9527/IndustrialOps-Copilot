@@ -56,3 +56,22 @@ def test_segment_candidate_uses_single_line_boundaries_when_pdf_has_no_blank_par
     segments = segment_candidate(candidate, max_characters=7)
 
     assert [segment["text"] for segment in segments] == ["one\ntwo", "three"]
+
+
+def test_segment_candidate_starts_a_new_group_at_numbered_manual_section() -> None:
+    candidate = {
+        "candidate_id": "c3",
+        "source_id": "EDW-TEST",
+        "source_sha256": "c" * 64,
+        "page_number": 56,
+        "evidence_locator": "EDW-TEST:p.56",
+        "text": "9.4.6 Bearing kit\nStandard pump procedure.\n9.4.7 Valve kit\nC version procedure.",
+        "applicability": "mixed_scope_review",
+    }
+
+    segments = segment_candidate(candidate, max_characters=500)
+
+    assert [segment["text"] for segment in segments] == [
+        "9.4.6 Bearing kit\nStandard pump procedure.",
+        "9.4.7 Valve kit\nC version procedure.",
+    ]
