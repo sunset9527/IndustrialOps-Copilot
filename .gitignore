@@ -1,0 +1,16 @@
+# Manufacturer source files and generated local artifacts are not redistributable.
+data/raw_archive/
+data/derived_corpus/
+data/structured/
+data/evaluation/
+data/packs/
+data/source_manifests/*.csv
+tmp/
+.download_chrome_profile/
+
+# Local environment
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.env
