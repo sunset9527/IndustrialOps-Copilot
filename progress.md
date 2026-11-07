@@ -27,3 +27,5 @@
 - 空页视觉审核完成：36 页均为纯白页或网页快照导航/页框残留，不含运维正文、表格、报警、步骤或可用图示；不需要 OCR，统一排除出正式文本索引。审核记录：`data/derived_corpus/pages/empty_page_visual_audit_v1.md`。
 - 当前进入章节/片段切分和设备白名单过滤。
 - 为后续中英双语处理补齐了页级 `language` 字段；已重新解析真实资料并确认状态为 completed（40/40、1332/1332），首条语料记录为 `zh-CN`。全量测试：11 通过。
+- 已生成 `data/derived_corpus/candidates/page_candidates_v1.jsonl`：1295 条有文本、非 `90_reference_only` 的可追溯页级候选。每条有稳定 ID、设备包、语言、文件哈希、页码与证据定位，并统一标为 `review_required`。
+- 下一步：把 VF-2 NGC 标准配置与 nXDS 标准型号的白名单规则应用到候选；未经明确适用性审核的内容仍不得检索或翻译入库。
