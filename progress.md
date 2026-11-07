@@ -34,3 +34,4 @@
 - 已建立来源级范围策略：两本跨机型 Haas 操作手册继续待审核；Edwards Documents、Haas 刀库目录和报警搜索帮助等纯目录/导航页排除。应用后：438 条 `provisionally_in_scope`、184 条 `mixed_scope_review`、670 条 `review_required`、3 条 `excluded`；全量测试：19 通过。正式检索仍未开启。
 - 已输出 `data/structured/scope_review_queue_v1.jsonl`：854 条适用性审核任务，184 条高优先级混合范围内容、670 条跨机型手册内容。任务按风险、来源和页码稳定排序，保留候选 ID 与来源页；全量测试：20 通过。
 - 发现目录/导航来源的排除优先级低于关键词筛选，已修正为目录来源无条件排除。重新生成后：438 条 `provisionally_in_scope`、181 条 `mixed_scope_review`、670 条 `review_required`、6 条 `excluded`；审核队列为 851 条。全量测试：20 通过。
+- 已增加非运维文档类型过滤：合规声明页无法支持诊断、维修或安全结论，统一以可追溯理由排除。重新生成后：438 条 `provisionally_in_scope`、179 条 `mixed_scope_review`、669 条 `review_required`、9 条 `excluded`；审核队列为 848 条。全量测试：22 通过。
