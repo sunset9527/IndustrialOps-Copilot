@@ -32,6 +32,7 @@ def extract_source_pages(
         relative_path = str(source["relative_path"])
         source_id = str(source["source_id"])
         source_hash = str(source["sha256"])
+        language = str(source["language"])
         source_path = root / relative_path
         actual_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
         if actual_hash != source_hash:
@@ -50,6 +51,7 @@ def extract_source_pages(
                     "source_id": source_id,
                     "source_file": relative_path,
                     "source_sha256": source_hash,
+                    "language": language,
                     "page_number": page_number,
                     "text": text,
                     "text_extraction_status": extraction_status,

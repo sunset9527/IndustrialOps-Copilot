@@ -35,6 +35,7 @@ def test_extract_source_pages_preserves_source_evidence_for_empty_page(tmp_path:
                 "relative_path": "cnc_haas_vf2_ngc/manual.pdf",
                 "source_id": "HAAS-TEST",
                 "sha256": source_hash,
+                "language": "zh-CN",
             }
         ],
     )
@@ -45,6 +46,7 @@ def test_extract_source_pages_preserves_source_evidence_for_empty_page(tmp_path:
             "source_id": "HAAS-TEST",
             "source_file": "cnc_haas_vf2_ngc/manual.pdf",
             "source_sha256": source_hash,
+            "language": "zh-CN",
             "page_number": 1,
             "text": "",
             "text_extraction_status": "empty",
@@ -67,6 +69,7 @@ def test_extract_source_pages_rejects_source_hash_drift(tmp_path: Path) -> None:
                     "relative_path": "cnc_haas_vf2_ngc/manual.pdf",
                     "source_id": "HAAS-TEST",
                     "sha256": "0" * 64,
+                    "language": "zh-CN",
                 }
             ],
         )
@@ -87,6 +90,7 @@ def test_extract_source_pages_reports_file_level_progress(tmp_path: Path) -> Non
                 "source_id": "HAAS-TEST",
                 "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
                 "pages": 1,
+                    "language": "zh-CN",
             }
         ],
         progress_events.append,
@@ -121,6 +125,7 @@ def test_module_cli_writes_page_corpus(tmp_path: Path) -> None:
                 "relative_path": "cnc_haas_vf2_ngc/manual.pdf",
                 "source_id": "HAAS-TEST",
                 "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+                "language": "zh-CN",
             }
         )
         + "\n",
