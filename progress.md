@@ -32,3 +32,4 @@
 - 已应用第一轮范围外术语屏蔽词。抽样发现“命中即整页排除”会错误丢弃含范围外交叉引用的通用资料，已修正为 `mixed_scope_review`：184 条进入混合范围细粒度审核，1111 条仍为 `review_required`，没有任何候选被自动放行或自动删除。
 - 混合范围页的 PDF 提取文本多为单换行而非空段落；段落切分器已改为在该模式按单换行边界组合。184 个候选已生成 443 个不跨页片段，134 个页面被有效拆分，输出 `data/derived_corpus/candidates/mixed_scope_segments_v1.jsonl`。全量测试：17 通过。
 - 已建立来源级范围策略：两本跨机型 Haas 操作手册继续待审核；Edwards Documents、Haas 刀库目录和报警搜索帮助等纯目录/导航页排除。应用后：438 条 `provisionally_in_scope`、184 条 `mixed_scope_review`、670 条 `review_required`、3 条 `excluded`；全量测试：19 通过。正式检索仍未开启。
+- 已输出 `data/structured/scope_review_queue_v1.jsonl`：854 条适用性审核任务，184 条高优先级混合范围内容、670 条跨机型手册内容。任务按风险、来源和页码稳定排序，保留候选 ID 与来源页；全量测试：20 通过。
