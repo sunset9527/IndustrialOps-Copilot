@@ -4,12 +4,16 @@ from __future__ import annotations
 
 
 def exclude_non_operational_records(records: list[dict[str, object]]) -> list[dict[str, object]]:
-    """Exclude conformity declarations while preserving all technical records."""
+    """Exclude non-operational document pages while preserving technical records."""
     filtered: list[dict[str, object]] = []
     for record in records:
         updated = dict(record)
-        if "declaration of conformity" in str(record["text"]).casefold():
+        text = str(record["text"]).casefold()
+        if "declaration of conformity" in text:
             updated["applicability"] = "excluded"
             updated["applicability_reasons"] = ["non_operational_document_type:conformity_declaration"]
+        elif text.startswith("contents\n") or text.startswith("contents "):
+            updated["applicability"] = "excluded"
+            updated["applicability_reasons"] = ["non_operational_document_type:table_of_contents"]
         filtered.append(updated)
     return filtered

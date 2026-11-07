@@ -30,3 +30,18 @@ def test_exclude_non_operational_records_keeps_maintenance_instruction() -> None
             "applicability": "mixed_scope_review",
         }
     ]
+
+
+def test_exclude_non_operational_records_excludes_table_of_contents() -> None:
+    records = [{"candidate_id": "c3", "text": "Contents\n4.1 SMTC Door Operation", "applicability": "mixed_scope_review"}]
+
+    result = exclude_non_operational_records(records)
+
+    assert result == [
+        {
+            "candidate_id": "c3",
+            "text": "Contents\n4.1 SMTC Door Operation",
+            "applicability": "excluded",
+            "applicability_reasons": ["non_operational_document_type:table_of_contents"],
+        }
+    ]
