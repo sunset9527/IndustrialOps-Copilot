@@ -39,3 +39,4 @@
 - 已增加版权出版说明页过滤：仅对以 `Copyright notice` 开头、且仅含版权与关联资料的页面排除，不以宽泛版权词匹配。重新生成后：434 条 `provisionally_in_scope`、177 条 `mixed_scope_review`、669 条 `review_required`、15 条 `excluded`；审核队列为 846 条。全量测试：24 通过。
 - 已增加仅范围外 nXDS 型号页过滤：页面列出的型号若全部是 C/R 变体，则排除；同时列出标准 `nXDS*i` 的页面仍保留审核。已排除 Tip Seal 手册中仅写 `nXDS15iR/nXDS20iR` 的 1 页。重新生成后：434 条 `provisionally_in_scope`、176 条 `mixed_scope_review`、669 条 `review_required`、16 条 `excluded`；审核队列为 845 条。全量测试：26 通过。
 - 审核队列现含 `source_file`、`evidence_locator`、500 字符正文预览和 `pending` 状态，可不重新定位 PDF 即逐项审核。发现 Edwards PDF 的 `Declaration of Conformity` 被提取为 `Con formity`，新增去空白识别后排除 3 个漏检合规页。重新生成后：434 条 `provisionally_in_scope`、173 条 `mixed_scope_review`、669 条 `review_required`、19 条 `excluded`；审核队列为 842 条。全量测试：27 通过。
+- 已基于最终筛选候选重新生成混合范围片段，输出 `data/derived_corpus/candidates/mixed_scope_segments_screened_v1.jsonl`：173 个混合页面对应 246 个同页片段，54 个页面被拆分。旧的 443 片段文件保留为筛选前派生产物，后续审核和入库只使用 `screened` 版本。
