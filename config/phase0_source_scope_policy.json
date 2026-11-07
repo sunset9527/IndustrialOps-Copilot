@@ -1,0 +1,11 @@
+{
+  "broad_review_source_ids": [
+    "HAAS-OP-EN-2025",
+    "HAAS-OP-ZH-2023"
+  ],
+  "catalog_source_ids": [
+    "EDW-NXDS-DOCUMENTS",
+    "HAAS-TOOL-CHANGER-TOC-ZH",
+    "HAAS-ALARM-HELP-EN"
+  ]
+}
