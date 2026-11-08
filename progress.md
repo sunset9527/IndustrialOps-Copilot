@@ -57,3 +57,5 @@
 - 已生成正式双语入库语料 `data/derived_corpus/bilingual/retrievable_bilingual_corpus_v1.jsonl`。1,340 条正式可检索记录中，564 条中文/多语言中文记录直接以原文作为 `text_zh`；776 条英文记录保留 `text` 与 `original_text`，并以 `machine_translated_project_zh` 标明离线生成的项目中文译文。
 - 已生成双语语料清单 `retrievable_bilingual_corpus_v1_manifest.json`：输入 SHA-256 为 `f1510e29a9ac8f9fa742c1a5524c1a1a8736ce56136be130e00ae4dd5897293f`，输出 SHA-256 为 `d3ab068f766179f9be8c691721df6c0a789c2359570b6e1825aa49479400bba7`。
 - 已逐条验证输入/输出记录数、稳定标识、原文、设备包、来源文件、来源哈希、页码和证据定位完全一致，并验证所有译文非空、中文原文未改写。全量测试：46 通过。
+- 已实现并执行结构化候选提取器。它只从正式双语语料的明确模式中发现候选，所有输出均为 `review_required`，并继承原语料的稳定标识、设备包、来源文件、SHA-256、页码、证据定位、中英证据文本；不生成新的维修步骤或诊断结论。
+- 首轮生成 `data/structured/candidates/`：1,949 条候选，其中告警 24、部件 439、症状 60、故障模式 260、维护 650、安全 516。两设备包分别为 CNC 1,722 条、干式真空泵 227 条；候选 ID 唯一，全部为待审核状态。全量测试：56 通过。
