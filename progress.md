@@ -42,3 +42,4 @@
 - 已基于最终筛选候选重新生成混合范围片段，输出 `data/derived_corpus/candidates/mixed_scope_segments_screened_v1.jsonl`：173 个混合页面对应 765 个同页片段，158 个页面被拆分。旧的 443 片段文件保留为筛选前派生产物，后续审核和入库只使用 `screened` 版本；筛选后片段与审核单元统一采用 500 字符上限及编号小节边界。
 - 发现 Edwards 服务页可能同时含标准型号和 C/R 变体专用套件，页面级“纳入/排除”会造成错误二选一。因此新增审核单元与决定台账：`data/structured/scope_review_units_v1.jsonl` 和 `scope_decision_ledger_v1.jsonl`。混合页按 500 字符、不跨页片段审核，跨机型 Haas 手册保持整页审核。又增加了“编号小节优先断开”：如 9.4.6/9.4.7 不再拼为同一审核单元。当前共 1,434 个待决单元（765 高优先级、669 常规）；全量测试：32 通过。
 - 已建立受版本控制的 `config/phase0_scope_decisions_v1.jsonl`，决定会同时生成已解析审核单元和台账，未决定单元保持 `pending`。首批依据官方正文完成 2 条：排除 Edwards nXDS 手册封面（仅标识/跨变体列表），纳入轴承套件小节（明确适用于 nXDS 泵且无 C/R 专属限制）。当前为 1 条纳入、1 条排除、1,432 条待决；全量测试：34 通过（使用唯一项目内临时目录，规避固定 pytest 临时目录权限锁）。
+- 已对 765 个混合范围片段重新执行术语与来源策略，而不是继承整页风险标记：66 个片段回到 `provisionally_in_scope`，224 个确实仍为 `mixed_scope_review`，475 个因来自跨机型 Haas 手册为 `review_required`。结果保存为 `data/derived_corpus/candidates/mixed_scope_segments_reclassified_v1.jsonl`，暂不覆盖现有审核队列；全量测试：36 通过。

@@ -61,3 +61,30 @@ def build_scope_review_units(
                 )
             )
     return units
+
+
+def build_scope_review_units_from_segments(
+    segments: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Turn only unresolved classified segments into review units."""
+    units: list[dict[str, object]] = []
+    for segment in segments:
+        applicability = segment["applicability"]
+        if applicability == "mixed_scope_review":
+            review_reason = "mixed_scope_requires_chunk_decision"
+            priority = "high"
+        elif applicability == "review_required":
+            review_reason = "broad_manual_requires_chunk_decision"
+            priority = "normal"
+        else:
+            continue
+        units.append(
+            _unit(
+                str(segment["chunk_id"]),
+                str(segment["parent_candidate_id"]),
+                segment,
+                review_reason,
+                priority,
+            )
+        )
+    return units

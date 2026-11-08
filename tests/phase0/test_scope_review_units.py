@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from industrialops.phase0.scope_review_units import build_scope_review_units
+from industrialops.phase0.scope_review_units import (
+    build_scope_review_units,
+    build_scope_review_units_from_segments,
+)
 
 
 def test_build_scope_review_units_uses_same_page_chunks_for_mixed_scope_content() -> None:
@@ -66,4 +69,48 @@ def test_build_scope_review_units_uses_same_page_chunks_for_mixed_scope_content(
             "review_reason": "broad_manual_requires_page_decision",
             "priority": "normal",
         },
+    ]
+
+
+def test_build_scope_review_units_from_segments_keeps_only_unresolved_chunks() -> None:
+    segments = [
+        {
+            "chunk_id": "mixed:01",
+            "parent_candidate_id": "mixed",
+            "source_id": "EDW-TEST",
+            "source_sha256": "a" * 64,
+            "source_file": "edwards/manual.pdf",
+            "page_number": 10,
+            "evidence_locator": "EDW-TEST:p.10",
+            "text": "C variant kit.",
+            "applicability": "mixed_scope_review",
+        },
+        {
+            "chunk_id": "mixed:02",
+            "parent_candidate_id": "mixed",
+            "source_id": "EDW-TEST",
+            "source_sha256": "a" * 64,
+            "source_file": "edwards/manual.pdf",
+            "page_number": 10,
+            "evidence_locator": "EDW-TEST:p.10",
+            "text": "Standard kit.",
+            "applicability": "provisionally_in_scope",
+        },
+    ]
+
+    units = build_scope_review_units_from_segments(segments)
+
+    assert units == [
+        {
+            "unit_id": "mixed:01",
+            "parent_candidate_id": "mixed",
+            "source_id": "EDW-TEST",
+            "source_sha256": "a" * 64,
+            "source_file": "edwards/manual.pdf",
+            "page_number": 10,
+            "evidence_locator": "EDW-TEST:p.10",
+            "text": "C variant kit.",
+            "review_reason": "mixed_scope_requires_chunk_decision",
+            "priority": "high",
+        }
     ]
