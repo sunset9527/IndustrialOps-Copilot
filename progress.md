@@ -15,6 +15,9 @@
 - 已新增 404 错误契约测试，先观察到 FastAPI 默认 `{"detail": "Not Found"}` 断言失败，再添加 HTTP 异常处理器，确保外部返回稳定的 `not_found` 结构而非框架默认细节。
 - 已新增 `api.app:app` ASGI 入口测试，首次因 `api` 包不存在而失败，新增标准入口后转绿。
 - 切片 2 组合回归：`tests/v01` 与 `tests/phase0` 共 79 项通过（2.11 秒）。下一步进入切片 3，先选择认证、审计与请求安全中没有非遗耦合的最小一项。
+- 切片 3 进行中。密码策略测试首次因 `industrialops.services` 不存在而失败；实现后 6 项通过。错误脱敏测试首次因模块缺失而失败；实现后 2 项通过，并验证数据库 URL、Bearer Token 与 Windows 路径不回显。
+- 请求体限制器测试首次因 `industrialops.middleware` 缺失而失败；实现后 3 项通过。应用接入测试首次因 `Settings` 缺少 `request_max_bytes` 而失败；新增明确的 `INDUSTRIALOPS_REQUEST_MAX_BYTES` 配置并接入 FastAPI 后，配置/健康/限制组合 10 项通过。
+- 切片 3 尚未实现用户数据模型、认证、授权或审计；当前状态必须保持 `in_progress`。下一步将先为最小的认证数据模型和审计事件写失败测试。
 
 ## 2026-11-07
 

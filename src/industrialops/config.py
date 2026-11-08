@@ -14,6 +14,7 @@ class Settings:
     frontend_port: int
     database_url: str
     redis_key_prefix: str
+    request_max_bytes: int
 
     @classmethod
     def from_environment(cls, environment: Mapping[str, str]) -> "Settings":
@@ -25,4 +26,5 @@ class Settings:
                 "mysql+pymysql://root:change-me@localhost:3306/industrialops",
             ),
             redis_key_prefix=environment.get("INDUSTRIALOPS_REDIS_KEY_PREFIX", "industrialops:"),
+            request_max_bytes=int(environment.get("INDUSTRIALOPS_REQUEST_MAX_BYTES", "26214400")),
         )

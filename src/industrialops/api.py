@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from industrialops.app_metadata import PRODUCT_NAME
 from industrialops.config import Settings
+from industrialops.middleware.request_size import RequestBodyLimitMiddleware
 
 
 def create_app(settings: Settings) -> FastAPI:
@@ -15,6 +16,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     app = FastAPI(title=PRODUCT_NAME)
     app.state.settings = settings
+    app.add_middleware(RequestBodyLimitMiddleware, max_bytes=settings.request_max_bytes)
 
     @app.exception_handler(StarletteHTTPException)
     def handle_http_exception(_, exception: StarletteHTTPException) -> JSONResponse:

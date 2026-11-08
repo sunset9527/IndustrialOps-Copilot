@@ -34,3 +34,21 @@ def test_unknown_route_uses_a_stable_non_leaking_error_contract() -> None:
     assert response.json() == {
         "error": {"code": "not_found", "message": "Resource not found"}
     }
+
+
+def test_application_rejects_oversized_requests_before_route_handling() -> None:
+    settings = Settings(
+        api_port=8100,
+        frontend_port=5174,
+        database_url="sqlite:///./test.db",
+        redis_key_prefix="industrialops:",
+        request_max_bytes=10,
+    )
+    client = TestClient(create_app(settings))
+
+    response = client.post("/health", content=b"12345678901")
+
+    assert response.status_code == 413
+    assert response.json() == {
+        "error": {"code": "request_too_large", "message": "Request body exceeds the server limit"}
+    }

@@ -49,3 +49,5 @@
 - 当前 pytest 的默认项目基目录 `tmp/pytest-run` 有删除权限问题；对新切片应继续使用 `E:\python` 下专用且独立的 `--basetemp` 目录，避免把环境权限错误误判为测试失败。
 - FastAPI 与其 `TestClient` 已在当前 Python 环境可用。v0.1 的最小应用可通过 `api.app:app` 加载，但当前 `pyproject.toml` 还未声明应用依赖；依赖声明和 Docker 安装验证按计划留到切片 8，不能因此提前声称“可独立安装”。
 - FastAPI 默认 404 响应为 `{"detail": "Not Found"}`；v0.1 已在应用工厂中转为稳定的 `{"error": {"code": "not_found", "message": "Resource not found"}}`，使后续前端可依赖统一错误契约。
+- HeritageMind 的密码策略、错误脱敏和 ASGI 请求大小限制没有非遗领域依赖，可作为 v0.1 的通用安全基础选择性迁移；IndustrialOps 统一采用英文公开错误文本与既有 `error` 信封，避免混用母体中文 `detail` 响应。
+- 请求限制器必须同时验证声明的 `Content-Length` 与分块请求的累计字节数；只检查请求头会允许 chunked body 绕过上限。应用配置以 `INDUSTRIALOPS_REQUEST_MAX_BYTES` 显式控制该限制。
