@@ -18,7 +18,7 @@
 4. `[complete]` 定义设备/型号/选件白名单并生成正式可检索候选。最终台账 `scope_decision_ledger_final_v1.jsonl` 覆盖 1,078 个需决单元：831 条纳入、27 条排除、220 条因官方文本仍存在范围歧义而标记 `not_retrievable`，待决为 0。另有 434 条经专用来源策略纳入；最终可检索单元 `retrievable_scope_units_v1.jsonl` 为 1,340 条，均带设备包、语言、原文件、SHA-256 和页码证据。v1/v2/v3 中间台账保留用于审计。
 5. `[complete]` 已生成 `retrievable_bilingual_corpus_v1.jsonl`：1,340 条正式可检索语料，其中 564 条直接保留中文原文、776 条保留完整英文原文并附离线生成的项目中文译文。每条仍保留设备包、原文件、SHA-256、页码和证据定位；清单 `retrievable_bilingual_corpus_v1_manifest.json` 已校验输入/输出哈希与逐条来源一致性。
 6. `[complete]` 已按候选优先方案生成并完成保守自动审核。1,949 条候选中，1,362 条具备明确标签、完整证据且未触发范围/安全阻断，写入 `structured_candidates_auto_reviewed_v1.jsonl` 并标为 `auto_reviewed_include`；586 条范围或安全条件不充分而保持 `not_retrievable`，1 条导航内容排除。所有决定均在 `structured_candidate_decision_ledger_v1.jsonl` 中可追溯；自动审核不等同于制造商认证或现场安全许可。
-7. `[pending]` 建立与语料分离的检索、回答、安全、兼容性、跨设备隔离评测集。
+7. `[complete]` 已建立与语料分离的评测集和确定性校验器：6 条场景检索题、5 条安全/兼容性/跨设备规则题。校验器验证题目字段、评测题干与索引原文不完全重复、检索来源/页码允许集、跨设备隔离和安全升级标记；未执行真实检索/回答系统，故未生成或宣称任何虚假能力指标。
 8. `[pending]` 执行覆盖矩阵验收、内容哈希与只读冻结，输出 `cnc_pack_v1.0.0` 与 `dry_vacuum_pump_pack_v1.0.0`。
 
 ## 首批可验证切片
