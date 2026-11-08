@@ -45,3 +45,5 @@
 - HeritageMind 的图谱相关代码主要在 `src/graph/`、`src/agents/graph_agent.py` 及关联服务；v0.1 运行时不得迁入，并应删除仅服务于图谱的 `networkx` 和 `pyvis` 依赖。
 - HeritageMind 有大量 craft/heritage 领域模块；通用测试必须按行为重新选择，不能机械复制母体的完整测试目录。
 - 当前 IndustrialOps 未跟踪 `scripts/` 为阶段 0 下载工具。其在 v0.1 中不得被自动暂存或覆盖，先完成敏感信息、版权和版本边界审查。
+- v0.1 切片 1 的运行时耦合扫描范围应限制在 `src/` 和 `api/`：迁移说明文档可以合法提及 HeritageMind，不能因此被当成运行时依赖。扫描器排除 `__pycache__` 与字节码文件。
+- 当前 pytest 的默认项目基目录 `tmp/pytest-run` 有删除权限问题；对新切片应继续使用 `E:\python` 下专用且独立的 `--basetemp` 目录，避免把环境权限错误误判为测试失败。

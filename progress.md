@@ -7,6 +7,10 @@
 - v0.1 设计规格已完成自检、经用户确认并提交为 `cf90953 docs: design v0.1 HeritageMind derivation`。
 - 当前环境没有 `writing-plans` 技能；遵守既有设计门禁，使用项目内持久实施计划作为替代：`docs/superpowers/plans/2026-11-08-v0.1-heritagemind-derivation-plan.md`。
 - 下一步：执行切片 1。先编写迁移台账/独立性护栏的失败测试，确认其因实现缺失而失败，再写最小实现。不得在测试前复制任何生产模块。
+- 切片 1 已完成 TDD：先新增 `tests/v01/test_migration_audit.py`，首次运行因 `industrialops.migration_audit` 尚不存在而以 `ModuleNotFoundError` 失败；随后新增只读台账加载器、运行时残留扫描器与 JSON 台账，替代实现后 4 项测试通过。
+- 首次绿色验证受项目已有 `tmp/pytest-run` 删除权限阻断：3 项通过、1 项 setup 错误，错误为 `WinError 5`。改用 `E:\python\industrialops_v01_pytest_tmp` 作为独立 pytest 基目录后，新测试 4 项全绿；未重复同一失败命令。
+- 已运行阶段 0 全量回归，结果为 68 通过（1.93 秒），冻结包及阶段 0 工具未受影响。
+- 下一步：切片 2。为产品元数据、IndustrialOps 配置和健康/就绪接口先编写失败测试，再迁移最小应用骨架。
 
 ## 2026-11-07
 

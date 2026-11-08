@@ -1,0 +1,15 @@
+{
+  "source_repository": "https://github.com/sunset9527/HeritageMind",
+  "source_commit": "1edc5c4",
+  "strategy": "selective_migration",
+  "migrated_capabilities": [],
+  "excluded_runtime_capabilities": [
+    "knowledge_graph",
+    "graph_agent",
+    "heritage_domain_features"
+  ],
+  "notes": [
+    "The v0.1 migration baseline is fixed before any production modules are copied.",
+    "Each migrated capability must be recorded here before it is declared available."
+  ]
+}
