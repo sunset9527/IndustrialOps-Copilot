@@ -1,0 +1,6 @@
+{
+  "decision": "not_retrievable",
+  "decision_rationale": "explicit excluded-option or out-of-scope-model ambiguity remains after official-text screening; withheld from retrieval rather than inferring standard-configuration applicability",
+  "reviewed_by": "phase0_scope_holdback_policy",
+  "reviewed_at": "2026-11-08"
+}

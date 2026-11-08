@@ -1,0 +1,23 @@
+{
+  "HAAS-OP-EN-2025": [
+    "UMC",
+    "EC-",
+    "GM-",
+    "VR-",
+    "ST-",
+    "Lathe",
+    "horizontal mill",
+    "VM-"
+  ],
+  "HAAS-OP-ZH-2023": [
+    "UMC",
+    "EC-",
+    "GM-",
+    "VR-",
+    "ST-",
+    "车床",
+    "卧式",
+    "旋转轴",
+    "VM-"
+  ]
+}

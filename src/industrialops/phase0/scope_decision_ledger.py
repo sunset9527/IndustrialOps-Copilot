@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 
+_FINAL_DECISIONS = {"include", "exclude", "not_retrievable"}
+
+
 def _scope_record_id(record: dict[str, object]) -> str:
     """Return the page identity or the more precise chunk identity."""
     identifier = record.get("unit_id") or record.get("candidate_id")
@@ -48,7 +51,7 @@ def apply_scope_decisions(
     decision_by_record = {
         _scope_record_id(decision): decision
         for decision in decisions
-        if decision.get("decision") in {"include", "exclude"}
+        if decision.get("decision") in _FINAL_DECISIONS
     }
     applied: list[dict[str, object]] = []
     for record in records:
@@ -56,9 +59,12 @@ def apply_scope_decisions(
         decision = decision_by_record.get(_scope_record_id(record))
         if decision is not None:
             rationale = str(decision["decision_rationale"])
-            updated["applicability"] = (
-                "approved_in_scope" if decision["decision"] == "include" else "excluded"
-            )
+            applicability_by_decision = {
+                "include": "approved_in_scope",
+                "exclude": "excluded",
+                "not_retrievable": "not_retrievable",
+            }
+            updated["applicability"] = applicability_by_decision[str(decision["decision"])]
             updated["applicability_reasons"] = [f"scope_decision:{rationale}"]
         applied.append(updated)
     return applied
@@ -72,7 +78,7 @@ def merge_scope_decisions_into_ledger(
     decision_by_record = {
         _scope_record_id(decision): decision
         for decision in decisions
-        if decision.get("decision") in {"include", "exclude"}
+        if decision.get("decision") in _FINAL_DECISIONS
     }
     merged: list[dict[str, object]] = []
     for entry in ledger:

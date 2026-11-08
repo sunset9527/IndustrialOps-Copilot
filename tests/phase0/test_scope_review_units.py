@@ -114,3 +114,25 @@ def test_build_scope_review_units_from_segments_keeps_only_unresolved_chunks() -
             "priority": "high",
         }
     ]
+
+
+def test_build_scope_review_units_preserves_pack_and_language_metadata() -> None:
+    records = [
+        {
+            "candidate_id": "broad-page",
+            "source_id": "HAAS-OP-EN-2025",
+            "source_sha256": "f" * 64,
+            "source_file": "haas/manual.pdf",
+            "page_number": 8,
+            "evidence_locator": "HAAS-OP-EN-2025:p.8",
+            "text": "General operation instructions.",
+            "applicability": "review_required",
+            "pack_id": "cnc_pack_v1.0.0",
+            "language": "en",
+        }
+    ]
+
+    units = build_scope_review_units(records, max_characters=500)
+
+    assert units[0]["pack_id"] == "cnc_pack_v1.0.0"
+    assert units[0]["language"] == "en"

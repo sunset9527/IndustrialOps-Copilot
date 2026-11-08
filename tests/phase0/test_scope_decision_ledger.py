@@ -175,3 +175,27 @@ def test_merge_scope_decisions_into_ledger_records_a_reviewed_decision() -> None
             "reviewed_at": "2026-11-08",
         }
     ]
+
+
+def test_apply_scope_decisions_marks_unresolved_scope_content_not_retrievable() -> None:
+    records = [{"unit_id": "ambiguous", "text": "Shared standard and option content."}]
+    decisions = [
+        {
+            "unit_id": "ambiguous",
+            "decision": "not_retrievable",
+            "decision_rationale": "scope ambiguity remains after source review",
+        }
+    ]
+
+    result = apply_scope_decisions(records, decisions)
+
+    assert result == [
+        {
+            "unit_id": "ambiguous",
+            "text": "Shared standard and option content.",
+            "applicability": "not_retrievable",
+            "applicability_reasons": [
+                "scope_decision:scope ambiguity remains after source review"
+            ],
+        }
+    ]

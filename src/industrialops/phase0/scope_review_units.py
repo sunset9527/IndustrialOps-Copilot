@@ -14,6 +14,8 @@ _EVIDENCE_FIELDS = (
     "text",
 )
 
+_OPTIONAL_EVIDENCE_FIELDS = ("pack_id", "language")
+
 
 def _unit(
     unit_id: str,
@@ -26,6 +28,7 @@ def _unit(
         "unit_id": unit_id,
         "parent_candidate_id": parent_candidate_id,
         **{field: record[field] for field in _EVIDENCE_FIELDS},
+        **{field: record[field] for field in _OPTIONAL_EVIDENCE_FIELDS if field in record},
         "review_reason": review_reason,
         "priority": priority,
     }
