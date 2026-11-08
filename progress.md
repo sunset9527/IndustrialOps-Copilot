@@ -18,6 +18,10 @@
 - 切片 3 进行中。密码策略测试首次因 `industrialops.services` 不存在而失败；实现后 6 项通过。错误脱敏测试首次因模块缺失而失败；实现后 2 项通过，并验证数据库 URL、Bearer Token 与 Windows 路径不回显。
 - 请求体限制器测试首次因 `industrialops.middleware` 缺失而失败；实现后 3 项通过。应用接入测试首次因 `Settings` 缺少 `request_max_bytes` 而失败；新增明确的 `INDUSTRIALOPS_REQUEST_MAX_BYTES` 配置并接入 FastAPI 后，配置/健康/限制组合 10 项通过。
 - 切片 3 尚未实现用户数据模型、认证、授权或审计；当前状态必须保持 `in_progress`。下一步将先为最小的认证数据模型和审计事件写失败测试。
+- 认证数据模型测试首次因 `industrialops.database` 缺失而失败；新增通用 `Base`、`User` 与认证服务后 3 项通过，覆盖密码散列、成功认证、通用失败信息和重复用户名。
+- 审计事件测试首次因 `industrialops.models.audit` 缺失而失败；新增 `AuditEvent` 和事务内记录服务后通过。权限判断测试首次因服务缺失而失败；新增最小角色检查后 2 项通过。
+- 切片 3 完成回归：`tests/v01` 与 `tests/phase0` 共 97 项通过（3.49 秒）。测试数据库为 SQLite 内存库，未对本机 MySQL 执行建表、迁移或写入。
+- 下一步：切片 4，先为路径安全与受限文档上传写失败测试；上传不能写入冻结包或触发自动索引。
 
 ## 2026-11-07
 
