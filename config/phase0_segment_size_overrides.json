@@ -1,0 +1,7 @@
+{
+  "default_max_characters": 500,
+  "max_characters_by_source": {
+    "HAAS-40T-MOTOR-ZH": 250,
+    "HAAS-40T-SPINDLE-ZH": 250
+  }
+}

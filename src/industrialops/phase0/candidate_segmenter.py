@@ -57,3 +57,17 @@ def segment_candidate(candidate: dict[str, object], max_characters: int) -> list
         }
         for index, text in enumerate(groups, start=1)
     ]
+
+
+def segment_candidates_with_size_overrides(
+    candidates: list[dict[str, object]],
+    default_max_characters: int,
+    max_characters_by_source: dict[str, int],
+) -> list[dict[str, object]]:
+    """Segment candidates with explicit source-specific limits where evidence needs it."""
+    segments: list[dict[str, object]] = []
+    for candidate in candidates:
+        source_id = str(candidate["source_id"])
+        limit = max_characters_by_source.get(source_id, default_max_characters)
+        segments.extend(segment_candidate(candidate, limit))
+    return segments

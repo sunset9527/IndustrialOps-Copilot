@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from industrialops.phase0.candidate_segmenter import segment_candidate
+from industrialops.phase0.candidate_segmenter import (
+    segment_candidate,
+    segment_candidates_with_size_overrides,
+)
 
 
 def test_segment_candidate_groups_paragraphs_without_losing_evidence() -> None:
@@ -74,4 +77,39 @@ def test_segment_candidate_starts_a_new_group_at_numbered_manual_section() -> No
     assert [segment["text"] for segment in segments] == [
         "9.4.6 Bearing kit\nStandard pump procedure.",
         "9.4.7 Valve kit\nC version procedure.",
+    ]
+
+
+def test_segment_candidates_with_size_overrides_uses_source_specific_limit() -> None:
+    candidates = [
+        {
+            "candidate_id": "small",
+            "source_id": "HAAS-40T-MOTOR-ZH",
+            "source_sha256": "d" * 64,
+            "page_number": 1,
+            "evidence_locator": "HAAS-40T-MOTOR-ZH:p.1",
+            "text": "one\ntwo\nthree",
+            "applicability": "mixed_scope_review",
+        },
+        {
+            "candidate_id": "default",
+            "source_id": "HAAS-OTHER",
+            "source_sha256": "e" * 64,
+            "page_number": 1,
+            "evidence_locator": "HAAS-OTHER:p.1",
+            "text": "one\ntwo\nthree",
+            "applicability": "mixed_scope_review",
+        },
+    ]
+
+    segments = segment_candidates_with_size_overrides(
+        candidates,
+        default_max_characters=20,
+        max_characters_by_source={"HAAS-40T-MOTOR-ZH": 7},
+    )
+
+    assert [segment["chunk_id"] for segment in segments] == [
+        "small:01",
+        "small:02",
+        "default:01",
     ]
