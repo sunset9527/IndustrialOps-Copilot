@@ -62,6 +62,21 @@ def test_exclude_non_operational_records_excludes_table_of_contents() -> None:
     ]
 
 
+def test_exclude_non_operational_records_excludes_dot_leader_contents_entry() -> None:
+    records = [{"candidate_id": "c5", "text": "4.76 SMTC Recovery .  .  .  .  .  .  .  .  .  170", "applicability": "mixed_scope_review"}]
+
+    result = exclude_non_operational_records(records)
+
+    assert result == [
+        {
+            "candidate_id": "c5",
+            "text": "4.76 SMTC Recovery .  .  .  .  .  .  .  .  .  170",
+            "applicability": "excluded",
+            "applicability_reasons": ["non_operational_document_type:table_of_contents"],
+        }
+    ]
+
+
 def test_exclude_non_operational_records_excludes_copyright_notice() -> None:
     records = [{"candidate_id": "c4", "text": "Copyright notice\nAssociated publications", "applicability": "review_required"}]
 
