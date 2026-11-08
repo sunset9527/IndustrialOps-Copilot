@@ -22,6 +22,8 @@
 - 审计事件测试首次因 `industrialops.models.audit` 缺失而失败；新增 `AuditEvent` 和事务内记录服务后通过。权限判断测试首次因服务缺失而失败；新增最小角色检查后 2 项通过。
 - 切片 3 完成回归：`tests/v01` 与 `tests/phase0` 共 97 项通过（3.49 秒）。测试数据库为 SQLite 内存库，未对本机 MySQL 执行建表、迁移或写入。
 - 下一步：切片 4，先为路径安全与受限文档上传写失败测试；上传不能写入冻结包或触发自动索引。
+- 切片 4 进行中。上传安全测试首次因 `industrialops.services.upload_security` 不存在而失败；实现后 5 项通过，覆盖允许 PDF/DOCX/TXT、拒绝路径穿越/嵌套路径/可执行扩展名，以及拒绝将上传根目录设置到 `data/packs` 等保护目录。
+- 切片 4 回归：`tests/v01` 与 `tests/phase0` 共 102 项通过（3.93 秒）。上传服务尚未暴露 API，尚未实现解析、任务状态或 worker，因此切片保持 `in_progress`。
 
 ## 2026-11-07
 
