@@ -11,6 +11,10 @@
 - 首次绿色验证受项目已有 `tmp/pytest-run` 删除权限阻断：3 项通过、1 项 setup 错误，错误为 `WinError 5`。改用 `E:\python\industrialops_v01_pytest_tmp` 作为独立 pytest 基目录后，新测试 4 项全绿；未重复同一失败命令。
 - 已运行阶段 0 全量回归，结果为 68 通过（1.93 秒），冻结包及阶段 0 工具未受影响。
 - 下一步：切片 2。为产品元数据、IndustrialOps 配置和健康/就绪接口先编写失败测试，再迁移最小应用骨架。
+- 切片 2 已完成 TDD：产品元数据与配置测试首次因 `industrialops.app_metadata` 缺失而失败，新增无外部依赖的 `Settings` 后 3 项通过；健康接口测试首次因 `industrialops.api` 缺失而失败，新增最小 FastAPI 应用工厂后 2 项通过。
+- 已新增 404 错误契约测试，先观察到 FastAPI 默认 `{"detail": "Not Found"}` 断言失败，再添加 HTTP 异常处理器，确保外部返回稳定的 `not_found` 结构而非框架默认细节。
+- 已新增 `api.app:app` ASGI 入口测试，首次因 `api` 包不存在而失败，新增标准入口后转绿。
+- 切片 2 组合回归：`tests/v01` 与 `tests/phase0` 共 79 项通过（2.11 秒）。下一步进入切片 3，先选择认证、审计与请求安全中没有非遗耦合的最小一项。
 
 ## 2026-11-07
 

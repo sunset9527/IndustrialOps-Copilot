@@ -23,7 +23,7 @@
 9. `[complete]` 用户确认 v0.1 采用方案 A：保留 IndustrialOps 阶段 0 Git 历史，依据 HeritageMind 已提交且已同步的 `1edc5c4` 选择性迁移通用能力；不整仓覆盖。
 10. `[complete]` v0.1 设计规格已自检并提交为 `cf90953`；详细实现计划位于 `docs/superpowers/plans/2026-11-08-v0.1-heritagemind-derivation-plan.md`。
 11. `[complete]` v0.1 切片 1：迁移台账与独立性护栏（测试先行）。已新增固定母体提交、选择性迁移策略、明确排除范围的 JSON 台账；运行时扫描器仅检查 `src/` 与 `api/`，避免把文档历史说明误判为运行时耦合。新测试 4 项与阶段 0 回归 68 项均通过。
-12. `[pending]` v0.1 切片 2：应用配置与安全骨架（测试先行）。
+12. `[complete]` v0.1 切片 2：应用配置与安全骨架（测试先行）。已建立仅接受 `INDUSTRIALOPS_*` 的产品配置、标准 `api.app:app` ASGI 入口、`/health`、`/ready` 和统一 404 错误响应。v0.1 + 阶段 0 回归共 79 项通过。
 13. `[pending]` v0.1 切片 3-8：通用能力、前端和部署的选择性迁移（每一切片单独测试先行）。
 14. `[pending]` v0.1 切片 9：全量验收、残留扫描、README 真实性检查和提交。
 
