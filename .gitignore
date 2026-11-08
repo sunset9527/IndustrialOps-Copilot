@@ -4,6 +4,7 @@ data/derived_corpus/
 data/structured/
 data/evaluation/
 data/packs/
+data/models/
 data/source_manifests/*.csv
 tmp/
 .download_chrome_profile/
