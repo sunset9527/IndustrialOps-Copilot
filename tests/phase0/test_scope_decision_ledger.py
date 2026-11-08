@@ -3,6 +3,7 @@ from __future__ import annotations
 from industrialops.phase0.scope_decision_ledger import (
     apply_scope_decisions,
     build_pending_scope_decision_ledger,
+    merge_scope_decisions_into_ledger,
 )
 
 
@@ -99,3 +100,78 @@ def test_build_pending_scope_decision_ledger_uses_chunk_unit_identity() -> None:
     assert ledger[0]["parent_candidate_id"] == "mixed-page"
     assert ledger[0]["candidate_id"] == "mixed-page"
     assert ledger[0]["text_preview"] == "C version valve kit."
+
+
+def test_apply_scope_decisions_uses_chunk_unit_identity() -> None:
+    units = [
+        {
+            "unit_id": "mixed-page:01",
+            "parent_candidate_id": "mixed-page",
+            "text": "Standard bearing kit.",
+        },
+        {
+            "unit_id": "mixed-page:02",
+            "parent_candidate_id": "mixed-page",
+            "text": "C version valve kit.",
+        },
+    ]
+    decisions = [
+        {
+            "unit_id": "mixed-page:01",
+            "decision": "include",
+            "decision_rationale": "explicitly applies to standard nXDS pumps",
+        }
+    ]
+
+    result = apply_scope_decisions(units, decisions)
+
+    assert result == [
+        {
+            "unit_id": "mixed-page:01",
+            "parent_candidate_id": "mixed-page",
+            "text": "Standard bearing kit.",
+            "applicability": "approved_in_scope",
+            "applicability_reasons": [
+                "scope_decision:explicitly applies to standard nXDS pumps"
+            ],
+        },
+        {
+            "unit_id": "mixed-page:02",
+            "parent_candidate_id": "mixed-page",
+            "text": "C version valve kit.",
+        },
+    ]
+
+
+def test_merge_scope_decisions_into_ledger_records_a_reviewed_decision() -> None:
+    ledger = [
+        {
+            "decision_id": "scope-decision:mixed-page:01",
+            "unit_id": "mixed-page:01",
+            "decision": "pending",
+            "decision_rationale": None,
+            "reviewed_by": None,
+        }
+    ]
+    decisions = [
+        {
+            "unit_id": "mixed-page:01",
+            "decision": "include",
+            "decision_rationale": "applies to the standard configuration",
+            "reviewed_by": "phase0_scope_review",
+            "reviewed_at": "2026-11-08",
+        }
+    ]
+
+    result = merge_scope_decisions_into_ledger(ledger, decisions)
+
+    assert result == [
+        {
+            "decision_id": "scope-decision:mixed-page:01",
+            "unit_id": "mixed-page:01",
+            "decision": "include",
+            "decision_rationale": "applies to the standard configuration",
+            "reviewed_by": "phase0_scope_review",
+            "reviewed_at": "2026-11-08",
+        }
+    ]

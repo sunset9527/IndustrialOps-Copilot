@@ -1,0 +1,2 @@
+{"decision":"exclude","decision_rationale":"manual cover contains document identification and a cross-variant product list, not operational evidence","reviewed_at":"2026-11-08","reviewed_by":"phase0_scope_review","unit_id":"92210b72bd840ce214cd62fe:01"}
+{"decision":"include","decision_rationale":"bearing-kit service statement explicitly applies to nXDS pumps and has no C/R-only condition","reviewed_at":"2026-11-08","reviewed_by":"phase0_scope_review","unit_id":"fb060700a4e03ed09a32336f:01"}
