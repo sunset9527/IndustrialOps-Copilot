@@ -1,5 +1,13 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-08（v0.1 规划）
+
+- 已复核 HeritageMind：工作区干净，`main` 与 `origin/main` 同步，迁移基线固定为 `1edc5c4 feat(stage1): harden API security and resilience`。
+- 用户已确认 v0.1 方案 A：保持 IndustrialOps 现有阶段 0 Git 历史，以选择性迁移替代整仓复制；不覆盖冻结包和现有未跟踪下载脚本。
+- v0.1 设计规格已完成自检、经用户确认并提交为 `cf90953 docs: design v0.1 HeritageMind derivation`。
+- 当前环境没有 `writing-plans` 技能；遵守既有设计门禁，使用项目内持久实施计划作为替代：`docs/superpowers/plans/2026-11-08-v0.1-heritagemind-derivation-plan.md`。
+- 下一步：执行切片 1。先编写迁移台账/独立性护栏的失败测试，确认其因实现缺失而失败，再写最小实现。不得在测试前复制任何生产模块。
+
 ## 2026-11-07
 
 - 用户确认阶段 0 设计，授权开始实施。
