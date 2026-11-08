@@ -45,3 +45,4 @@
 - 已对 765 个混合范围片段重新执行术语与来源策略，而不是继承整页风险标记：66 个片段回到 `provisionally_in_scope`，224 个确实仍为 `mixed_scope_review`，475 个因来自跨机型 Haas 手册为 `review_required`。结果保存为 `data/derived_corpus/candidates/mixed_scope_segments_reclassified_v1.jsonl`，暂不覆盖现有审核队列；全量测试：36 通过。
 - 已将片段级复筛接入第二版审核产物，保留 v1 原状以供追溯。`scope_review_units_v2.jsonl` 仅含未决单元：223 高优先级、1,144 常规，共 1,367 条；`scope_decision_ledger_v2.jsonl` 另含已有的 1 条纳入和 1 条排除决定。全量测试：36 通过。
 - 已完成 Edwards 首批高风险片段审核：排除两段纯产品/订货目录；纳入 Edwards 干泵通用泄漏检测与轴封安全说明（`gearbox` 是泵安全上下文，不是 Haas 选件）。标准/R/C 共用排气阀套件表仍待细分，不作猜测性结论。v2 更新为 220 高优先级、1,144 常规、共 1,364 待决；已有 2 条纳入、3 条排除。全量测试：36 通过。
+- 已完成 Haas 首批明确范围外片段审核：排除 VF-2 销售选项包、目录行、SMTC 双臂/轨道刀库和 HSK 专用说明共 6 条。通用 40T 紧固件扭矩和拉杆力内容即使交叉提到 SMTC、50T 或 HSK，仍未排除。v2 更新为 214 高优先级、1,144 常规、共 1,358 待决；已有 2 条纳入、9 条排除。全量测试：36 通过。
