@@ -2,6 +2,9 @@
 
 ## 2026-11-09（v0.1 切片 8–9）
 
+- 发布验收补验完成：用户的新虚拟环境通过标准 `pip install .` 安装项目，并以其 Python 成功创建应用、输出 `IndustrialOps Copilot`。
+- Docker Desktop 启动后，`industrialops-api` 镜像构建成功；容器持续运行且状态为 `healthy`。宿主机直接请求 `/health` 得到 `{"status":"ok","product":"IndustrialOps Copilot"}`，`/ready` 得到 `{"status":"ready","dependencies":[]}`。v0.1 升级为 `v0.1_release_verified`。
+
 - 新增 8 项交付测试。首次运行有 7 项因元数据未更新、交付文件缺失或迁移台账为空而失败，残留扫描已有基线通过。补齐交付后，`python -m pytest -o addopts='' -p no:cacheprovider tests/phase0 tests/v01 --basetemp <项目内独立目录>` 共 138 项通过，其中阶段 0 为 68 项。
 - 在前端已有锁定依赖的环境运行 `npm.cmd test` 和 `npm.cmd run build`，8 项测试及生产构建通过。已核对构建产物含默认 API 地址 `http://localhost:8100`。Python、配置、前端源码和构建产物的旧领域残留扫描通过。离线迁移审计模块只保留来源基线与台账路径。
 - 通过本机 Compose v5.1.4 运行 `docker compose config`。解析结果为 `industrialops-api`，绑定 `127.0.0.1:8100`，没有数据卷。通过临时 Docker CLI 配置指定已安装的 Compose 插件路径。`docker info` 无法连接 `//./pipe/docker_engine`，未执行镜像构建或容器启动。
