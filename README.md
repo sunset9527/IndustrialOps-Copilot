@@ -75,6 +75,17 @@ Pop-Location
 
 阶段 0 的厂商及监管资料快照、派生语料与译文、结构化候选、评测集、冻结知识包和本地模型权重仅供本地使用，资料发布级别为 `local_evidence_only`。不要将这些内容打包进镜像或重新分发。仓库保留处理工具及来源审核元数据，自动化测试使用小型测试样例。
 
+## v0.2（实施中）
+
+已实现冻结知识包加载与完整性校验：两个包通过独立清单、来源、记录数和内容哈希验证后加载；外部注册表提供型号、控制器、文档修订与别名元数据。设备包过滤、告警精确检索、真实本地模型基线与完整工业检索闭环仍在实施和验证中，不能据此宣称工业诊断已经完成。
+
+本机已有模型和可选依赖后，可运行下面命令生成不覆盖旧结果的离线基线报告。该命令仅接受本地模型；模型加载失败即失败，不会输出降级指标。
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install '.[local-models]'
+.\.venv\Scripts\python.exe -m industrialops.evaluation.run_v02_baseline --output data/evaluation/reports/v02-baseline-<timestamp>.json
+```
+
 ## 当前边界
 
 登录、上传和检索的 HTTP 接口尚待接入。浏览器跨域 API 调用、MySQL 实库与 Redis 服务尚待验证。设备包加载、工业诊断和工单属于后续阶段。检索测试使用小型样例，没有真实模型评测或工业场景指标。
