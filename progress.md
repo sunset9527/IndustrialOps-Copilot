@@ -1,5 +1,10 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-09（v0.1 切片 6）
+
+- 工作流骨架新增 4 项测试，首次运行因工作流模块缺失而失败，补齐实现后全部通过。调用 `build_workflow().invoke(request)` 返回 v0.1 能力边界，并记录关联请求 ID 的事件。节点异常复用统一安全错误格式。
+- `tests/v01` 与 `tests/phase0` 全量回归共 130 项通过。工作流使用 Python 标准库构建，尚未接入 HTTP API。
+
 ## 2026-11-08（v0.1 规划）
 
 - 已复核 HeritageMind：工作区干净，`main` 与 `origin/main` 同步，迁移基线固定为 `1edc5c4 feat(stage1): harden API security and resilience`。
