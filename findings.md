@@ -52,3 +52,4 @@
 - HeritageMind 的密码策略、错误脱敏和 ASGI 请求大小限制没有非遗领域依赖，可作为 v0.1 的通用安全基础选择性迁移；IndustrialOps 统一采用英文公开错误文本与既有 `error` 信封，避免混用母体中文 `detail` 响应。
 - 请求限制器必须同时验证声明的 `Content-Length` 与分块请求的累计字节数；只检查请求头会允许 chunked body 绕过上限。应用配置以 `INDUSTRIALOPS_REQUEST_MAX_BYTES` 显式控制该限制。
 - 上传服务与阶段 0 数据必须单向隔离：上传根目录不能位于 `data/packs`、`data/raw_archive`、`data/derived_corpus` 或 `data/structured`。这能防止上传逻辑意外覆盖冻结知识包、原始证据或派生审核产物。
+- v0.1 文档解析仅处理上传文件的文本抽取：TXT 为 UTF-8、PDF 保留页数、DOCX 提取非空段落。解析结果尚未进入检索或知识包，避免在 v0.2 前混合用户上传与冻结设备资料。
