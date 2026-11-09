@@ -1,0 +1,61 @@
+{
+  "registry_version": "v1",
+  "packs": {
+    "cnc_pack_v1.0.0": {
+      "equipment_type": "cnc_vertical_machining_center",
+      "manufacturer": "Haas",
+      "models": ["VF-2"],
+      "controller": "NGC",
+      "equipment_aliases": ["VF2", "VF 2", "Haas VF-2"],
+      "component_aliases": {"coolant pump": ["冷却液泵"], "spindle": ["主轴"], "tool changer": ["刀库"]},
+      "sources": {
+        "HAAS-40T-MOTOR-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-40T-SPINDLE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-AXIS-MOTION-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-ENCLOSURE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-FLOOD-COOLANT-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-HALO-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-LUBE-INTRO-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-MAINTENANCE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-NGC-BREAKER-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-NGC-ERROR-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-NGC-ICONS-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-NGC-IO-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-NGC-PSUP-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-OP-EN-2025": {"document_revision": "2025", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-OP-ZH-2023": {"document_revision": "2023", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-SERVO-AMP-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-SERVO-MOTOR-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-SPINDLE-OIL-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-UMBRELLA-ALIGN-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-UMBRELLA-REPLACE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-UMBRELLA-TSG-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-UMBRELLA-VFVM-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-VECTOR-DRIVE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-VF2-SCOPE-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-VFVM-SPECS-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-VMC-INSTALL-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "HAAS-WYE-DELTA-ZH": {"document_revision": "snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "OSHA-1910-147": {"document_revision": "1910.147-snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "OSHA-1910-212": {"document_revision": "1910.212-snapshot-2026-11-04", "applicable_models": ["VF-2"], "controller": "NGC"},
+        "OSHA-LOTO-FACTSHEET": {"document_revision": "OSHAFS3529", "applicable_models": ["VF-2"], "controller": "NGC"}
+      }
+    },
+    "dry_vacuum_pump_pack_v1.0.0": {
+      "equipment_type": "dry_scroll_vacuum_pump",
+      "manufacturer": "Edwards",
+      "models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"],
+      "controller": "not_applicable",
+      "equipment_aliases": ["nXDS", "Edwards nXDS"],
+      "component_aliases": {"vacuum pump": ["真空泵"], "tip seal": ["涡旋密封"]},
+      "sources": {
+        "EDW-NXDS-ADDENDUM-EN": {"document_revision": "P60102856-A", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"},
+        "EDW-NXDS-BROCHURE-EN": {"document_revision": "3601-0088-01", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"},
+        "EDW-NXDS-LIFT-MULTI": {"document_revision": "P41100260", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"},
+        "EDW-NXDS-MANUAL-EN-L": {"document_revision": "A73501880-L", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"},
+        "EDW-NXDS-TIP-SEAL-EN": {"document_revision": "A73502840-F", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"},
+        "EDW-SAFETY-EN": {"document_revision": "P40040100-E", "applicable_models": ["nXDS6i", "nXDS10i", "nXDS15i", "nXDS20i"], "controller": "not_applicable"}
+      }
+    }
+  }
+}
