@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-- 状态：`v0.1_in_progress`
+- 状态：`v0.1_automated_verified`，发布验收待补。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.1 只迁移通用项目底座，不提前实现工业检索或诊断。
 - 设计依据：`docs/superpowers/specs/2026-11-07-phase0-knowledge-pack-design.md`、`docs/superpowers/specs/2026-11-08-v0.1-heritagemind-derivation-design.md`
 
@@ -29,8 +29,8 @@
 15. `[complete]` v0.1 切片 5：通用检索与评测基础。已完成纯内存 BM25、RRF、余弦向量检索接口、本地重排适配器、Hit@k 与稳定索引快照。未运行真实向量模型评测。
 16. `[complete]` v0.1 切片 6：中性工作流骨架。已验证能力边界、安全错误和按请求隔离的事件。v0.1 + 阶段 0 回归共 130 项通过。
 17. `[complete]` v0.1 切片 7：Vue 基础壳、健康检查链接和通用 API 客户端。前端 8 项测试、默认及覆盖 API 地址的生产构建、运行时残留扫描均通过。登录页和登录 API 待接入。
-18. `[pending]` v0.1 切片 8：部署、README 与第三方声明（测试先行）。
-19. `[pending]` v0.1 切片 9：全量验收、残留扫描、README 真实性检查和提交。
+18. `[complete]` v0.1 切片 8：已交付 Python 包元数据、环境示例、API 容器配置、README、第三方声明与迁移台账。8 项静态交付测试和 `docker compose config` 通过。
+19. `[automated_verified]` v0.1 切片 9：Python 138 项（阶段 0 为 68 项）、前端 8 项及生产构建通过，运行时残留扫描通过。复用已安装依赖验证了 wheel 安装和 Uvicorn 的 `/health`、`/ready`。全新环境拉取依赖及容器启动待补验，详见 `progress.md`。
 
 ## 首批可验证切片
 
@@ -54,3 +54,5 @@
 | 2026-11-07 | 普通 Python 进程不加载 `src/` | pytest 的 `pythonpath` 只影响测试；临时显式设定 `PYTHONPATH=src`，并在后续切片提供正式 CLI。 |
 | 2026-11-07 | 空页质检的高分辨率临时渲染未生成图片 | 诊断脚本错误引用样本对象的 `page_number` 字段；改用实际 `page` 字段重跑，不影响任何原始/派生数据。 |
 | 2026-11-08 | `writing-plans` 技能在当前环境不可用 | 用户确认 v0.1 规格后，改以项目内持久计划 `docs/superpowers/plans/2026-11-08-v0.1-heritagemind-derivation-plan.md` 替代，并保持测试先行。 |
+| 2026-11-09 | 全新虚拟环境无法从包索引下载构建依赖 | pip 在获取 `setuptools` 时收到 `WinError 10013`。已用本机依赖完成 wheel 安装和 Uvicorn 冒烟测试，标准安装待联网验证。 |
+| 2026-11-09 | Docker Engine 不可用 | Compose 配置解析已通过。`docker info` 无法连接 `//./pipe/docker_engine`，镜像构建和容器启动待补验。 |

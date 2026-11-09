@@ -1,5 +1,13 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-09（v0.1 切片 8–9）
+
+- 新增 8 项交付测试。首次运行有 7 项因元数据未更新、交付文件缺失或迁移台账为空而失败，残留扫描已有基线通过。补齐交付后，`python -m pytest -o addopts='' -p no:cacheprovider tests/phase0 tests/v01 --basetemp <项目内独立目录>` 共 138 项通过，其中阶段 0 为 68 项。
+- 在前端已有锁定依赖的环境运行 `npm.cmd test` 和 `npm.cmd run build`，8 项测试及生产构建通过。已核对构建产物含默认 API 地址 `http://localhost:8100`。Python、配置、前端源码和构建产物的旧领域残留扫描通过。离线迁移审计模块只保留来源基线与台账路径。
+- 通过本机 Compose v5.1.4 运行 `docker compose config`。解析结果为 `industrialops-api`，绑定 `127.0.0.1:8100`，没有数据卷。通过临时 Docker CLI 配置指定已安装的 Compose 插件路径。`docker info` 无法连接 `//./pipe/docker_engine`，未执行镜像构建或容器启动。
+- 使用 `python -m pip wheel --no-deps --no-build-isolation --no-index` 从独立源文件副本构建 `industrialops_copilot-0.1.0-py3-none-any.whl`，再用 `pip install --no-deps --no-index` 安装至复用本机依赖的虚拟环境。`industrialops` 与 `api.app` 从该虚拟环境的 `site-packages` 导入。启动 Uvicorn 后通过回环 HTTP 请求验证 `/health`、`/ready` 均返回 200。
+- 在全新虚拟环境执行标准 pip 安装时，包索引连接因 `WinError 10013` 被阻断，构建依赖 `setuptools` 无法下载。标准安装和容器运行待补验，v0.1 状态为 `v0.1_automated_verified`。
+
 ## 2026-11-09（v0.1 切片 7）
 
 - 测试首次运行因 API 客户端模块和前端页面缺失而失败。补齐 Vue 3/Vite 基础壳和客户端后，`npm.cmd test` 的 8 项测试全部通过，覆盖产品文案、API 基地址、错误信封、401 会话失效及并发请求下的会话保留。

@@ -1,0 +1,17 @@
+name: industrialops
+
+services:
+  api:
+    container_name: industrialops-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8100:8100"
+    environment:
+      INDUSTRIALOPS_REQUEST_MAX_BYTES: "${INDUSTRIALOPS_REQUEST_MAX_BYTES:-26214400}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8100/health', timeout=2).close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 3

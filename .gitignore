@@ -11,6 +11,9 @@ tmp/
 
 # Local environment
 .venv/
+build/
+dist/
+*.egg-info/
 __pycache__/
 .pytest_cache/
 *.py[cod]

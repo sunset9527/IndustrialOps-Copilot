@@ -2,14 +2,66 @@
   "source_repository": "https://github.com/sunset9527/HeritageMind",
   "source_commit": "1edc5c4",
   "strategy": "selective_migration",
-  "migrated_capabilities": [],
+  "migrated_capabilities": [
+    {
+      "id": "api_foundation",
+      "source_paths": ["api.py", "config.py"],
+      "industrialops_paths": ["api/app.py", "src/industrialops/api.py", "src/industrialops/app_metadata.py", "src/industrialops/config.py"],
+      "scope": "Reimplemented application entry point, namespaced settings, health and readiness checks, and HTTP error envelopes. The API does not initialize external dependencies."
+    },
+    {
+      "id": "request_safety",
+      "source_paths": ["src/middleware/request_size.py", "src/services/password_policy.py"],
+      "industrialops_paths": ["src/industrialops/middleware/request_size.py", "src/industrialops/services/password_policy.py", "src/industrialops/services/error_sanitizer.py"],
+      "scope": "Adapted declared and streamed request body limits, password validation, and public error redaction."
+    },
+    {
+      "id": "identity_and_audit",
+      "source_paths": ["src/models/user.py", "src/services/auth.py"],
+      "industrialops_paths": ["src/industrialops/database.py", "src/industrialops/models/user.py", "src/industrialops/models/audit.py", "src/industrialops/services/auth.py", "src/industrialops/services/authorization.py", "src/industrialops/services/audit.py"],
+      "scope": "Adapted credential storage and authentication. Added generic role checks and audit records with sanitized context. Tests use in-memory SQLite."
+    },
+    {
+      "id": "document_processing",
+      "source_paths": ["src/services/upload_security.py", "src/services/document_parser.py", "src/workers/upload_worker.py"],
+      "industrialops_paths": ["src/industrialops/services/upload_security.py", "src/industrialops/services/document_parser.py", "src/industrialops/services/task_state.py", "src/industrialops/workers/upload_worker.py"],
+      "scope": "Adapted path and extension rules, TXT/PDF/DOCX parsing, task transitions, and a synchronous parsing adapter. No queue, upload HTTP endpoint, or automatic indexing."
+    },
+    {
+      "id": "retrieval_and_evaluation",
+      "source_paths": ["src/retrieval/bm25_retriever.py", "src/retrieval/fusion.py", "src/retrieval/reranker.py", "src/retrieval/index_snapshot.py", "src/evaluation/retrieval_metrics.py"],
+      "industrialops_paths": ["src/industrialops/retrieval/bm25.py", "src/industrialops/retrieval/vector.py", "src/industrialops/retrieval/fusion.py", "src/industrialops/retrieval/reranker.py", "src/industrialops/retrieval/index_snapshot.py", "src/industrialops/evaluation/retrieval_metrics.py"],
+      "scope": "Adapted in-memory ranking, deterministic snapshot metadata, and Hit@k calculation. The vector and rerank adapters take injected functions; verification uses sample data rather than model weights or industrial evaluation cases."
+    },
+    {
+      "id": "workflow_skeleton",
+      "source_paths": ["src/workflow/state.py", "src/workflow/events.py", "src/workflow/graph.py"],
+      "industrialops_paths": ["src/industrialops/workflow/skeleton.py"],
+      "scope": "Reimplemented request state, event correlation and safe failure handling in a Python standard-library scaffold. No LangGraph integration or domain-specific execution."
+    },
+    {
+      "id": "frontend_shell",
+      "source_paths": ["frontend/src/api/client.ts", "frontend/src/api/errors.ts", "frontend/src/stores/auth.ts"],
+      "industrialops_paths": ["frontend/src/App.vue", "frontend/src/api/client.js", "frontend/vite.config.js"],
+      "scope": "Built an IndustrialOps home page and adapted error and token handling for its API client. The page links to the API health endpoint."
+    },
+    {
+      "id": "api_delivery",
+      "source_paths": ["Dockerfile", "docker-compose.yml", ".dockerignore", ".env.example"],
+      "industrialops_paths": ["pyproject.toml", "Dockerfile", "docker-compose.yml", ".dockerignore", ".env.example", "README.md", "THIRD_PARTY_NOTICES.md"],
+      "scope": "Built independent package metadata and API-only container configuration. The build context excludes local evidence, credentials, and downloaded assets."
+    }
+  ],
   "excluded_runtime_capabilities": [
     "knowledge_graph",
     "graph_agent",
     "heritage_domain_features"
   ],
   "notes": [
-    "The v0.1 migration baseline is fixed before any production modules are copied.",
-    "Each migrated capability must be recorded here before it is declared available."
+    "Source paths identify the source patterns consulted at the fixed baseline, including capabilities reimplemented for IndustrialOps.",
+    "Excluded source capabilities also include the domain agents and debate engine, domain UI and tests, multimodal and audio pipelines, and domain retrieval benchmarks.",
+    "The v0.1 scope omits HTTP login and upload routes, distributed rate and concurrency limits, Redis queue workers, MySQL migrations, persistent vector storage and equipment-pack ingestion.",
+    "The phase 0 freeze and local evidence are outside this migration and are excluded from the container build context.",
+    "The Python and frontend suites, frontend build, legacy reference scan, installed-wheel startup and Compose configuration validation passed. Fresh dependency fetching and container startup remain unverified in the current environment."
   ]
 }

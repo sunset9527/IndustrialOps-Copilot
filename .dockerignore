@@ -1,0 +1,13 @@
+# Allow only the files needed to build the backend package.
+**
+!pyproject.toml
+!README.md
+!api/
+!api/**
+!src/
+!src/**
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+**/.env
+**/.env.*
