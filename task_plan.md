@@ -6,9 +6,21 @@
 
 ## 当前阶段
 
-- 状态：`v0.1_release_verified`，独立安装与 Docker 冷启动验收均已完成。
-- 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.1 只迁移通用项目底座，不提前实现工业检索或诊断。
-- 设计依据：`docs/superpowers/specs/2026-11-07-phase0-knowledge-pack-design.md`、`docs/superpowers/specs/2026-11-08-v0.1-heritagemind-derivation-design.md`
+- 状态：`v0.4_in_progress`。v0.1、v0.2 与 v0.3 已分别完成发布验收；现在实施设备台账、工单和人工审批。
+- 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.4 只交付后端、数据库迁移和 API，不提前实现 v0.5 前端。
+- 设计依据：`docs/superpowers/specs/2026-11-11-v0.4-assets-work-orders-approval-design.md`（提交 `efa2c8c`）。
+
+## v0.4 分片计划
+
+1. `[complete]` 建立纯领域工单状态机与角色规则，覆盖全部合法/非法转换；v0.4 目标测试 21 项与全仓 194 项测试均通过。
+2. `[in_progress]` 增加设备、诊断、工单、审批、认证会话与 checkpoint SQLAlchemy 模型，并写 Alembic 迁移。
+3. `[pending]` 实现不透明 Bearer 会话与 FastAPI 数据库依赖，保持凭据脱敏。
+4. `[pending]` 实现设备台账服务与管理员 API，包含筛选、分页和软下线。
+5. `[pending]` 将 v0.3 诊断结果持久化，并实现证据绑定工单草稿服务。
+6. `[pending]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除与 SQLite/MySQL 契约。
+7. `[pending]` 实现包含 `interrupt()`/`Command(resume=...)` 的审批图，并验证跨 workflow 实例恢复。
+8. `[pending]` 实现工单审批、转换、审计和并发幂等 API。
+9. `[pending]` 完成全量自动化回归、迁移冒烟和 Windows PowerShell 下 MySQL/Uvicorn 重启恢复发布验收说明。
 
 ## 分阶段计划
 
@@ -56,3 +68,5 @@
 | 2026-11-08 | `writing-plans` 技能在当前环境不可用 | 用户确认 v0.1 规格后，改以项目内持久计划 `docs/superpowers/plans/2026-11-08-v0.1-heritagemind-derivation-plan.md` 替代，并保持测试先行。 |
 | 2026-11-09 | 全新虚拟环境无法从包索引下载构建依赖 | pip 在获取 `setuptools` 时收到 `WinError 10013`。已用本机依赖完成 wheel 安装和 Uvicorn 冒烟测试，标准安装待联网验证。 |
 | 2026-11-09 | Docker Engine 初始不可用 | 用户启动 Docker Desktop 后，以桌面账号权限完成镜像构建、容器启动与健康端点验证。 |
+| 2026-11-11 | 首次更新 v0.4 持久计划的补丁未找到 `progress.md` 预期标题 | 未写入任何文件；读取准确标题后使用小范围补丁追加，不重复使用原补丁。 |
+| 2026-11-11 | 沙箱内 FastAPI `TestClient` 在 Windows Proactor 内部 `socketpair` 的 `accept()` 阻塞 | 已用 faulthandler 定位；相同测试在沙箱外通过。后续含 TestClient 的 pytest 使用已授权的 `python -m pytest` 沙箱外执行。 |

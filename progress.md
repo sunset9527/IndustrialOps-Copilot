@@ -1,5 +1,12 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-11（v0.4）
+
+- 用户已确认 v0.4 设计：新增 `approver`（并允许 `admin` 审批），审批 checkpoint 必须在服务重启后按 `thread_id` 恢复。
+- 设计规格已独立提交：`efa2c8c docs: design v0.4 asset and approval workflow`。
+- 已开始 TDD 实施。第一分片是纯工单状态机与角色规则；尚未写入生产代码或数据库模型。
+- 第一分片已完成：先新增 `tests/v04/test_work_order_state_machine.py`，首次因 `industrialops.domain` 缺失而失败；随后新增纯领域状态机，21 项目标测试通过。全仓回归在沙箱外为 194 passed；FastAPI TestClient 在沙箱内受 Windows Proactor 内部 socketpair 限制而卡住，已定位为环境限制。
+
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 
 - 已实现真实 LangGraph 诊断主链路、结构化证据加载、意图与设备上下文解析、兼容性过滤、安全门控、证据缺口裁剪、DeepSeek JSON 回答器和本地证据降级。

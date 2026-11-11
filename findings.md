@@ -1,5 +1,14 @@
 # IndustrialOps Copilot 实施发现
 
+## 2026-11-11（v0.4 实施起点）
+
+- v0.4 设计已由用户确认并提交为 `efa2c8c`；审批人为新增 `approver`，`admin` 也允许批准或拒绝。
+- 当前诊断链路为同步 FastAPI 路由、同步 `DiagnosisWorkflow.invoke()`、同步 SQLAlchemy `Session` 与 PyMySQL。因此 checkpointer 首先只实现 LangGraph 的同步 saver 契约；不引入第二套 async 数据库事务。
+- LangGraph 的 `interrupt()` 只有在编译图时提供 checkpointer 才可暂停；恢复使用相同 `thread_id` 与 `Command(resume=...)`。恢复会从中断节点开头重新执行，因此中断前不可产生外部副作用。
+- 现有 `User` 已有 `role` 字段但没有 HTTP 登录态；`AuditEvent` 已支持事务内追加。v0.4 应扩展而非复制第二套审计库。
+- 规划要求选择性吸收 Machina（Apache-2.0）、industrial-maintenance-api（MIT）和 Uptime Copilot（MIT）的领域、分层与人工审批思路；默认独立实现，若直接移植具体代码则必须更新 `THIRD_PARTY_NOTICES.md`。
+- 沙箱内的 FastAPI `TestClient` 无法启动 AnyIO 的 Windows Proactor 事件循环：faulthandler 显示阻塞在内部 socketpair 的 `accept()`，应用尚未接收 `/health` 请求。沙箱外同一 `tests/v01/test_health_routes.py` 为 4 passed，全仓为 194 passed；这是执行环境限制而不是本次代码回归。
+
 ## 2026-11-07
 
 - `data/raw_archive/` 当前有 40 份 PDF、1332 页；最终来源清单在 `data/source_manifests/source_inventory_final_2026-11-04.csv`。
