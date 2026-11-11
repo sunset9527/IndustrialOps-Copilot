@@ -92,8 +92,9 @@ def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> 
     documented_routes = set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE) (/[^`]+)`", scope))
     application_routes = set(app.openapi()["paths"])
     assert documented_routes == application_routes == {"/health", "/ready"}
-    for unsupported_capability in ("登录", "设备包加载", "工业诊断", "工单", "模型评测"):
+    for unsupported_capability in ("登录", "上传", "检索的 HTTP 接口", "工业诊断决策", "工单"):
         assert unsupported_capability in boundary
+    assert "设备包加载" not in boundary
     assert "local_evidence_only" in readme
 
 
