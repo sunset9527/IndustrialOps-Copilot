@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+import sys
+from types import SimpleNamespace
 
 from industrialops.evaluation.industrial_retrieval import calculate_metrics, load_frozen_scenarios, write_report
 from industrialops.knowledge.pack_loader import AlarmRecord, EquipmentDocument, EquipmentPack
@@ -11,6 +14,7 @@ from industrialops.retrieval.industrial import (
     EquipmentMetadataFilter,
     IndustrialRetriever,
 )
+from industrialops.retrieval.local_models import LocalBgeM3
 
 
 def _document(document_id: str, *, pack_id: str = "cnc_pack_v1.0.0", model: str = "VF-2", controller: str = "NGC", revision: str = "2025") -> EquipmentDocument:
@@ -57,3 +61,31 @@ def test_frozen_metrics_and_report_keep_per_case_evidence(tmp_path: Path) -> Non
     assert load_frozen_scenarios(scenario_path)[0]["eval_id"] == "case"
     report = write_report(tmp_path / "report.json", {"results": {"case": []}})
     assert 'generated_at_utc' in report.read_text(encoding="utf-8")
+
+
+def test_local_bge_uses_lexrag_compatible_wrapper_and_eight_document_batches(tmp_path: Path, monkeypatch) -> None:
+    model_path = tmp_path / "model"
+    model_path.mkdir()
+    (model_path / "config.json").write_text(json.dumps({"hidden_size": 1024}), encoding="utf-8")
+    calls: list[object] = []
+
+    class FakeEmbeddings:
+        def __init__(self, **kwargs):
+            calls.append(kwargs)
+
+        def embed_documents(self, texts):
+            calls.append(list(texts))
+            return [[1.0] * 1024 for _ in texts]
+
+        def embed_query(self, _text):
+            return [1.0] * 1024
+
+    monkeypatch.setitem(sys.modules, "langchain_community.embeddings", SimpleNamespace(HuggingFaceEmbeddings=FakeEmbeddings))
+    monkeypatch.setitem(sys.modules, "sentence_transformers", SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("direct loader must not be used"))))
+
+    adapter = LocalBgeM3(model_path)
+    vectors = adapter.embed([str(index) for index in range(17)])
+
+    assert calls[0] == {"model_name": str(model_path), "model_kwargs": {"device": "cpu"}, "encode_kwargs": {"normalize_embeddings": True}}
+    assert [len(batch) for batch in calls[1:]] == [8, 8, 1]
+    assert len(vectors) == 17

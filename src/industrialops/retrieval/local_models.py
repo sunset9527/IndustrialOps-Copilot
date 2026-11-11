@@ -15,15 +15,27 @@ def model_fingerprint(path: Path) -> str:
 class LocalBgeM3:
     def __init__(self, path: Path) -> None:
         try:
-            from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(str(path), local_files_only=True)
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+
+            # Match the proven LexRAG CPU-local contract.  Do not substitute a
+            # remote provider or silently change normalization semantics.
+            self._model = HuggingFaceEmbeddings(
+                model_name=str(path),
+                model_kwargs={"device": "cpu"},
+                encode_kwargs={"normalize_embeddings": True},
+            )
         except Exception as error: raise LocalModelUnavailableError("local BGE-M3 is unavailable") from error
         self.loaded_from_local, self.fingerprint = True, model_fingerprint(path)
     def embed(self, texts: str | list[str]) -> Sequence[float] | list[Sequence[float]]:
-        result = self._model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-        rows = result.tolist()
-        vectors = rows if isinstance(texts, list) else rows
-        sample = vectors[0] if isinstance(texts, list) else vectors
+        if isinstance(texts, list):
+            vectors = [
+                vector
+                for offset in range(0, len(texts), 8)
+                for vector in self._model.embed_documents(texts[offset : offset + 8])
+            ]
+        else:
+            vectors = self._model.embed_query(texts)
+        sample = vectors[0] if isinstance(texts, list) and vectors else vectors
         if len(sample) != 1024 or not all(math.isfinite(value) for value in sample): raise LocalModelUnavailableError("BGE-M3 embedding is not a finite 1024-dimensional vector")
         return vectors
 
