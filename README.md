@@ -90,4 +90,4 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 ## 当前边界
 
-登录、上传和检索的 HTTP 接口尚待接入；浏览器跨域 API 调用、MySQL 实库与 Redis 服务尚待验证。工业诊断决策与工单属于后续阶段。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。Windows 受限执行环境中，FastAPI `TestClient` 的 AnyIO 后台事件循环在创建 socket 时会挂起；这会阻断既有 v0.1 的 HTTP 测试，但不影响阶段 0 与 v0.2 的 78 项离线测试。
+登录、上传和检索的 HTTP 接口尚待接入；浏览器跨域 API 调用、MySQL 实库与 Redis 服务尚待验证。工业诊断决策与工单属于后续阶段。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。2026-11-11 已在本机正常 PowerShell 验证全仓 Python 自动化测试 **148 passed**；Codex 受限执行环境中的 `socketpair` 异常不代表项目运行时限制。
