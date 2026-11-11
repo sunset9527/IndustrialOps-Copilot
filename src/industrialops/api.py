@@ -11,6 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from industrialops.app_metadata import PRODUCT_NAME
 from industrialops.config import Settings
+from industrialops.diagnosis.response import diagnosis_json_response
 from industrialops.diagnosis.runtime import build_default_workflow
 from industrialops.diagnosis.schemas import DiagnosisRequest, DiagnosisResult
 from industrialops.middleware.request_size import RequestBodyLimitMiddleware
@@ -47,12 +48,12 @@ def create_app(settings: Settings, *, diagnosis_workflow: object | None = None) 
         return {"status": "ready", "dependencies": []}
 
     @app.post("/api/diagnosis/query", response_model=DiagnosisResult)
-    def diagnosis_query(request: DiagnosisRequest) -> DiagnosisResult:
+    def diagnosis_query(request: DiagnosisRequest) -> JSONResponse:
         workflow = app.state.diagnosis_workflow
         if workflow is None:
             workflow = build_default_workflow(settings)
             app.state.diagnosis_workflow = workflow
         result = workflow.invoke({"request_id": str(uuid4()), **request.model_dump()})
-        return result
+        return diagnosis_json_response(result)
 
     return app
