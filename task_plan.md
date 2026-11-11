@@ -13,8 +13,8 @@
 ## v0.4 分片计划
 
 1. `[complete]` 建立纯领域工单状态机与角色规则，覆盖全部合法/非法转换；v0.4 目标测试 21 项与全仓 194 项测试均通过。
-2. `[in_progress]` 增加设备、诊断、工单、审批、认证会话与 checkpoint SQLAlchemy 模型，并写 Alembic 迁移。
-3. `[pending]` 实现不透明 Bearer 会话与 FastAPI 数据库依赖，保持凭据脱敏。
+2. `[complete]` 增加设备、诊断、工单、审批、认证会话与 checkpoint SQLAlchemy 模型，并写 Alembic 迁移；模型/升级降级 7 项与全仓 201 项测试均通过。
+3. `[in_progress]` 实现不透明 Bearer 会话与 FastAPI 数据库依赖，保持凭据脱敏。
 4. `[pending]` 实现设备台账服务与管理员 API，包含筛选、分页和软下线。
 5. `[pending]` 将 v0.3 诊断结果持久化，并实现证据绑定工单草稿服务。
 6. `[pending]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除与 SQLite/MySQL 契约。

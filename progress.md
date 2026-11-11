@@ -6,6 +6,7 @@
 - 设计规格已独立提交：`efa2c8c docs: design v0.4 asset and approval workflow`。
 - 已开始 TDD 实施。第一分片是纯工单状态机与角色规则；尚未写入生产代码或数据库模型。
 - 第一分片已完成：先新增 `tests/v04/test_work_order_state_machine.py`，首次因 `industrialops.domain` 缺失而失败；随后新增纯领域状态机，21 项目标测试通过。全仓回归在沙箱外为 194 passed；FastAPI TestClient 在沙箱内受 Windows Proactor 内部 socketpair 限制而卡住，已定位为环境限制。
+- 第二分片已完成：先增加资产、诊断、工单、审批和认证会话的 SQLite 模型测试，首次因模型模块缺失失败；补齐关系模型后 4 项通过。随后增加 Alembic 空库升级/回退测试，首次因缺少 `alembic.ini` 与脚本目录失败；补齐 v0.1 基线与 v0.4 revision 后通过。最后为 LangGraph checkpoint/writes 表增加失败测试及模型/迁移，分片测试共 7 项通过；全仓回归为 201 passed。
 
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 
