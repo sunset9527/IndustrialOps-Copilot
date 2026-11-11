@@ -4,7 +4,7 @@ from industrialops.diagnosis.context import ResolvedEquipmentContext
 from industrialops.diagnosis.intent import IntentRoute
 from industrialops.diagnosis.runtime import PackScopedEvidenceRetriever
 from industrialops.diagnosis.schemas import DiagnosisRequest
-from industrialops.knowledge.pack_loader import EquipmentDocument, EquipmentPack, StructuredEvidence
+from industrialops.knowledge.pack_loader import AlarmRecord, EquipmentDocument, EquipmentPack, StructuredEvidence
 from industrialops.retrieval.industrial import IndustrialRetrievalResult
 
 
@@ -35,3 +35,21 @@ def test_runtime_evidence_retriever_projects_only_v02_ranked_document_sources_in
     )
 
     assert [item.evidence_id for item in result] == ["evidence-1"]
+
+
+def test_exact_alarm_lookup_does_not_build_the_semantic_retriever() -> None:
+    document = _document("doc-1", "SRC-1")
+    alarm = StructuredEvidence("alarm-552", "alarm-552", "alarms", "cnc_pack_v1.0.0", "552", "SRC-1", "SRC-1.pdf", "a" * 64, 3, "SRC-1:p.3", "Alarm 552 evidence")
+    pack = EquipmentPack("cnc_pack_v1.0.0", "hash", "v1", (document,), (AlarmRecord("alarm-552", "cnc_pack_v1.0.0", "552", "SRC-1", "SRC-1.pdf", "a" * 64, 3, "SRC-1:p.3", "Alarm 552 evidence"),), (alarm,))
+
+    class MustNotRun:
+        def retrieve(self, *args, **kwargs):
+            raise AssertionError("exact alarm lookup must bypass semantic retrieval")
+
+    result = PackScopedEvidenceRetriever({pack.pack_id: pack}, document_retrievers={pack.pack_id: MustNotRun()})(
+        DiagnosisRequest(question="报警 552", pack_id=pack.pack_id, model="VF-2"),
+        ResolvedEquipmentContext("compatible", pack.pack_id, "cnc_vertical_machining_center", "Haas", "VF-2", "NGC", None),
+        IntentRoute("alarm_lookup", "EXPLICIT_ALARM_CODE", "552"),
+    )
+
+    assert result == (alarm,)

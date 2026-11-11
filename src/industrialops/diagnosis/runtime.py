@@ -43,16 +43,16 @@ class PackScopedEvidenceRetriever:
             pack.documents,
             compatibility,
         )
-        ranked = self._document_retrievers.get(pack.pack_id)
-        if ranked is not None:
-            ranked_documents = ranked.retrieve(request.question, compatibility, limit=10)
-            eligible_sources = {item.document.source_id for item in ranked_documents}
-        else:
-            eligible_sources = {document.source_id for document in eligible_documents}
+        eligible_sources = {document.source_id for document in eligible_documents}
         evidence = [item for item in pack.structured_evidence if item.source_id in eligible_sources]
         if route.alarm_code:
             exact_ids = {item.candidate_id for item in AlarmCodeIndex(pack.alarm_records).lookup(route.alarm_code, pack_id=pack.pack_id)}
             return tuple(item for item in evidence if item.candidate_id in exact_ids)
+        ranked = self._document_retrievers.get(pack.pack_id)
+        if ranked is not None:
+            ranked_documents = ranked.retrieve(request.question, compatibility, limit=10)
+            eligible_sources = {item.document.source_id for item in ranked_documents}
+            evidence = [item for item in evidence if item.source_id in eligible_sources]
         if ranked is not None:
             return tuple(sorted(evidence, key=lambda item: item.candidate_id)[:20])
         terms = {term.casefold() for term in request.question.replace("，", " ").replace("。", " ").split() if len(term) > 1}
