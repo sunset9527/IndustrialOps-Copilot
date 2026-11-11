@@ -75,14 +75,18 @@ class LocalV02Retriever:
         if self._retriever is None:
             embedding = LocalBgeM3(self._embedding_path)
             documents = self._pack.documents
-            vectors = embedding.embed([item.text + " " + item.text_zh for item in documents])
+            # Bound runtime encoding to the same evidence object rather than
+            # letting one unusually long PDF extraction dominate first-query
+            # latency. Source text and citations remain untouched.
+            index_text = lambda item: (item.text + " " + item.text_zh)[:1000]
+            vectors = embedding.embed([index_text(item) for item in documents])
             reranker = LocalCrossEncoder(self._reranker_path)
             by_id = {item.document_id: item for item in documents}
             self._retriever = IndustrialRetriever(
                 self._pack,
                 embedder=lambda value: embedding.embed(value),
                 document_vectors=dict(zip((item.document_id for item in documents), vectors, strict=True)),
-                scorer=lambda question, document_id: reranker.score(question, by_id[document_id].text + " " + by_id[document_id].text_zh),
+                scorer=lambda question, document_id: reranker.score(question, index_text(by_id[document_id])),
             )
         return self._retriever.retrieve(query, compatibility, limit=limit)
 
