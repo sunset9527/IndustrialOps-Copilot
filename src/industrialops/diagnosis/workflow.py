@@ -10,6 +10,7 @@ from langgraph.graph import END, START, StateGraph
 from industrialops.diagnosis.context import EquipmentContextResolver, ResolvedEquipmentContext
 from industrialops.diagnosis.deepseek import DeepSeekAnswerGenerator
 from industrialops.diagnosis.evidence import EvidenceGapDetector
+from industrialops.diagnosis.faults import FaultDiagnosisService
 from industrialops.diagnosis.intent import IntentRoute, IntentRouter
 from industrialops.diagnosis.safety import SafetyDecision, SafetyPolicyGate
 from industrialops.diagnosis.schemas import Citation, DiagnosisRequest, DiagnosisResult
@@ -48,6 +49,7 @@ class DiagnosisWorkflow:
         self._router = IntentRouter()
         self._safety_gate = SafetyPolicyGate()
         self._gap_detector = EvidenceGapDetector()
+        self._fault_service = FaultDiagnosisService()
         self._graph = self._build_graph()
 
     def invoke(self, request: Mapping[str, object]) -> DiagnosisResult:
@@ -111,7 +113,7 @@ class DiagnosisWorkflow:
         return {"compatible_evidence": evidence, "trace": self._trace(state, "compatibility_validator")}
 
     def _fault_diagnosis_service(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
-        return {"trace": self._trace(state, "fault_diagnosis_service")}
+        return {"extraction": self._fault_service.extract(state.get("compatible_evidence", ())), "trace": self._trace(state, "fault_diagnosis_service")}
 
     def _safety_policy_gate(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
         request = self._request(state)
@@ -161,6 +163,7 @@ class DiagnosisWorkflow:
             return {"result": result, "trace": trace}
 
         evidence_decision = state.get("evidence_decision")
+        extraction = state.get("extraction")
         allowed_fields = getattr(evidence_decision, "allowed_fields", ())
         evidence = state.get("compatible_evidence", ())
         citations = {
@@ -181,9 +184,10 @@ class DiagnosisWorkflow:
         status = "answered" if getattr(evidence_decision, "status", "insufficient_evidence") == "sufficient" else "insufficient_evidence"
         result = DiagnosisResult(
             request_id=request_id, status=status, intent=route.intent,
-            confirmed_facts=tuple(text for text, _ in generated.items.get("confirmed_facts", ())),
-            candidate_causes=tuple(text for text, _ in generated.items.get("candidate_causes", ())),
-            inspection_steps=tuple(text for text, _ in generated.items.get("inspection_steps", ())),
+            confirmed_facts=tuple(text for text, _ in generated.items.get("confirmed_facts", ())) or getattr(extraction, "confirmed_facts", ()),
+            candidate_causes=tuple(text for text, _ in generated.items.get("candidate_causes", ())) or getattr(extraction, "candidate_causes", ()),
+            inspection_steps=tuple(text for text, _ in generated.items.get("inspection_steps", ())) or getattr(extraction, "inspection_steps", ()),
+            safety_prerequisites=getattr(extraction, "safety_prerequisites", ()),
             uncertainties=tuple(getattr(evidence_decision, "missing_evidence_types", ())),
             citations=tuple(citations[item] for item in used_ids),
             generation={"provider": generated.provider, "model": generated.model, "fallback_used": generated.provider != "deepseek", "fallback_reason": generated.fallback_reason},
