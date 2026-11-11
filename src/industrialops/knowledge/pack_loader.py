@@ -83,7 +83,7 @@ class EquipmentPack:
     registry_version: str
     documents: tuple[EquipmentDocument, ...]
     alarm_records: tuple[AlarmRecord, ...]
-    structured_evidence: tuple[StructuredEvidence, ...]
+    structured_evidence: tuple[StructuredEvidence, ...] = ()
 
 
 class EquipmentPackLoader:
