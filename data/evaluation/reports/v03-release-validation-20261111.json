@@ -1,0 +1,59 @@
+{
+  "generated_at_utc": "2026-11-11T12:30:00+00:00",
+  "status": "implemented",
+  "limitations": [
+    "Codex sandbox blocks TestClient and loopback HTTP sockets.",
+    "CNC natural-language DeepSeek validation was not completed because network approval timed out."
+  ],
+  "results": [
+    {
+      "request_id": "v03-cnc-552",
+      "pack_id": "cnc_pack_v1.0.0",
+      "status": "answered",
+      "intent": "alarm_lookup",
+      "provider": "deepseek",
+      "fallback_used": false,
+      "citation_count": 2,
+      "trace": [
+        "intent_router",
+        "equipment_context_resolver",
+        "evidence_retriever",
+        "compatibility_validator",
+        "fault_diagnosis_service",
+        "safety_policy_gate",
+        "evidence_gap_detector",
+        "answer_composer"
+      ]
+    },
+    {
+      "request_id": "v03-pump-noise",
+      "pack_id": "dry_vacuum_pump_pack_v1.0.0",
+      "status": "answered",
+      "intent": "fault_diagnosis",
+      "provider": "evidence_fallback",
+      "fallback_used": true,
+      "citation_count": 20,
+      "trace": [
+        "intent_router",
+        "equipment_context_resolver",
+        "evidence_retriever",
+        "compatibility_validator",
+        "fault_diagnosis_service",
+        "safety_policy_gate",
+        "evidence_gap_detector",
+        "answer_composer"
+      ]
+    },
+    {
+      "request_id": "v03-cnc-natural-language",
+      "pack_id": "cnc_pack_v1.0.0",
+      "status": "insufficient_evidence",
+      "intent": "fault_diagnosis",
+      "provider": "evidence_fallback",
+      "fallback_used": true,
+      "citation_count": 4,
+      "retrieval_path": ["bm25_prefilter", "bge_m3", "rrf", "bge_reranker_base"],
+      "trace": ["intent_router", "equipment_context_resolver", "evidence_retriever", "compatibility_validator", "fault_diagnosis_service", "safety_policy_gate", "evidence_gap_detector", "answer_composer"]
+    }
+  ]
+}
