@@ -31,6 +31,25 @@ def _results(pack, ids):
     return [{"document_id": item, "source_id": documents[item].source_id, "page_number": documents[item].page_number} for item in ids]
 
 
+def _embed_with_progress(embedding: LocalBgeM3, texts: list[str], pack_id: str) -> list[object]:
+    """Embed in LexRAG-sized batches and make long CPU work observable."""
+    vectors: list[object] = []
+    batch_size = 8
+    total_batches = (len(texts) + batch_size - 1) // batch_size
+    for batch_number, offset in enumerate(range(0, len(texts), batch_size), start=1):
+        batch = texts[offset : offset + batch_size]
+        vectors.extend(embedding.embed(batch))
+        if batch_number == total_batches or batch_number % 10 == 0:
+            _progress(
+                "bge_encode_progress",
+                pack_id=pack_id,
+                batch_number=batch_number,
+                total_batches=total_batches,
+                documents_completed=min(offset + len(batch), len(texts)),
+            )
+    return vectors
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", type=Path, default=Path.cwd())
@@ -53,7 +72,7 @@ def main() -> None:
         pack = loader.load(pack_id)
         texts = [item.text + " " + item.text_zh for item in pack.documents]
         _progress("before_bge_encode", pack_id=pack_id, document_count=len(texts))
-        vectors = embedding.embed(texts)
+        vectors = _embed_with_progress(embedding, texts, pack_id)
         _progress("after_bge_encode", pack_id=pack_id, vector_count=len(vectors))
         vector = VectorIndex(dict(zip((item.document_id for item in pack.documents), vectors, strict=True)), embedder=lambda query: embedding.embed(query))
         bm25 = Bm25Index.from_documents([RetrievalDocument(item.document_id, text) for item, text in zip(pack.documents, texts, strict=True)])
