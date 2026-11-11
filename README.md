@@ -96,4 +96,4 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 已增加 `POST /api/diagnosis/query` 的 LangGraph 主链路、知识包范围解析、确定性安全门控、证据充分性裁剪、DeepSeek JSON 回答器与无密钥/调用失败时的本地证据降级。DeepSeek 默认模型为 `deepseek-flash`，通过 `.env.example` 中的 `INDUSTRIALOPS_DEEPSEEK_*` 环境变量配置；API 密钥不会写入项目文件、响应或日志。
 
-当前代码仍处于 `implemented`：非 HTTP 的 v0.3 单元测试已通过；API 契约、完整 guardrail 评测、真实本地检索模型以及真实 DeepSeek 调用尚需在本机正常 PowerShell 中完成，完成前不得标记为 `automated_verified` 或 `release_verified`。
+当前代码仍处于 `implemented`：冻结的 5 条 guardrail、CNC 精确告警的真实 DeepSeek 回答、CNC 与真空泵的本地模型检索链路均已验证。当前 Codex 沙箱禁止回环 socket，因此 HTTP API 实测无法在此环境完成；CNC 自然语言检索的 DeepSeek 联测也因外网审批超时未完成。完成这些环境相关验收前不得标记为 `automated_verified` 或 `release_verified`。

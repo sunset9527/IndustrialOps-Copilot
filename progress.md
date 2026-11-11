@@ -1,5 +1,12 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-11（v0.3 证据驱动诊断工作流）
+
+- 已实现真实 LangGraph 诊断主链路、结构化证据加载、意图与设备上下文解析、兼容性过滤、安全门控、证据缺口裁剪、DeepSeek JSON 回答器和本地证据降级。
+- 冻结 `guardrail_eval_v1.jsonl` 的 5 条规则题全部通过；v0.3 非 HTTP 自动化测试 22 项通过。CNC 精确告警请求已真实走过 DeepSeek，返回 `answered`、未降级、2 条引用和完整节点轨迹。
+- 已真实验证本地 BGE-M3（1024 维）与 bge-reranker-base；真空泵和 CNC 自然语言请求均走 BM25 预筛选、BGE-M3、RRF、reranker 和 LangGraph。CNC 自然语言结果为 `insufficient_evidence`，未输出不受证据支持的维修步骤。
+- Codex 沙箱禁止 `socketpair` 与回环 socket，`TestClient`、Uvicorn 回环请求均无法在此环境验证。CNC 自然语言路径的 DeepSeek 联测也因外网审批超时未完成。v0.3 保持 `implemented`，不得标记 `automated_verified` 或 `release_verified`。
+
 ## 2026-11-09（v0.1 切片 8–9）
 
 - 发布验收补验完成：用户的新虚拟环境通过标准 `pip install .` 安装项目，并以其 Python 成功创建应用、输出 `IndustrialOps Copilot`。
