@@ -46,13 +46,17 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
         "INDUSTRIALOPS_FRONTEND_PORT",
         "INDUSTRIALOPS_DATABASE_URL",
         "INDUSTRIALOPS_REDIS_KEY_PREFIX",
-        "INDUSTRIALOPS_REQUEST_MAX_BYTES",
+        "INDUSTRIALOPS_REQUEST_MAX_BYTES", "INDUSTRIALOPS_DEEPSEEK_API_KEY",
+        "INDUSTRIALOPS_DEEPSEEK_BASE_URL", "INDUSTRIALOPS_DEEPSEEK_MODEL",
+        "INDUSTRIALOPS_DEEPSEEK_TIMEOUT", "INDUSTRIALOPS_DEEPSEEK_MAX_TOKENS",
     }
     settings = Settings.from_environment(values)
     assert (settings.api_port, settings.frontend_port) == (8100, 5174)
     assert settings.database_url == "mysql+pymysql://industrialops:change-me@localhost:3306/industrialops"
     assert settings.redis_key_prefix == "industrialops:"
     assert settings.request_max_bytes == Settings.from_environment({}).request_max_bytes
+    assert settings.deepseek_api_key is None
+    assert settings.deepseek_model == "deepseek-flash"
 
 
 def test_compose_runs_only_the_industrialops_api_on_port_8100() -> None:
@@ -88,11 +92,11 @@ def test_container_entrypoint_and_build_context_exclude_local_data() -> None:
 def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> None:
     assert (ROOT / "README.md").is_file()
     readme = read_project_file("README.md")
-    scope, boundary = readme.split("## 当前边界", maxsplit=1)
-    documented_routes = set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE) (/[^`]+)`", scope))
+    documented_routes = set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE) (/[^`]+)`", readme))
     application_routes = set(app.openapi()["paths"])
-    assert documented_routes == application_routes == {"/health", "/ready"}
-    for unsupported_capability in ("登录", "上传", "检索的 HTTP 接口", "工业诊断决策", "工单"):
+    assert documented_routes == application_routes == {"/health", "/ready", "/api/diagnosis/query"}
+    _, boundary = readme.split("## 当前边界", maxsplit=1)
+    for unsupported_capability in ("登录", "上传", "检索的 HTTP 接口", "工单"):
         assert unsupported_capability in boundary
     assert "设备包加载" not in boundary
     assert "local_evidence_only" in readme

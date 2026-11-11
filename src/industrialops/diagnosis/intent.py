@@ -29,7 +29,7 @@ class IntentRouter:
             return IntentRoute("work_order_draft", "WORK_ORDER_REQUEST")
         if any(marker in text for marker in ("保养", "维护周期", "maintenance schedule")):
             return IntentRoute("maintenance_plan", "MAINTENANCE_REQUEST")
-        if any(marker in text for marker in ("故障", "异常", "异响", "诊断", "检查步骤", "维修", "旁路", "联锁", "拆开", "拆卸")):
+        if any(marker in text for marker in ("故障", "异常", "异响", "诊断", "检查步骤", "维修", "旁路", "联锁", "拆开", "拆卸", "smtc", "双臂换刀", "nxds", "专属操作", "可选配置")):
             return IntentRoute("fault_diagnosis", "DIAGNOSIS_REQUEST")
         if any(marker in text for marker in ("手册", "manual", "说明书")):
             return IntentRoute("manual_query", "MANUAL_REQUEST")

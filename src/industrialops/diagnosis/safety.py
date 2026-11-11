@@ -28,6 +28,8 @@ class SafetyPolicyGate:
         text = request.question.casefold()
         if context.status == "model_out_of_scope":
             return SafetyDecision("blocked", ("MODEL_OR_VARIANT_OUT_OF_SCOPE",), ("candidate_causes", "inspection_steps"))
+        if any(marker in text for marker in ("smtc", "双臂换刀", "nxds15ir", "nxdsi r", "c/r")):
+            return SafetyDecision("blocked", ("MODEL_OR_VARIANT_OUT_OF_SCOPE",), ("candidate_causes", "inspection_steps"))
         if intent == "fault_diagnosis" and context.status == "model_unknown":
             return SafetyDecision("needs_information", ("MODEL_REQUIRED",), ("inspection_steps",))
         if any(marker in text for marker in ("旁路", "bypass")) and any(
