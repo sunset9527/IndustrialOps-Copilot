@@ -91,3 +91,9 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 ## 当前边界
 
 登录、上传和检索的 HTTP 接口尚待接入；浏览器跨域 API 调用、MySQL 实库与 Redis 服务尚待验证。工业诊断决策与工单属于后续阶段。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。2026-11-11 已在本机正常 PowerShell 验证全仓 Python 自动化测试 **148 passed**；Codex 受限执行环境中的 `socketpair` 异常不代表项目运行时限制。
+
+## v0.3（证据驱动诊断工作流，实施中）
+
+已增加 `POST /api/diagnosis/query` 的 LangGraph 主链路、知识包范围解析、确定性安全门控、证据充分性裁剪、DeepSeek JSON 回答器与无密钥/调用失败时的本地证据降级。DeepSeek 默认模型为 `deepseek-flash`，通过 `.env.example` 中的 `INDUSTRIALOPS_DEEPSEEK_*` 环境变量配置；API 密钥不会写入项目文件、响应或日志。
+
+当前代码仍处于 `implemented`：非 HTTP 的 v0.3 单元测试已通过；API 契约、完整 guardrail 评测、真实本地检索模型以及真实 DeepSeek 调用尚需在本机正常 PowerShell 中完成，完成前不得标记为 `automated_verified` 或 `release_verified`。

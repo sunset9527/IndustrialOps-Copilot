@@ -58,6 +58,23 @@ class AlarmRecord:
 
 
 @dataclass(frozen=True)
+class StructuredEvidence:
+    """An approved structured candidate that remains traceable to frozen evidence."""
+
+    evidence_id: str
+    candidate_id: str
+    candidate_type: str
+    pack_id: str
+    label: str
+    source_id: str
+    source_file: str
+    source_sha256: str
+    page_number: int
+    evidence_locator: str
+    evidence_text: str
+
+
+@dataclass(frozen=True)
 class EquipmentPack:
     """A fully verified equipment knowledge pack with no partial-load state."""
 
@@ -66,6 +83,7 @@ class EquipmentPack:
     registry_version: str
     documents: tuple[EquipmentDocument, ...]
     alarm_records: tuple[AlarmRecord, ...]
+    structured_evidence: tuple[StructuredEvidence, ...]
 
 
 class EquipmentPackLoader:
@@ -111,12 +129,18 @@ class EquipmentPackLoader:
             for record in structured
             if record.get("candidate_status") == "auto_reviewed_include" and record.get("candidate_type") == "alarms"
         )
+        structured_evidence = tuple(
+            self._to_structured_evidence(record, pack_id, manifest_sources)
+            for record in structured
+            if record.get("candidate_status") == "auto_reviewed_include"
+        )
         return EquipmentPack(
             pack_id=pack_id,
             content_sha256=content_sha256,
             registry_version=registry_version,
             documents=documents,
             alarm_records=alarm_records,
+            structured_evidence=structured_evidence,
         )
 
     @staticmethod
@@ -244,6 +268,28 @@ class EquipmentPackLoader:
             page_number=record["page_number"] if isinstance(record.get("page_number"), int) else self._invalid_page_number(),
             evidence_locator=self._required_string(record, "evidence_locator", "PACK_EVIDENCE_LOCATOR_MISSING"),
             evidence_text=self._required_string(record, "evidence_text", "PACK_ALARM_EVIDENCE_MISSING"),
+        )
+
+    def _to_structured_evidence(
+        self,
+        record: dict[str, Any],
+        pack_id: str,
+        manifest_sources: dict[str, dict[str, Any]],
+    ) -> StructuredEvidence:
+        self._verify_record_provenance(record, pack_id, manifest_sources)
+        candidate_id = self._required_string(record, "candidate_id", "PACK_STRUCTURED_ID_MISSING")
+        return StructuredEvidence(
+            evidence_id=candidate_id,
+            candidate_id=candidate_id,
+            candidate_type=self._required_string(record, "candidate_type", "PACK_STRUCTURED_TYPE_MISSING"),
+            pack_id=pack_id,
+            label=self._required_string(record, "label", "PACK_STRUCTURED_LABEL_MISSING"),
+            source_id=self._required_string(record, "source_id", "PACK_RECORD_SOURCE_MISSING"),
+            source_file=self._required_string(record, "source_file", "PACK_RECORD_SOURCE_FILE_MISSING"),
+            source_sha256=self._required_string(record, "source_sha256", "PACK_RECORD_SOURCE_HASH_MISSING"),
+            page_number=record["page_number"] if isinstance(record.get("page_number"), int) else self._invalid_page_number(),
+            evidence_locator=self._required_string(record, "evidence_locator", "PACK_EVIDENCE_LOCATOR_MISSING"),
+            evidence_text=self._required_string(record, "evidence_text", "PACK_STRUCTURED_EVIDENCE_MISSING"),
         )
 
     @staticmethod

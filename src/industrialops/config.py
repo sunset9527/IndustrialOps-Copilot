@@ -15,6 +15,11 @@ class Settings:
     database_url: str
     redis_key_prefix: str
     request_max_bytes: int
+    deepseek_api_key: str | None = None
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-flash"
+    deepseek_timeout_seconds: float = 20.0
+    deepseek_max_tokens: int = 1600
 
     @classmethod
     def from_environment(cls, environment: Mapping[str, str]) -> "Settings":
@@ -27,4 +32,9 @@ class Settings:
             ),
             redis_key_prefix=environment.get("INDUSTRIALOPS_REDIS_KEY_PREFIX", "industrialops:"),
             request_max_bytes=int(environment.get("INDUSTRIALOPS_REQUEST_MAX_BYTES", "26214400")),
+            deepseek_api_key=environment.get("INDUSTRIALOPS_DEEPSEEK_API_KEY") or None,
+            deepseek_base_url=environment.get("INDUSTRIALOPS_DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
+            deepseek_model=environment.get("INDUSTRIALOPS_DEEPSEEK_MODEL", "deepseek-flash"),
+            deepseek_timeout_seconds=float(environment.get("INDUSTRIALOPS_DEEPSEEK_TIMEOUT", "20")),
+            deepseek_max_tokens=int(environment.get("INDUSTRIALOPS_DEEPSEEK_MAX_TOKENS", "1600")),
         )
