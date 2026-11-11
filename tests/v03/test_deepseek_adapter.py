@@ -99,3 +99,26 @@ def test_deepseek_generator_uses_evidence_fallback_when_api_key_is_absent() -> N
 
     assert result.provider == "evidence_fallback"
     assert result.fallback_reason == "DEEPSEEK_API_KEY_MISSING"
+
+
+def test_deepseek_generator_falls_back_when_model_returns_no_evidence_bound_content() -> None:
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            200,
+            json={"choices": [{"finish_reason": "stop", "message": {"content": "{}"}}]},
+        )
+    )
+    generator = DeepSeekAnswerGenerator.from_settings(
+        api_key="test-key", model="deepseek-flash", timeout_seconds=2, max_tokens=100, transport=transport
+    )
+
+    result = generator.generate(
+        question="question",
+        approved_evidence={"evidence-1": "Evidence"},
+        citations={"evidence-1": _citation()},
+        allowed_fields=("candidate_causes",),
+    )
+
+    assert result.provider == "evidence_fallback"
+    assert result.fallback_reason == "LLM_OUTPUT_EMPTY"
+    assert result.items["candidate_causes"] == (("Evidence", ("evidence-1",)),)

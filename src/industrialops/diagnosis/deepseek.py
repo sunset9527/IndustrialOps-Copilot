@@ -173,6 +173,8 @@ class DeepSeekAnswerGenerator:
                     raise ValueError("LLM_EVIDENCE_ID_INVALID")
                 items.append((text, ids))
             validated[field] = tuple(items)
+        if not any(validated.values()):
+            raise ValueError("LLM_OUTPUT_EMPTY")
         return validated
 
     def _fallback(
