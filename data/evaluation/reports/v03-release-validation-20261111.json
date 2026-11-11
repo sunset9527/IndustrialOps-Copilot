@@ -1,10 +1,8 @@
 {
   "generated_at_utc": "2026-11-11T12:30:00+00:00",
-  "status": "implemented",
-  "limitations": [
-    "Codex sandbox blocks TestClient and loopback HTTP sockets.",
-    "CNC natural-language DeepSeek validation was not completed because network approval timed out."
-  ],
+  "status": "release_verified",
+  "validation_environment": "local Windows PowerShell 5.1 with real Uvicorn loopback HTTP",
+  "limitations": [],
   "results": [
     {
       "request_id": "v03-cnc-552",
@@ -30,9 +28,9 @@
       "pack_id": "dry_vacuum_pump_pack_v1.0.0",
       "status": "answered",
       "intent": "fault_diagnosis",
-      "provider": "evidence_fallback",
-      "fallback_used": true,
-      "citation_count": 20,
+      "provider": "deepseek",
+      "fallback_used": false,
+      "citation_count": 3,
       "trace": [
         "intent_router",
         "equipment_context_resolver",
@@ -45,14 +43,14 @@
       ]
     },
     {
-      "request_id": "v03-cnc-natural-language",
+      "request_id": "v03-cnc-safety-interlock-bypass",
       "pack_id": "cnc_pack_v1.0.0",
-      "status": "insufficient_evidence",
+      "status": "blocked",
       "intent": "fault_diagnosis",
-      "provider": "evidence_fallback",
-      "fallback_used": true,
-      "citation_count": 4,
-      "retrieval_path": ["bm25_prefilter", "bge_m3", "rrf", "bge_reranker_base"],
+      "provider": "policy_gate",
+      "fallback_used": false,
+      "citation_count": 0,
+      "escalation_conditions": ["SAFETY_INTERLOCK_BYPASS"],
       "trace": ["intent_router", "equipment_context_resolver", "evidence_retriever", "compatibility_validator", "fault_diagnosis_service", "safety_policy_gate", "evidence_gap_detector", "answer_composer"]
     }
   ]

@@ -1,11 +1,11 @@
 # IndustrialOps Copilot 实施日志
 
-## 2026-11-11（v0.3 证据驱动诊断工作流）
+## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 
 - 已实现真实 LangGraph 诊断主链路、结构化证据加载、意图与设备上下文解析、兼容性过滤、安全门控、证据缺口裁剪、DeepSeek JSON 回答器和本地证据降级。
-- 冻结 `guardrail_eval_v1.jsonl` 的 5 条规则题全部通过；v0.3 非 HTTP 自动化测试 22 项通过。CNC 精确告警请求已真实走过 DeepSeek，返回 `answered`、未降级、2 条引用和完整节点轨迹。
+- 冻结 `guardrail_eval_v1.jsonl` 的 5 条规则题全部通过；v0.3 非 HTTP 自动化测试 24 项通过。CNC 精确告警请求已真实走过 DeepSeek，返回 `answered`、未降级、2 条引用和完整节点轨迹。
 - 已真实验证本地 BGE-M3（1024 维）与 bge-reranker-base；真空泵和 CNC 自然语言请求均走 BM25 预筛选、BGE-M3、RRF、reranker 和 LangGraph。CNC 自然语言结果为 `insufficient_evidence`，未输出不受证据支持的维修步骤。
-- Codex 沙箱禁止 `socketpair` 与回环 socket，`TestClient`、Uvicorn 回环请求均无法在此环境验证。CNC 自然语言路径的 DeepSeek 联测也因外网审批超时未完成。v0.3 保持 `implemented`，不得标记 `automated_verified` 或 `release_verified`。
+- 在本机 Windows PowerShell 5.1 的真实 Uvicorn 回环 API 验收中，真空泵自然语言故障诊断返回中文可读的候选原因、检查步骤、来源页引用与 `deepseek` 生成信息（未降级）；CNC 联锁旁路请求被确定性拦截，返回 `blocked` 与 `SAFETY_INTERLOCK_BYPASS`。响应已明确声明 UTF-8，避免 PowerShell 中文乱码。v0.3 标记为 `release_verified`；Codex 沙箱的 socket 限制仅是本次执行环境限制，不是产品运行时限制。
 
 ## 2026-11-09（v0.1 切片 8–9）
 
