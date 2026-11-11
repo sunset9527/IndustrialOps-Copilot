@@ -14,6 +14,7 @@ from industrialops.diagnosis.workflow import DiagnosisWorkflow
 from industrialops.knowledge.pack_loader import EquipmentPack, EquipmentPackLoader, StructuredEvidence
 from industrialops.retrieval.industrial import AlarmCodeIndex, CompatibilityQuery, EquipmentMetadataFilter, IndustrialRetriever
 from industrialops.retrieval.local_models import LocalBgeM3, LocalCrossEncoder
+from industrialops.retrieval.bm25 import Bm25Index, RetrievalDocument
 
 
 class PackScopedEvidenceRetriever:
@@ -73,8 +74,20 @@ class LocalV02Retriever:
 
     def retrieve(self, query: str, compatibility: CompatibilityQuery, *, limit: int):
         if self._retriever is None:
+            eligible = EquipmentMetadataFilter().filter(self._pack.documents, compatibility)
+            bm25 = Bm25Index.from_documents(
+                [RetrievalDocument(item.document_id, item.text + " " + item.text_zh) for item in eligible]
+            )
+            candidate_ids = [item.document_id for item in bm25.search(query, limit=32)]
+            candidate_documents = tuple(item for item in eligible if item.document_id in set(candidate_ids))
+            if not candidate_documents:
+                return []
+            candidate_pack = EquipmentPack(
+                self._pack.pack_id, self._pack.content_sha256, self._pack.registry_version,
+                candidate_documents, self._pack.alarm_records, self._pack.structured_evidence,
+            )
             embedding = LocalBgeM3(self._embedding_path)
-            documents = self._pack.documents
+            documents = candidate_pack.documents
             # Bound runtime encoding to the same evidence object rather than
             # letting one unusually long PDF extraction dominate first-query
             # latency. Source text and citations remain untouched.
@@ -83,7 +96,7 @@ class LocalV02Retriever:
             reranker = LocalCrossEncoder(self._reranker_path)
             by_id = {item.document_id: item for item in documents}
             self._retriever = IndustrialRetriever(
-                self._pack,
+                candidate_pack,
                 embedder=lambda value: embedding.embed(value),
                 document_vectors=dict(zip((item.document_id for item in documents), vectors, strict=True)),
                 scorer=lambda question, document_id: reranker.score(question, index_text(by_id[document_id])),
