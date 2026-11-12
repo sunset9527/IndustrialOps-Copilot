@@ -8,6 +8,7 @@
 - 第一分片已完成：先新增 `tests/v04/test_work_order_state_machine.py`，首次因 `industrialops.domain` 缺失而失败；随后新增纯领域状态机，21 项目标测试通过。全仓回归在沙箱外为 194 passed；FastAPI TestClient 在沙箱内受 Windows Proactor 内部 socketpair 限制而卡住，已定位为环境限制。
 - 第二分片已完成：先增加资产、诊断、工单、审批和认证会话的 SQLite 模型测试，首次因模型模块缺失失败；补齐关系模型后 4 项通过。随后增加 Alembic 空库升级/回退测试，首次因缺少 `alembic.ini` 与脚本目录失败；补齐 v0.1 基线与 v0.4 revision 后通过。最后为 LangGraph checkpoint/writes 表增加失败测试及模型/迁移，分片测试共 7 项通过；全仓回归为 201 passed。
 - 第三分片已完成：会话服务测试先因模块缺失失败；实现后验证 token 只返回一次、数据库只保存 SHA-256、过期/撤销拒绝。认证 API 测试先因工厂不支持 session factory 失败；接入数据库依赖、`POST /api/auth/login` 和 `GET /api/auth/me` 后，SQLite 测试初次因 TestClient 的跨线程连接配置失败，修正测试引擎的 `check_same_thread=False` 后通过。README/环境示例与 OpenAPI 交付契约同步更新；全仓回归为 205 passed。
+- 第四分片已完成：资产服务测试先因模块缺失失败；实现后验证资产 ID 与型号 ID 分离、包级筛选分页、乐观版本冲突和软下线。资产 API 测试先返回 404；新增读取、管理员创建/更新路由及稳定 403 后通过。README 路由清单与 OpenAPI 同步；全仓回归为 208 passed。
 
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 

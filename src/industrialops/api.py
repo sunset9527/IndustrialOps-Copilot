@@ -7,9 +7,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, Callable
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -23,6 +23,14 @@ from industrialops.middleware.request_size import RequestBodyLimitMiddleware
 from industrialops.models.user import User
 from industrialops.services.auth import authenticate_user
 from industrialops.services.auth_sessions import create_auth_session, resolve_active_session
+from industrialops.services.assets import (
+    AssetNotFoundError,
+    AssetVersionConflictError,
+    EquipmentModelNotFoundError,
+    create_asset,
+    list_assets,
+    update_asset,
+)
 
 
 class LoginRequest(BaseModel):
@@ -40,6 +48,46 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     expires_at: datetime
     user: PublicUser
+
+
+class AssetCreateRequest(BaseModel):
+    asset_id: str = Field(min_length=1, max_length=120)
+    equipment_model_id: str = Field(min_length=1, max_length=120)
+    display_name: str = Field(min_length=1, max_length=200)
+    site: str | None = Field(default=None, max_length=160)
+    line: str | None = Field(default=None, max_length=160)
+    location: str | None = Field(default=None, max_length=160)
+    status: str = Field(default="available", pattern="^(available|maintenance|out_of_service)$")
+
+
+class AssetUpdateRequest(BaseModel):
+    expected_version: int = Field(ge=1)
+    display_name: str | None = Field(default=None, min_length=1, max_length=200)
+    site: str | None = Field(default=None, max_length=160)
+    line: str | None = Field(default=None, max_length=160)
+    location: str | None = Field(default=None, max_length=160)
+    status: str | None = Field(default=None, pattern="^(available|maintenance|out_of_service)$")
+
+
+class AssetResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    asset_id: str
+    equipment_model_id: str
+    display_name: str
+    site: str | None
+    line: str | None
+    location: str | None
+    status: str
+    synthetic: bool
+    version: int
+
+
+class AssetListResponse(BaseModel):
+    items: list[AssetResponse]
+    total: int
+    limit: int
+    offset: int
 
 
 SessionFactory = Callable[[], Session]
@@ -68,6 +116,8 @@ def create_app(
     def handle_http_exception(_, exception: StarletteHTTPException) -> JSONResponse:
         if exception.status_code == 401:
             return _error_response(401, "unauthorized", "Authentication is required")
+        if exception.status_code == 403:
+            return _error_response(403, "forbidden", "The current role is not authorized for this operation")
         if exception.status_code == 404:
             return JSONResponse(
                 status_code=404,
@@ -96,6 +146,11 @@ def create_app(
             raise HTTPException(status_code=401)
         return user
 
+    def require_admin(user: User = Depends(current_user)) -> User:
+        if user.role != "admin":
+            raise HTTPException(status_code=403)
+        return user
+
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok", "product": PRODUCT_NAME}
@@ -121,6 +176,55 @@ def create_app(
     @app.get("/api/auth/me", response_model=PublicUser)
     def auth_me(user: User = Depends(current_user)) -> PublicUser:
         return PublicUser(username=user.username, role=user.role)
+
+    @app.get("/api/equipment/assets", response_model=AssetListResponse)
+    def assets_list(
+        _: User = Depends(current_user),
+        db: Session = Depends(get_db),
+        pack_id: str | None = None,
+        equipment_model_id: str | None = None,
+        asset_status: str | None = Query(default=None, alias="status"),
+        limit: int = Query(default=50, ge=1, le=100),
+        offset: int = Query(default=0, ge=0),
+    ) -> AssetListResponse:
+        assets, total = list_assets(
+            db, pack_id=pack_id, equipment_model_id=equipment_model_id, status=asset_status, limit=limit, offset=offset
+        )
+        return AssetListResponse(
+            items=[AssetResponse.model_validate(asset) for asset in assets], total=total, limit=limit, offset=offset
+        )
+
+    @app.post("/api/equipment/assets", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
+    def assets_create(
+        request: AssetCreateRequest,
+        _: User = Depends(require_admin),
+        db: Session = Depends(get_db),
+    ) -> AssetResponse | JSONResponse:
+        try:
+            asset = create_asset(db, **request.model_dump())
+            db.commit()
+        except EquipmentModelNotFoundError:
+            db.rollback()
+            return _error_response(404, "equipment_model_not_found", "Equipment model was not found")
+        return AssetResponse.model_validate(asset)
+
+    @app.patch("/api/equipment/assets/{asset_id}", response_model=AssetResponse)
+    def assets_update(
+        asset_id: str,
+        request: AssetUpdateRequest,
+        _: User = Depends(require_admin),
+        db: Session = Depends(get_db),
+    ) -> AssetResponse | JSONResponse:
+        try:
+            asset = update_asset(db, asset_id, **request.model_dump(exclude_none=True))
+            db.commit()
+        except AssetNotFoundError:
+            db.rollback()
+            return _error_response(404, "asset_not_found", "Asset was not found")
+        except AssetVersionConflictError:
+            db.rollback()
+            return _error_response(409, "stale_resource_version", "Asset has changed since it was read")
+        return AssetResponse.model_validate(asset)
 
     @app.post("/api/diagnosis/query", response_model=DiagnosisResult)
     def diagnosis_query(request: DiagnosisRequest) -> JSONResponse:
