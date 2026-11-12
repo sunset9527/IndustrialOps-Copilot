@@ -74,3 +74,19 @@ def test_registration_creates_only_a_regular_user_and_returns_a_login_session() 
     body = registered.json()
     assert body["user"] == {"username": "new-operator", "role": "user"}
     assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {body['access_token']}"}).json() == body["user"]
+
+
+def test_local_frontend_origin_can_preflight_the_registration_request() -> None:
+    client = TestClient(create_app(Settings.from_environment({}), session_factory=_session_factory()))
+
+    response = client.options(
+        "/api/auth/register",
+        headers={
+            "Origin": "http://127.0.0.1:5174",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5174"
+    assert "POST" in response.headers["access-control-allow-methods"]

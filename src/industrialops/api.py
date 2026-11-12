@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 from industrialops.app_metadata import PRODUCT_NAME
 from industrialops.checkpoint import SQLAlchemyCheckpointSaver
@@ -212,6 +213,12 @@ def create_app(
 
     app = FastAPI(title=PRODUCT_NAME)
     app.state.settings = settings
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://127.0.0.1:5174", "http://localhost:5174"],
+        allow_methods=["GET", "POST", "PATCH"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
     if session_factory is None:
         engine = create_engine(settings.database_url, pool_pre_ping=True)
         session_factory = sessionmaker(bind=engine)
