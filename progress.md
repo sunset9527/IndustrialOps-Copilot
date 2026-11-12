@@ -10,6 +10,7 @@
 - 第三分片已完成：会话服务测试先因模块缺失失败；实现后验证 token 只返回一次、数据库只保存 SHA-256、过期/撤销拒绝。认证 API 测试先因工厂不支持 session factory 失败；接入数据库依赖、`POST /api/auth/login` 和 `GET /api/auth/me` 后，SQLite 测试初次因 TestClient 的跨线程连接配置失败，修正测试引擎的 `check_same_thread=False` 后通过。README/环境示例与 OpenAPI 交付契约同步更新；全仓回归为 205 passed。
 - 第四分片已完成：资产服务测试先因模块缺失失败；实现后验证资产 ID 与型号 ID 分离、包级筛选分页、乐观版本冲突和软下线。资产 API 测试先返回 404；新增读取、管理员创建/更新路由及稳定 403 后通过。README 路由清单与 OpenAPI 同步；全仓回归为 208 passed。
 - 第五分片进行中：诊断记录和工单草稿服务测试首次因模块缺失失败；实现后验证资产与知识包不匹配时拒绝记录、仅允许 `answered` 且相容的诊断生成草稿、诊断步骤和引用在草稿中深复制。服务级回归后全仓为 210 passed；尚未将这两个服务接入 HTTP 主链路。
+- 第五分片已完成：`POST /api/diagnosis/query` 现在保存服务端请求、结构化结果和 citation 快照；原 v0.3 API 测试改为注入 SQLite，避免使用 `.env` 的占位 MySQL URL。`POST /api/work-orders/drafts` 从已保存的诊断生成草稿并忽略客户端伪造 citations；README/OpenAPI 契约已同步。全仓回归为 212 passed。
 
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 

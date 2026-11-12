@@ -97,6 +97,7 @@ def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> 
     assert documented_routes == application_routes == {
         "/health", "/ready", "/api/auth/login", "/api/auth/me", "/api/diagnosis/query",
         "/api/equipment/assets", "/api/equipment/assets/{asset_id}",
+        "/api/work-orders/drafts",
     }
     _, boundary = readme.split("## 当前边界", maxsplit=1)
     for unsupported_capability in ("上传", "检索的 HTTP 接口", "工单"):

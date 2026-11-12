@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from industrialops.api import create_app
 from industrialops.config import Settings
+from industrialops.database import Base
 from industrialops.diagnosis.schemas import DiagnosisResult
 
 
@@ -23,9 +27,15 @@ class RecordingWorkflow:
         )
 
 
+def _session_factory() -> sessionmaker[Session]:
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine)
+    return sessionmaker(bind=engine)
+
+
 def test_diagnosis_query_route_invokes_the_injected_workflow_and_returns_the_stable_contract() -> None:
     workflow = RecordingWorkflow()
-    client = TestClient(create_app(Settings.from_environment({}), diagnosis_workflow=workflow))
+    client = TestClient(create_app(Settings.from_environment({}), diagnosis_workflow=workflow, session_factory=_session_factory()))
 
     response = client.post(
         "/api/diagnosis/query",

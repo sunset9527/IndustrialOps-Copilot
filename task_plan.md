@@ -16,8 +16,8 @@
 2. `[complete]` 增加设备、诊断、工单、审批、认证会话与 checkpoint SQLAlchemy 模型，并写 Alembic 迁移；模型/升级降级 7 项与全仓 201 项测试均通过。
 3. `[complete]` 实现不透明 Bearer 会话与 FastAPI 数据库依赖，保持凭据脱敏；认证分片 4 项与全仓 205 项测试均通过。
 4. `[complete]` 实现设备台账服务与管理员 API，包含筛选、分页和软下线；分片 3 项与全仓 208 项测试均通过。
-5. `[in_progress]` 将 v0.3 诊断结果持久化，并实现证据绑定工单草稿服务。
-6. `[pending]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除与 SQLite/MySQL 契约。
+5. `[complete]` 将 v0.3 诊断结果持久化，并实现证据绑定工单草稿服务；全仓 212 项测试通过。
+6. `[in_progress]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除与 SQLite/MySQL 契约。
 7. `[pending]` 实现包含 `interrupt()`/`Command(resume=...)` 的审批图，并验证跨 workflow 实例恢复。
 8. `[pending]` 实现工单审批、转换、审计和并发幂等 API。
 9. `[pending]` 完成全量自动化回归、迁移冒烟和 Windows PowerShell 下 MySQL/Uvicorn 重启恢复发布验收说明。

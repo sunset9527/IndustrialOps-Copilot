@@ -9,6 +9,7 @@ v0.4 正在建设设备台账、工单与人工审批；当前已完成可验证
 | FastAPI | `GET /health` 返回产品名和存活状态。`GET /ready` 表示 API 骨架可接收请求，依赖列表为空。未知路径返回统一的 404 错误结构。 | `tests/v01/test_api_entrypoint.py`、`test_health_routes.py` |
 | 会话认证 | `POST /api/auth/login` 通过用户名密码创建不透明 Bearer 会话；数据库只存 token 哈希。`GET /api/auth/me` 由服务端会话解析当前用户和角色。 | `tests/v04/test_auth_sessions.py`、`test_auth_api.py` |
 | 设备台账 | `GET /api/equipment/assets` 支持按知识包、型号、状态筛选与分页；`POST /api/equipment/assets`、`PATCH /api/equipment/assets/{asset_id}` 仅允许管理员。资产使用乐观版本更新，退役仅改为 `out_of_service`，不删除历史记录。 | `tests/v04/test_asset_service.py`、`test_assets_api.py` |
+| 工单草稿 | `POST /api/diagnosis/query` 会保存服务端诊断与引用快照；已登录用户可用 `POST /api/work-orders/drafts` 从兼容且 `answered` 的诊断创建草稿。客户端提供的引用不会被采纳。草稿仍须经过下一分片的人工审批，不能执行维修操作。 | `tests/v04/test_diagnosis_persistence_api.py`、`test_diagnosis_records_and_drafts.py`、`test_work_order_drafts_api.py` |
 | 请求安全 | API 限制请求体大小。Python 模块提供密码策略、角色判断、错误脱敏和审计记录。账户及审计模型在 SQLite 内存库中验证。 | `tests/v01/test_request_size_limit.py`、`test_authentication.py`、`test_authorization.py`、`test_audit_events.py`、`test_error_sanitizer.py` |
 | 文件处理 | Python 模块校验上传路径和扩展名，解析 TXT、PDF、DOCX，并通过同步 worker 记录任务状态。 | `tests/v01/test_upload_security.py`、`test_document_parser.py`、`test_task_state.py`、`test_upload_worker.py` |
 | 检索基础 | 内存 BM25、余弦向量检索、RRF、注入式重排、Hit@k 计算与索引快照。向量和评分函数由调用方提供。 | `tests/v01/test_bm25_retriever.py`、`test_vector_retriever.py`、`test_rank_fusion.py`、`test_reranker.py`、`test_retrieval_metrics.py`、`test_index_snapshot.py` |

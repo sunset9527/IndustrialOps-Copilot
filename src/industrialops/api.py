@@ -31,6 +31,8 @@ from industrialops.services.assets import (
     list_assets,
     update_asset,
 )
+from industrialops.services.diagnosis_records import record_diagnosis
+from industrialops.services.work_order_drafts import WorkOrderDraftNotAllowedError, create_work_order_draft
 
 
 class LoginRequest(BaseModel):
@@ -88,6 +90,22 @@ class AssetListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class WorkOrderDraftRequest(BaseModel):
+    diagnosis_request_id: str = Field(min_length=1, max_length=120)
+    asset_id: str = Field(min_length=1, max_length=120)
+    title: str = Field(min_length=1, max_length=240)
+    description: str = Field(min_length=1, max_length=4000)
+    priority: str = Field(min_length=1, max_length=32)
+
+
+class WorkOrderDraftResponse(BaseModel):
+    work_order_id: str
+    thread_id: str
+    status: str
+    approval_status: str
+    citations_snapshot: list[dict[str, object]]
 
 
 SessionFactory = Callable[[], Session]
@@ -226,13 +244,59 @@ def create_app(
             return _error_response(409, "stale_resource_version", "Asset has changed since it was read")
         return AssetResponse.model_validate(asset)
 
+    @app.post("/api/work-orders/drafts", response_model=WorkOrderDraftResponse, status_code=status.HTTP_202_ACCEPTED)
+    def work_order_draft_create(
+        request: WorkOrderDraftRequest,
+        user: User = Depends(current_user),
+        db: Session = Depends(get_db),
+    ) -> WorkOrderDraftResponse | JSONResponse:
+        try:
+            draft = create_work_order_draft(
+                db,
+                diagnosis_request_id=request.diagnosis_request_id,
+                asset_id=request.asset_id,
+                created_by_user_id=user.id,
+                work_order_id=str(uuid4()),
+                thread_id=str(uuid4()),
+                title=request.title,
+                description=request.description,
+                priority=request.priority,
+            )
+            db.commit()
+        except WorkOrderDraftNotAllowedError:
+            db.rollback()
+            return _error_response(409, "work_order_draft_not_allowed", "The diagnosis cannot create a work-order draft")
+        return WorkOrderDraftResponse(
+            work_order_id=draft.work_order_id,
+            thread_id=draft.thread_id,
+            status=draft.status,
+            approval_status="pending_approval",
+            citations_snapshot=draft.citations_snapshot,
+        )
+
     @app.post("/api/diagnosis/query", response_model=DiagnosisResult)
-    def diagnosis_query(request: DiagnosisRequest) -> JSONResponse:
+    def diagnosis_query(request: DiagnosisRequest, db: Session = Depends(get_db)) -> JSONResponse:
         workflow = app.state.diagnosis_workflow
         if workflow is None:
             workflow = build_default_workflow(settings)
             app.state.diagnosis_workflow = workflow
         result = workflow.invoke({"request_id": str(uuid4()), **request.model_dump()})
+        record_diagnosis(
+            db,
+            request_id=result.request_id,
+            created_by_user_id=None,
+            asset_id=request.asset_id,
+            pack_id=request.pack_id,
+            model=request.model,
+            controller=request.controller,
+            status=result.status,
+            intent=result.intent,
+            request_snapshot=request.model_dump(mode="json"),
+            result_snapshot=result.model_dump(mode="json"),
+            citations_snapshot=[citation.model_dump(mode="json") for citation in result.citations],
+            knowledge_pack_version=request.pack_id,
+        )
+        db.commit()
         return diagnosis_json_response(result)
 
     return app
