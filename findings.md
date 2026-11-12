@@ -10,6 +10,10 @@
 - 沙箱内的 FastAPI `TestClient` 无法启动 AnyIO 的 Windows Proactor 事件循环：faulthandler 显示阻塞在内部 socketpair 的 `accept()`，应用尚未接收 `/health` 请求。沙箱外同一 `tests/v01/test_health_routes.py` 为 4 passed，全仓为 194 passed；这是执行环境限制而不是本次代码回归。
 - 使用 FastAPI `TestClient` 验证同步 SQLAlchemy 路由时，SQLite 内存库必须使用 `StaticPool` 加 `connect_args={"check_same_thread": False}`；否则由 TestClient 线程池执行的路由无法复用测试线程建立的连接。生产 MySQL/PyMySQL 不使用这一 SQLite 测试配置。
 - 认证 API 新增后，README 路由清单必须与 OpenAPI paths 精确一致；`.env.example` 也必须列出新运行时设置 `INDUSTRIALOPS_AUTH_SESSION_TTL_SECONDS`，否则交付真实性测试会失败。
+- SQLAlchemy saver 必须保存 LangGraph 的完整 typed checkpoint（含 channel values）以及 typed pending writes；不能把它们 JSON 化或 pickle 化。`bind_session()` 模式只 flush、不提交，使 checkpoint 与工单、审批和审计可由外层统一回滚。
+- LangGraph 可在工作线程调用 saver。每个 saver 的 SQL 操作因此以可重入锁串行化，避免 SQLite `StaticPool` 单连接被并行 session 使用；这不改变生产 MySQL 的同步 API 契约。
+- `interrupt()` 恢复会重跑中断节点，审批图节点本身保持无外部副作用；工单状态、审批行、转换和审计只在图恢复成功后由事务服务写入。相同决定的安全重试直接返回既有工单，反向决定返回 `approval_already_decided`。
+- v0.4 自动化验证包含 Alembic SQLite 升降级、跨 workflow 实例恢复和 HTTP 生命周期测试，但不等价于真实 MySQL/Uvicorn 发布验证；README 的 PowerShell 流程是该状态升级的唯一依据。
 
 ## 2026-11-07
 

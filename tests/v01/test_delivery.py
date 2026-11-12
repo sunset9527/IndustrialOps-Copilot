@@ -97,10 +97,12 @@ def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> 
     assert documented_routes == application_routes == {
         "/health", "/ready", "/api/auth/login", "/api/auth/me", "/api/diagnosis/query",
         "/api/equipment/assets", "/api/equipment/assets/{asset_id}",
-        "/api/work-orders/drafts",
+        "/api/work-orders", "/api/work-orders/drafts", "/api/work-orders/{work_order_id}",
+        "/api/work-orders/{work_order_id}/approve", "/api/work-orders/{work_order_id}/reject",
+        "/api/work-orders/{work_order_id}/transitions",
     }
     _, boundary = readme.split("## 当前边界", maxsplit=1)
-    for unsupported_capability in ("上传", "检索的 HTTP 接口", "工单"):
+    for unsupported_capability in ("上传", "检索的 HTTP 接口", "前端工作台"):
         assert unsupported_capability in boundary
     assert "登录" not in boundary
     assert "设备包加载" not in boundary

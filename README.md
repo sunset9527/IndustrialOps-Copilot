@@ -1,6 +1,6 @@
 # IndustrialOps Copilot
 
-v0.4 正在建设设备台账、工单与人工审批；当前已完成可验证的领域状态机、持久化迁移和最小认证 API。FastAPI 和 Vue 首页可以独立运行，通用服务通过模块测试验证。
+v0.4 已完成 SQLite 自动化验证：设备台账、证据绑定工单、人工审批中断/恢复、确定性状态流转和审计链路均已接入后端 API。尚未完成本机 MySQL + Uvicorn 的真实发布验收，因此 v0.4 状态为 `automated_verified`，不是 `release_verified`。
 
 ## 已实现
 
@@ -9,7 +9,7 @@ v0.4 正在建设设备台账、工单与人工审批；当前已完成可验证
 | FastAPI | `GET /health` 返回产品名和存活状态。`GET /ready` 表示 API 骨架可接收请求，依赖列表为空。未知路径返回统一的 404 错误结构。 | `tests/v01/test_api_entrypoint.py`、`test_health_routes.py` |
 | 会话认证 | `POST /api/auth/login` 通过用户名密码创建不透明 Bearer 会话；数据库只存 token 哈希。`GET /api/auth/me` 由服务端会话解析当前用户和角色。 | `tests/v04/test_auth_sessions.py`、`test_auth_api.py` |
 | 设备台账 | `GET /api/equipment/assets` 支持按知识包、型号、状态筛选与分页；`POST /api/equipment/assets`、`PATCH /api/equipment/assets/{asset_id}` 仅允许管理员。资产使用乐观版本更新，退役仅改为 `out_of_service`，不删除历史记录。 | `tests/v04/test_asset_service.py`、`test_assets_api.py` |
-| 工单草稿 | `POST /api/diagnosis/query` 会保存服务端诊断与引用快照；已登录用户可用 `POST /api/work-orders/drafts` 从兼容且 `answered` 的诊断创建草稿。客户端提供的引用不会被采纳。草稿仍须经过下一分片的人工审批，不能执行维修操作。 | `tests/v04/test_diagnosis_persistence_api.py`、`test_diagnosis_records_and_drafts.py`、`test_work_order_drafts_api.py` |
+| 工单与审批 | `POST /api/diagnosis/query` 保存服务端诊断与引用快照；已登录用户可用 `POST /api/work-orders/drafts` 创建草稿并真实进入 LangGraph `interrupt()`。`approver` 或 `admin` 通过 `POST /api/work-orders/{work_order_id}/approve` 或 `POST /api/work-orders/{work_order_id}/reject` 恢复同一 `thread_id`；进程重建后仍可从数据库 checkpoint 恢复。`GET /api/work-orders`、`GET /api/work-orders/{work_order_id}` 提供筛选、详情、历史和审批结果；`POST /api/work-orders/{work_order_id}/transitions` 只接受指派、开始、完成、关闭或取消等确定性动作。客户端引用、目标状态和角色都不会被信任。 | `tests/v04/test_diagnosis_persistence_api.py`、`test_work_order_drafts_api.py`、`test_sqlalchemy_checkpoint_saver.py`、`test_approval_workflow.py`、`test_work_orders_api.py` |
 | 请求安全 | API 限制请求体大小。Python 模块提供密码策略、角色判断、错误脱敏和审计记录。账户及审计模型在 SQLite 内存库中验证。 | `tests/v01/test_request_size_limit.py`、`test_authentication.py`、`test_authorization.py`、`test_audit_events.py`、`test_error_sanitizer.py` |
 | 文件处理 | Python 模块校验上传路径和扩展名，解析 TXT、PDF、DOCX，并通过同步 worker 记录任务状态。 | `tests/v01/test_upload_security.py`、`test_document_parser.py`、`test_task_state.py`、`test_upload_worker.py` |
 | 检索基础 | 内存 BM25、余弦向量检索、RRF、注入式重排、Hit@k 计算与索引快照。向量和评分函数由调用方提供。 | `tests/v01/test_bm25_retriever.py`、`test_vector_retriever.py`、`test_rank_fusion.py`、`test_reranker.py`、`test_retrieval_metrics.py`、`test_index_snapshot.py` |
@@ -58,6 +58,19 @@ docker compose down
 
 Compose 只运行 `industrialops-api` 并绑定本机的 `8100` 端口。Vue 仍可按上面的 Vite 命令运行。
 
+## v0.4 MySQL 发布验收（待执行）
+
+下列流程是 v0.4 从 `automated_verified` 升级到 `release_verified` 所需的本机验证。先在 MySQL 中创建空库，并使用你自己的本机账号配置 URL；不要把真实密码写入 `.env.example`、提交记录或审计内容。
+
+```powershell
+$env:INDUSTRIALOPS_DATABASE_URL = 'mysql+pymysql://<user>:<password>@127.0.0.1:3306/industrialops'
+.\.venv\Scripts\python.exe -m alembic -c alembic.ini upgrade head
+.\.venv\Scripts\python.exe -m industrialops.demo_seed
+.\.venv\Scripts\python.exe -m uvicorn api.app:app --host 127.0.0.1 --port 8100
+```
+
+`industrialops.demo_seed` 只显式插入两个 `synthetic=true` 的演示资产及其冻结知识包关联；模块导入和 API 启动不会静默写库。准备带有 `user`、`approver` 和 `admin` 角色的本地测试账户后，依次登录、提交已保存诊断创建的草稿，记录返回的 `thread_id`，停止 Uvicorn，再启动同一命令；使用 approver/admin Bearer token 调用 approve/reject，并用详情接口确认唯一审批决定、状态历史与审计动作。此过程只生成工单记录，不会控制设备。
+
 ## 测试
 
 从仓库根目录运行阶段 0 和 v0.1 测试，再运行前端测试和构建。
@@ -93,7 +106,7 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 ## 当前边界
 
-上传和检索的 HTTP 接口尚待接入；浏览器跨域 API、MySQL 实库与 Redis 服务尚待验证。设备台账、工单 API、人工审批恢复和前端工作台仍在 v0.4/v0.5 后续分片中。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。认证与设备台账 API 已由 SQLite 自动化测试验证，但尚未完成本机 MySQL/Uvicorn 发布验收；Codex 受限执行环境中的 `socketpair` 异常不代表项目运行时限制。
+上传和检索的 HTTP 接口、浏览器跨域 API、MySQL 实库与 Redis 服务尚待验证；Vue 设备台账/工单审批前端工作台属于 v0.5，未在本阶段实现。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 已通过 SQLite 自动化测试，仍须执行上面的 MySQL/Uvicorn 重启恢复链路，才能声明真实发布验证；Codex 受限执行环境中的 `socketpair` 异常不代表项目运行时限制。
 
 ## v0.3（证据驱动诊断工作流，已完成）
 

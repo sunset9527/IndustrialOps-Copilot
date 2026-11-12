@@ -11,6 +11,7 @@
 - 第四分片已完成：资产服务测试先因模块缺失失败；实现后验证资产 ID 与型号 ID 分离、包级筛选分页、乐观版本冲突和软下线。资产 API 测试先返回 404；新增读取、管理员创建/更新路由及稳定 403 后通过。README 路由清单与 OpenAPI 同步；全仓回归为 208 passed。
 - 第五分片进行中：诊断记录和工单草稿服务测试首次因模块缺失失败；实现后验证资产与知识包不匹配时拒绝记录、仅允许 `answered` 且相容的诊断生成草稿、诊断步骤和引用在草稿中深复制。服务级回归后全仓为 210 passed；尚未将这两个服务接入 HTTP 主链路。
 - 第五分片已完成：`POST /api/diagnosis/query` 现在保存服务端请求、结构化结果和 citation 快照；原 v0.3 API 测试改为注入 SQLite，避免使用 `.env` 的占位 MySQL URL。`POST /api/work-orders/drafts` 从已保存的诊断生成草稿并忽略客户端伪造 citations；README/OpenAPI 契约已同步。全仓回归为 212 passed。
+- 第六至九分片已完成：新增同步 `SQLAlchemyCheckpointSaver`，以 LangGraph typed serializer 持久化完整 checkpoint/pending writes，并支持绑定业务事务。最小审批图在 `interrupt()` 暂停，销毁后重新构造 workflow/saver 仍可用同一 `thread_id` 以 `Command(resume=...)` 恢复。工单草稿会在同一事务写入 checkpoint 和 `work_order.*`/`workflow.interrupted` 审计；approver/admin 的批准或拒绝恢复图后写入唯一决定、状态转换和审计。新增列表、详情、批准、拒绝和版本化生命周期 API，普通用户不能审批且非被指派人不能开始/完成。新增显式、幂等的 `python -m industrialops.demo_seed` 合成资产初始化命令。2026-11-12 全仓自动化回归为 **221 passed**（1 条 LangGraph 第三方弃用警告）；README 已给出 MySQL 迁移、重启恢复验收步骤。真实 MySQL/Uvicorn 验收尚未执行，因此 v0.4 状态为 `automated_verified`。
 
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 
