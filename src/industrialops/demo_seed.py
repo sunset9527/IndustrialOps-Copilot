@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -69,7 +70,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Seed IndustrialOps v0.4 synthetic demo assets")
     parser.add_argument("--database-url", default=None, help="Overrides INDUSTRIALOPS_DATABASE_URL for this command")
     args = parser.parse_args()
-    database_url = args.database_url or Settings.from_environment().database_url
+    database_url = args.database_url or Settings.from_environment(os.environ).database_url
     factory = sessionmaker(bind=create_engine(database_url, pool_pre_ping=True))
     with factory() as db:
         created = seed_demo_assets(db)

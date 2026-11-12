@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-- 状态：`v0.4_automated_verified`。v0.1、v0.2 与 v0.3 已分别完成发布验收；v0.4 后端、迁移和自动化验收已完成，等待用户在本机 MySQL/Uvicorn 进行真实发布验收。
+- 状态：`v0.4_release_verified`。v0.1、v0.2、v0.3 与 v0.4 均已完成对应发布验收。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.4 只交付后端、数据库迁移和 API，不提前实现 v0.5 前端。
 - 设计依据：`docs/superpowers/specs/2026-11-11-v0.4-assets-work-orders-approval-design.md`（提交 `efa2c8c`）。
 
@@ -20,7 +20,7 @@
 6. `[complete]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除、typed serializer 和绑定外层事务；SQLite 契约测试通过。
 7. `[complete]` 实现包含 `interrupt()`/`Command(resume=...)` 的审批图，并验证销毁后重建 workflow/saver 仍可按同一 `thread_id` 恢复。
 8. `[complete]` 实现工单审批、转换、审计和幂等 API；`approver` 与 `admin` 可审批，普通用户被拒绝，版本和被指派人规则可验证。
-9. `[complete]` 完成 Alembic SQLite 冒烟、全量自动化回归、显式合成资产初始化命令与 Windows PowerShell MySQL/Uvicorn 重启恢复发布验收说明；真实 MySQL 验收按规格保留给用户执行。
+9. `[release_verified]` 完成 Alembic SQLite 冒烟、全量自动化回归、显式合成资产初始化命令与 Windows PowerShell MySQL/Uvicorn 重启恢复验收。2026-11-12 在空 MySQL 8.4.5 库迁移至 head、导入合成资产、创建草稿、停止并重启 Uvicorn、按同一 thread 恢复审批后，数据库核验通过。
 
 ## 分阶段计划
 

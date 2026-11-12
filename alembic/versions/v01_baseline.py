@@ -33,7 +33,9 @@ def upgrade() -> None:
         sa.Column("action", sa.String(length=80), nullable=False),
         sa.Column("subject_type", sa.String(length=40), nullable=False),
         sa.Column("subject_id", sa.String(length=120), nullable=False),
-        sa.Column("detail", sa.Text(), nullable=False, server_default=""),
+        # MySQL 8.4 rejects a literal DEFAULT on TEXT.  The ORM supplies its
+        # client-side empty default when callers omit this field.
+        sa.Column("detail", sa.Text(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["actor_user_id"], ["users.id"], ondelete="SET NULL"),
     )

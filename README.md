@@ -1,6 +1,6 @@
 # IndustrialOps Copilot
 
-v0.4 已完成 SQLite 自动化验证：设备台账、证据绑定工单、人工审批中断/恢复、确定性状态流转和审计链路均已接入后端 API。尚未完成本机 MySQL + Uvicorn 的真实发布验收，因此 v0.4 状态为 `automated_verified`，不是 `release_verified`。
+v0.4 已完成真实发布验证：设备台账、证据绑定工单、人工审批中断/恢复、确定性状态流转和审计链路均已接入后端 API，并在本机 MySQL + Uvicorn 重启恢复链路中验证。当前状态为 `release_verified`。
 
 ## 已实现
 
@@ -58,9 +58,9 @@ docker compose down
 
 Compose 只运行 `industrialops-api` 并绑定本机的 `8100` 端口。Vue 仍可按上面的 Vite 命令运行。
 
-## v0.4 MySQL 发布验收（待执行）
+## v0.4 MySQL 发布验收（已完成，可复现）
 
-下列流程是 v0.4 从 `automated_verified` 升级到 `release_verified` 所需的本机验证。先在 MySQL 中创建空库，并使用你自己的本机账号配置 URL；不要把真实密码写入 `.env.example`、提交记录或审计内容。
+2026-11-12 已在本机 MySQL 8.4.5 与 Uvicorn 上完成此流程：空库迁移至 `v04_assets_work_orders`，显式导入 2 个 synthetic 资产；创建草稿并获得 `thread_id` 后停止、重启 Uvicorn，再以 approver 恢复审批。最终数据库中该工单为 `approved`、版本为 2，存在 1 条审批决定、4 条 checkpoint 和 5 条审计事件。下列命令保留为可复现流程；不要把真实密码写入 `.env.example`、提交记录或审计内容。
 
 ```powershell
 $env:INDUSTRIALOPS_DATABASE_URL = 'mysql+pymysql://<user>:<password>@127.0.0.1:3306/industrialops'
@@ -106,7 +106,7 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 ## 当前边界
 
-上传和检索的 HTTP 接口、浏览器跨域 API、MySQL 实库与 Redis 服务尚待验证；Vue 设备台账/工单审批前端工作台属于 v0.5，未在本阶段实现。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 已通过 SQLite 自动化测试，仍须执行上面的 MySQL/Uvicorn 重启恢复链路，才能声明真实发布验证；Codex 受限执行环境中的 `socketpair` 异常不代表项目运行时限制。
+上传和检索的 HTTP 接口、浏览器跨域 API与 Redis 服务尚待验证；Vue 设备台账/工单审批前端工作台属于 v0.5，未在本阶段实现。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 的 MySQL/Uvicorn 重启恢复链路已真实通过；Codex 受限执行环境中的 `socketpair` 异常不代表产品运行时限制。
 
 ## v0.3（证据驱动诊断工作流，已完成）
 

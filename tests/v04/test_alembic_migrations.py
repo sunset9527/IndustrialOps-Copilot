@@ -48,3 +48,12 @@ def test_downgrade_to_v01_baseline_preserves_existing_v01_tables(tmp_path: Path)
     assert {"users", "audit_events"} <= table_names
     assert "work_orders" not in table_names
     assert "assets" not in table_names
+
+
+def test_alembic_honors_the_namespaced_runtime_database_url(monkeypatch, tmp_path: Path) -> None:
+    database_path = tmp_path / "environment-selected.db"
+    monkeypatch.setenv("INDUSTRIALOPS_DATABASE_URL", f"sqlite:///{database_path.as_posix()}")
+
+    command.upgrade(Config(str(ROOT / "alembic.ini")), "head")
+
+    assert "work_orders" in inspect(create_engine(f"sqlite:///{database_path.as_posix()}")).get_table_names()

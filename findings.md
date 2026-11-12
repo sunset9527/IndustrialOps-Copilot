@@ -14,6 +14,9 @@
 - LangGraph 可在工作线程调用 saver。每个 saver 的 SQL 操作因此以可重入锁串行化，避免 SQLite `StaticPool` 单连接被并行 session 使用；这不改变生产 MySQL 的同步 API 契约。
 - `interrupt()` 恢复会重跑中断节点，审批图节点本身保持无外部副作用；工单状态、审批行、转换和审计只在图恢复成功后由事务服务写入。相同决定的安全重试直接返回既有工单，反向决定返回 `approval_already_decided`。
 - v0.4 自动化验证包含 Alembic SQLite 升降级、跨 workflow 实例恢复和 HTTP 生命周期测试，但不等价于真实 MySQL/Uvicorn 发布验证；README 的 PowerShell 流程是该状态升级的唯一依据。
+- 真实 MySQL 验收发现 `alembic.ini` 的占位连接 URL 不会自动读取应用环境变量；Alembic 环境现在只在保留占位 URL 时接受 `INDUSTRIALOPS_DATABASE_URL` 覆盖，程序化传入的测试 URL 不会被覆盖。
+- MySQL 8.4 拒绝 `TEXT NOT NULL DEFAULT ''`。迁移基线的审计 detail 字段改为无 server default，ORM 保留客户端空字符串默认，因此 MySQL 与 SQLite 均可创建新库。
+- `Settings.from_environment` 明确接收映射；CLI 调用必须传入 `os.environ`。此前 demo seed 的无参调用只在从源码未安装的发布验收路径中暴露，已修正并保留单元测试。
 
 ## 2026-11-07
 
