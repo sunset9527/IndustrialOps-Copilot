@@ -1,0 +1,8 @@
+<script setup>
+import { inject, ref } from 'vue'
+import { useRouter } from 'vue-router'
+const auth = inject('auth'); const router = useRouter(); const username = ref(''); const email = ref(''); const password = ref(''); const errorMessage = ref('')
+async function submit() { errorMessage.value = ''; try { await auth.register({ username: username.value, email: email.value, password: password.value }); await router.push({ name: 'assets' }) } catch { errorMessage.value = '注册未完成，请检查用户名、邮箱和密码后重试。' } }
+</script>
+<template><main class="register"><section><p class="eyebrow">INDUSTRIALOPS / REGISTER</p><h1>创建普通用户账号</h1><p>注册账号只能创建工单草稿，不能审批自己的工单。</p><form @submit.prevent="submit"><label>用户名<input v-model="username" name="username" required></label><label>邮箱<input v-model="email" name="email" type="email" required></label><label>密码<input v-model="password" name="password" type="password" required></label><p v-if="errorMessage" role="alert">{{ errorMessage }}</p><button type="submit">注册并进入设备总览</button></form><RouterLink to="/login">已有账号？登录</RouterLink></section></main></template>
+<style scoped>.register{display:grid;min-height:100dvh;place-items:center;padding:24px;background:#e7e9e7}.register section{width:min(100%,26rem);padding:32px;border:1px solid #b9c0c1;border-radius:8px;background:#fcfcfa}.eyebrow{color:#2c596d;font:700 .75rem ui-monospace,Consolas,monospace;letter-spacing:.08em}.register form{display:grid;gap:10px}.register label{display:grid;gap:4px;font-weight:700}.register input,.register button{min-height:44px;border-radius:4px;font:inherit}.register input{border:1px solid #aeb7b9;padding:0 12px}.register button{border:0;background:#2c596d;color:#fff;font-weight:700}.register [role="alert"]{color:#9b2c20}</style>

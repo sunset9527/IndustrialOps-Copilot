@@ -37,6 +37,7 @@ async function submit() {
         <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
         <button type="submit">登录并进入设备总览</button>
       </form>
+      <RouterLink to="/register">没有账号？注册普通用户</RouterLink>
     </section>
   </main>
 </template>

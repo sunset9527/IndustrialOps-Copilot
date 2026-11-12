@@ -95,7 +95,7 @@ def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> 
     documented_routes = set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE) (/[^`]+)`", readme))
     application_routes = set(app.openapi()["paths"])
     assert documented_routes == application_routes == {
-        "/health", "/ready", "/api/auth/login", "/api/auth/me", "/api/diagnosis/query",
+        "/health", "/ready", "/api/auth/login", "/api/auth/register", "/api/auth/me", "/api/diagnosis/query",
         "/api/equipment/assets", "/api/equipment/assets/{asset_id}",
         "/api/work-orders", "/api/work-orders/drafts", "/api/work-orders/{work_order_id}",
         "/api/work-orders/{work_order_id}/approve", "/api/work-orders/{work_order_id}/reject",

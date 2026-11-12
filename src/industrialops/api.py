@@ -26,7 +26,7 @@ from industrialops.models.user import User
 from industrialops.models.audit import AuditEvent
 from industrialops.models.work_order import ApprovalDecision, WorkOrder, WorkOrderTransition
 from industrialops.domain.work_orders import WorkOrderAction, WorkOrderTransitionError
-from industrialops.services.auth import authenticate_user
+from industrialops.services.auth import authenticate_user, create_user
 from industrialops.services.auth_sessions import create_auth_session, resolve_active_session
 from industrialops.services.assets import (
     AssetNotFoundError,
@@ -54,6 +54,12 @@ from industrialops.workflow.approval import build_approval_workflow
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=50)
+    password: str = Field(min_length=1, max_length=255)
+
+
+class RegistrationRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=50)
+    email: str = Field(min_length=3, max_length=255)
     password: str = Field(min_length=1, max_length=255)
 
 
@@ -327,6 +333,22 @@ def create_app(
             access_token=token,
             expires_at=expires_at,
             user=PublicUser(username=user.username, role=user.role),
+        )
+
+    @app.post("/api/auth/register", response_model=LoginResponse, status_code=status.HTTP_201_CREATED)
+    def register(request: RegistrationRequest, db: Session = Depends(get_db)) -> LoginResponse | JSONResponse:
+        user, error = create_user(db, request.username, request.email, request.password)
+        if user is None:
+            return _error_response(400, "registration_failed", error or "Registration could not be completed")
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=settings.auth_session_ttl_seconds)
+        token, _ = create_auth_session(db, user, expires_at=expires_at)
+        record_audit_event(
+            db, actor_user_id=user.id, action="auth.registration_succeeded", subject_type="user",
+            subject_id=user.username, detail='{"role":"user"}',
+        )
+        db.commit()
+        return LoginResponse(
+            access_token=token, expires_at=expires_at, user=PublicUser(username=user.username, role=user.role),
         )
 
     @app.get("/api/auth/me", response_model=PublicUser)

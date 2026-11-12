@@ -11,6 +11,7 @@ describe('LoginView', () => {
       history: createMemoryHistory(),
       routes: [
         { path: '/', component: LoginView },
+        { path: '/register', component: { template: '<div />' } },
         { path: '/assets', name: 'assets', component: { template: '<div>assets</div>' } },
       ],
     })
@@ -36,7 +37,7 @@ describe('LoginView', () => {
     const login = vi.fn().mockRejectedValue({ code: 'invalid_credentials', status: 401 })
     const router = createRouter({
       history: createMemoryHistory(),
-      routes: [{ path: '/', component: LoginView }],
+      routes: [{ path: '/', component: LoginView }, { path: '/register', component: { template: '<div />' } }],
     })
     await router.push('/')
     await router.isReady()

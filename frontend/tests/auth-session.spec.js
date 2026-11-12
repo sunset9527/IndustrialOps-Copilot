@@ -67,4 +67,16 @@ describe('browser authentication session', () => {
     expect(storage.has('industrialops.accessToken')).toBe(false)
     expect(authorization).toEqual(['Bearer expired-token', null])
   })
+
+  it('uses the registration endpoint and adopts its issued user session', async () => {
+    const storage = new Map()
+    const api = createApiClient({ fetchImpl: async (url, options) => {
+      expect(url).toBe('http://localhost:8100/api/auth/register')
+      expect(JSON.parse(options.body)).toMatchObject({ username: 'new-user', email: 'new@example.com' })
+      return Response.json({ access_token: 'registered-token', user: { username: 'new-user', role: 'user' } })
+    } })
+    const session = createAuthSession({ api, storage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v), removeItem: (k) => storage.delete(k) } })
+    await expect(session.register({ username: 'new-user', email: 'new@example.com', password: 'a long memorable password' })).resolves.toEqual({ username: 'new-user', role: 'user' })
+    expect(storage.get('industrialops.accessToken')).toBe('registered-token')
+  })
 })

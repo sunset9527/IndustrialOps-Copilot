@@ -59,3 +59,18 @@ def test_login_and_protected_route_use_stable_non_leaking_auth_errors() -> None:
     assert missing_token.json() == {"error": {"code": "unauthorized", "message": "Authentication is required"}}
     db = sessions()
     assert db.query(AuditEvent.action).all() == [("auth.login_failed",)]
+
+
+def test_registration_creates_only_a_regular_user_and_returns_a_login_session() -> None:
+    sessions = _session_factory()
+    client = TestClient(create_app(Settings.from_environment({}), session_factory=sessions))
+
+    registered = client.post("/api/auth/register", json={
+        "username": "new-operator", "email": "new-operator@example.com", "password": "a long memorable password",
+        "role": "admin",
+    })
+
+    assert registered.status_code == 201
+    body = registered.json()
+    assert body["user"] == {"username": "new-operator", "role": "user"}
+    assert client.get("/api/auth/me", headers={"Authorization": f"Bearer {body['access_token']}"}).json() == body["user"]
