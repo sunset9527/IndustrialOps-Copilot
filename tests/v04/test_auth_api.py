@@ -9,6 +9,7 @@ from industrialops.api import create_app
 from industrialops.config import Settings
 from industrialops.database import Base
 from industrialops.models.auth_session import AuthSession
+from industrialops.models.audit import AuditEvent
 from industrialops.services.auth import create_user
 
 
@@ -38,6 +39,7 @@ def test_login_returns_one_time_token_and_me_resolves_server_side_role() -> None
     assert body["user"] == {"username": "approver", "role": "approver"}
     db = sessions()
     assert token not in db.query(AuthSession).one().token_hash
+    assert db.query(AuditEvent.action).all() == [("auth.login_succeeded",)]
 
     me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert me.status_code == 200
@@ -55,3 +57,5 @@ def test_login_and_protected_route_use_stable_non_leaking_auth_errors() -> None:
     assert failed_login.json() == {"error": {"code": "invalid_credentials", "message": "Invalid username or password"}}
     assert missing_token.status_code == 401
     assert missing_token.json() == {"error": {"code": "unauthorized", "message": "Authentication is required"}}
+    db = sessions()
+    assert db.query(AuditEvent.action).all() == [("auth.login_failed",)]

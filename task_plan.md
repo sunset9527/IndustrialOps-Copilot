@@ -19,7 +19,7 @@
 5. `[complete]` 将 v0.3 诊断结果持久化，并实现证据绑定工单草稿服务；全仓 212 项测试通过。
 6. `[complete]` 实现同步 `SQLAlchemyCheckpointSaver`，覆盖 checkpoint、writes、列出、删除、typed serializer 和绑定外层事务；SQLite 契约测试通过。
 7. `[complete]` 实现包含 `interrupt()`/`Command(resume=...)` 的审批图，并验证销毁后重建 workflow/saver 仍可按同一 `thread_id` 恢复。
-8. `[complete]` 实现工单审批、转换、审计和幂等 API；`approver` 与 `admin` 可审批，普通用户被拒绝，版本和被指派人规则可验证。
+8. `[complete]` 实现工单审批、转换、审计和幂等 API；`approver` 与 `admin` 可审批，普通用户被拒绝，版本和被指派人规则可验证。补齐成功/失败登录、资产创建/更新、恢复失败审计；并发批准/拒绝竞争的自动化测试验证仅产生一个最终决定。
 9. `[release_verified]` 完成 Alembic SQLite 冒烟、全量自动化回归、显式合成资产初始化命令与 Windows PowerShell MySQL/Uvicorn 重启恢复验收。2026-11-12 在空 MySQL 8.4.5 库迁移至 head、导入合成资产、创建草稿、停止并重启 Uvicorn、按同一 thread 恢复审批后，数据库核验通过。
 
 ## 分阶段计划

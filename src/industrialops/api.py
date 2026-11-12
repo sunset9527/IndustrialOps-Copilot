@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
+from threading import RLock
 from typing import Annotated, Callable, Literal
 from uuid import uuid4
 
@@ -205,6 +206,11 @@ def create_app(
         engine = create_engine(settings.database_url, pool_pre_ping=True)
         session_factory = sessionmaker(bind=engine)
     app.state.session_factory = session_factory
+    # SQLite ignores SELECT ... FOR UPDATE.  One per-app lock keeps concurrent
+    # approval resumes deterministic in the supported SQLite test deployment;
+    # MySQL row locks and the unique decision constraints remain the cross-
+    # process protection in production.
+    app.state.approval_decision_lock = RLock()
     # Loading a frozen pack verifies its content hash and can be expensive. Keep
     # application import and non-diagnosis endpoints independent from that work.
     app.state.diagnosis_workflow = diagnosis_workflow
@@ -292,9 +298,26 @@ def create_app(
     def login(request: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse | JSONResponse:
         user, error = authenticate_user(db, request.username, request.password)
         if user is None:
+            record_audit_event(
+                db,
+                actor_user_id=None,
+                action="auth.login_failed",
+                subject_type="auth",
+                subject_id="login",
+                detail='{"reason":"invalid_credentials"}',
+            )
+            db.commit()
             return _error_response(401, "invalid_credentials", error or "Invalid username or password")
         expires_at = datetime.now(timezone.utc) + timedelta(seconds=settings.auth_session_ttl_seconds)
         token, _ = create_auth_session(db, user, expires_at=expires_at)
+        record_audit_event(
+            db,
+            actor_user_id=user.id,
+            action="auth.login_succeeded",
+            subject_type="user",
+            subject_id=user.username,
+            detail='{"reason":"password_verified"}',
+        )
         db.commit()
         return LoginResponse(
             access_token=token,
@@ -326,11 +349,15 @@ def create_app(
     @app.post("/api/equipment/assets", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
     def assets_create(
         request: AssetCreateRequest,
-        _: User = Depends(require_admin),
+        user: User = Depends(require_admin),
         db: Session = Depends(get_db),
     ) -> AssetResponse | JSONResponse:
         try:
             asset = create_asset(db, **request.model_dump())
+            record_audit_event(
+                db, actor_user_id=user.id, action="asset.created", subject_type="asset",
+                subject_id=asset.asset_id, detail=f'{{"equipment_model_id":"{asset.equipment_model_id}"}}',
+            )
             db.commit()
         except EquipmentModelNotFoundError:
             db.rollback()
@@ -341,11 +368,15 @@ def create_app(
     def assets_update(
         asset_id: str,
         request: AssetUpdateRequest,
-        _: User = Depends(require_admin),
+        user: User = Depends(require_admin),
         db: Session = Depends(get_db),
     ) -> AssetResponse | JSONResponse:
         try:
             asset = update_asset(db, asset_id, **request.model_dump(exclude_none=True))
+            record_audit_event(
+                db, actor_user_id=user.id, action="asset.updated", subject_type="asset",
+                subject_id=asset.asset_id, detail=f'{{"version":{asset.version},"status":"{asset.status}"}}',
+            )
             db.commit()
         except AssetNotFoundError:
             db.rollback()
@@ -452,6 +483,16 @@ def create_app(
         user: User,
         db: Session,
     ) -> WorkOrderResponse | JSONResponse:
+        with app.state.approval_decision_lock:
+            return _decide_work_order(work_order_id, decision, reason, user, db)
+
+    def _decide_work_order(
+        work_order_id: str,
+        decision: Literal["approved", "rejected"],
+        reason: str | None,
+        user: User,
+        db: Session,
+    ) -> WorkOrderResponse | JSONResponse:
         try:
             work_order = get_work_order(db, work_order_id, lock=True)
             existing = db.scalar(select(ApprovalDecision).where(ApprovalDecision.work_order_id == work_order_id))
@@ -480,6 +521,15 @@ def create_app(
             return _error_response(409, "invalid_work_order_transition", "The requested work-order transition is not allowed")
         except Exception:
             db.rollback()
+            record_audit_event(
+                db,
+                actor_user_id=user.id,
+                action="workflow.resume_failed",
+                subject_type="work_order",
+                subject_id=work_order_id,
+                detail='{"reason":"workflow_resume_failed"}',
+            )
+            db.commit()
             return _error_response(500, "workflow_resume_failed", "Approval could not be resumed")
 
     @app.post("/api/work-orders/{work_order_id}/approve", response_model=WorkOrderResponse)

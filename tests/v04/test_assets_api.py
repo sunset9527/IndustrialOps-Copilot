@@ -11,11 +11,12 @@ from industrialops.api import create_app
 from industrialops.config import Settings
 from industrialops.database import Base
 from industrialops.models.assets import EquipmentModel
+from industrialops.models.audit import AuditEvent
 from industrialops.models.user import User
 from industrialops.services.auth_sessions import create_auth_session
 
 
-def _prepared_client() -> tuple[TestClient, str, str]:
+def _prepared_client() -> tuple[TestClient, str, str, sessionmaker[Session]]:
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine)
     sessions = sessionmaker(bind=engine)
@@ -29,11 +30,11 @@ def _prepared_client() -> tuple[TestClient, str, str]:
     admin_token, _ = create_auth_session(db, admin, expires_at=expires_at)
     user_token, _ = create_auth_session(db, user, expires_at=expires_at)
     db.commit()
-    return TestClient(create_app(Settings.from_environment({}), session_factory=sessions)), admin_token, user_token
+    return TestClient(create_app(Settings.from_environment({}), session_factory=sessions)), admin_token, user_token, sessions
 
 
 def test_assets_api_enforces_admin_writes_and_exposes_versioned_soft_retirement() -> None:
-    client, admin_token, user_token = _prepared_client()
+    client, admin_token, user_token, sessions = _prepared_client()
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
     user_headers = {"Authorization": f"Bearer {user_token}"}
     payload = {"asset_id": "cnc-demo-001", "equipment_model_id": "haas-vf2-ngc", "display_name": "CNC 001"}
@@ -55,3 +56,4 @@ def test_assets_api_enforces_admin_writes_and_exposes_versioned_soft_retirement(
     assert retired.status_code == 200
     assert retired.json()["status"] == "out_of_service"
     assert retired.json()["version"] == 2
+    assert sessions().query(AuditEvent.action).all() == [("asset.created",), ("asset.updated",)]

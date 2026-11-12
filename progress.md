@@ -13,6 +13,7 @@
 - 第五分片已完成：`POST /api/diagnosis/query` 现在保存服务端请求、结构化结果和 citation 快照；原 v0.3 API 测试改为注入 SQLite，避免使用 `.env` 的占位 MySQL URL。`POST /api/work-orders/drafts` 从已保存的诊断生成草稿并忽略客户端伪造 citations；README/OpenAPI 契约已同步。全仓回归为 212 passed。
 - 第六至九分片已完成：新增同步 `SQLAlchemyCheckpointSaver`，以 LangGraph typed serializer 持久化完整 checkpoint/pending writes，并支持绑定业务事务。最小审批图在 `interrupt()` 暂停，销毁后重新构造 workflow/saver 仍可用同一 `thread_id` 以 `Command(resume=...)` 恢复。工单草稿会在同一事务写入 checkpoint 和 `work_order.*`/`workflow.interrupted` 审计；approver/admin 的批准或拒绝恢复图后写入唯一决定、状态转换和审计。新增列表、详情、批准、拒绝和版本化生命周期 API，普通用户不能审批且非被指派人不能开始/完成。新增显式、幂等的 `python -m industrialops.demo_seed` 合成资产初始化命令。2026-11-12 全仓自动化回归为 **221 passed**（1 条 LangGraph 第三方弃用警告）；README 已给出 MySQL 迁移、重启恢复验收步骤。真实 MySQL/Uvicorn 验收尚未执行，因此 v0.4 状态为 `automated_verified`。
 - v0.4 真实发布验收完成：本机 MySQL 8.4.5 从空库运行 Alembic 至 `v04_assets_work_orders`、`demo_seed` 导入 2 条合成资产。通过 Uvicorn `127.0.0.1:8101` 登录合成 operator、以已保存的合成诊断创建 draft；停止该 Uvicorn 实例并重新启动后，以 approver 登录并批准同一工单。最终 SQL 只读核验结果为：工单 `approved`/版本 2、唯一审批决定 1、thread checkpoint 4、对应审计事件 5。验收发现并修正 Alembic 未读取 `INDUSTRIALOPS_DATABASE_URL`、MySQL 8.4 不允许 TEXT server default，以及 demo seed CLI 未传环境映射的问题；SQLite 迁移回归已补测。v0.4 状态升级为 `release_verified`。
+- 文档复核发现缺少稳定审计事件和真实竞争测试后已补齐：登录成功/失败、资产创建/更新、工作流恢复失败均写入规定动作名；恢复失败详情不保留原始异常文本。应用级可重入锁让 SQLite 多连接并发审批稳定串行，生产 MySQL 继续由 `FOR UPDATE` 与审批唯一约束跨进程保护。224 项全量测试通过；MySQL/Uvicorn 复验确认 `auth.login_succeeded`、`auth.login_failed`、`asset.created`、`asset.updated`、`workflow.resumed` 与 `work_order.approved` 均已真实入库，且第二次重启恢复审批成功。
 
 ## 2026-11-11（v0.3 证据驱动诊断工作流，已完成）
 

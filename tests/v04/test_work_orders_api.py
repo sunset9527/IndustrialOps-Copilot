@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
@@ -11,13 +12,18 @@ from industrialops.api import create_app
 from industrialops.config import Settings
 from industrialops.database import Base
 from industrialops.models.assets import Asset, EquipmentModel
+from industrialops.models.audit import AuditEvent
+from industrialops.models.work_order import ApprovalDecision, WorkOrderTransition
 from industrialops.models.user import User
 from industrialops.services.auth_sessions import create_auth_session
 from industrialops.services.diagnosis_records import record_diagnosis
 
 
-def _prepared_client() -> tuple[TestClient, dict[str, dict[str, str]]]:
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+def _prepared_client(database_url: str = "sqlite://") -> tuple[TestClient, dict[str, dict[str, str]]]:
+    engine_options = {"connect_args": {"check_same_thread": False}}
+    if database_url == "sqlite://":
+        engine_options["poolclass"] = StaticPool
+    engine = create_engine(database_url, **engine_options)
     Base.metadata.create_all(engine)
     sessions = sessionmaker(bind=engine)
     db = sessions()
@@ -129,3 +135,50 @@ def test_approver_can_reject_a_draft_only_with_a_reason() -> None:
     assert missing_reason.status_code == 422
     assert rejected.status_code == 200
     assert rejected.json()["status"] == "cancelled"
+
+
+def test_failed_approval_resume_records_a_sanitized_audit_event(monkeypatch) -> None:
+    client, tokens = _prepared_client()
+    draft = _create_draft(client, tokens["operator"])
+
+    class FailingWorkflow:
+        def invoke(self, *_args, **_kwargs):
+            raise RuntimeError("simulated resume failure")
+
+    monkeypatch.setattr("industrialops.api.build_approval_workflow", lambda _saver: FailingWorkflow())
+    failed = client.post(
+        f"/api/work-orders/{draft['work_order_id']}/approve",
+        headers=tokens["approver"],
+        json={"reason": "verify failure audit"},
+    )
+
+    db = client.app.state.session_factory()
+    events = list(db.query(AuditEvent).filter(AuditEvent.subject_id == draft["work_order_id"]).order_by(AuditEvent.id))
+    assert failed.status_code == 500
+    assert failed.json()["error"]["code"] == "workflow_resume_failed"
+    assert events[-1].action == "workflow.resume_failed"
+    assert "simulated" not in events[-1].detail
+
+
+def test_competing_approval_and_rejection_create_one_final_decision(tmp_path) -> None:
+    client, tokens = _prepared_client(f"sqlite:///{(tmp_path / 'competition.db').as_posix()}")
+    draft = _create_draft(client, tokens["operator"])
+    work_order_id = draft["work_order_id"]
+
+    def submit(decision: str, headers: dict[str, str]):
+        return client.post(
+            f"/api/work-orders/{work_order_id}/{decision}",
+            headers=headers,
+            json={"reason": f"{decision} competition"},
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        approved, rejected = tuple(executor.map(
+            lambda input: submit(*input),
+            (("approve", tokens["approver"]), ("reject", tokens["admin"])),
+        ))
+
+    db = client.app.state.session_factory()
+    assert sorted((approved.status_code, rejected.status_code)) == [200, 409], (approved.text, rejected.text)
+    assert db.query(ApprovalDecision).filter(ApprovalDecision.work_order_id == work_order_id).count() == 1
+    assert db.query(WorkOrderTransition).filter(WorkOrderTransition.work_order_id == work_order_id).count() == 1

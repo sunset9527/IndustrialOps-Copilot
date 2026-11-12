@@ -17,6 +17,7 @@
 - 真实 MySQL 验收发现 `alembic.ini` 的占位连接 URL 不会自动读取应用环境变量；Alembic 环境现在只在保留占位 URL 时接受 `INDUSTRIALOPS_DATABASE_URL` 覆盖，程序化传入的测试 URL 不会被覆盖。
 - MySQL 8.4 拒绝 `TEXT NOT NULL DEFAULT ''`。迁移基线的审计 detail 字段改为无 server default，ORM 保留客户端空字符串默认，因此 MySQL 与 SQLite 均可创建新库。
 - `Settings.from_environment` 明确接收映射；CLI 调用必须传入 `os.environ`。此前 demo seed 的无参调用只在从源码未安装的发布验收路径中暴露，已修正并保留单元测试。
+- SQLite 不实现 `SELECT ... FOR UPDATE`，两个并发 HTTP 审批恢复会同时争用 checkpoint，曾导致一方泛化为 `workflow_resume_failed`。每个 FastAPI app 实例现在用可重入锁串行化审批决定；生产 MySQL 仍以行锁和唯一约束完成跨进程竞争保护。真实竞争测试使用文件型 SQLite 多连接，而非 `StaticPool` 内存库，避免测试连接伪影。
 
 ## 2026-11-07
 
