@@ -1,5 +1,6 @@
 <script setup>
 import { inject, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const api = inject('api')
 const workOrders = ref([])
@@ -15,7 +16,7 @@ onMounted(async () => {
     <p class="eyebrow">WORK ORDER QUEUE</p><h1>工单审批</h1>
     <p v-if="error" role="alert">暂时无法加载工单，请稍后重试。</p>
     <p v-else-if="workOrders.length === 0">当前没有待处理工单。</p>
-    <ul v-else><li v-for="order in workOrders" :key="order.work_order_id"><strong>{{ order.work_order_id }}</strong><span>{{ order.title }}</span><span>{{ order.status }}</span></li></ul>
+    <ul v-else><li v-for="order in workOrders" :key="order.work_order_id"><strong>{{ order.work_order_id }}</strong><RouterLink :to="{ name: 'work-order-detail', params: { workOrderId: order.work_order_id } }">{{ order.title }}</RouterLink><span>{{ order.status }}</span></li></ul>
   </main>
 </template>
 

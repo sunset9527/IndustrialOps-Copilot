@@ -41,4 +41,11 @@ describe('ApprovalPanel', () => {
     })
     expect(wrapper.text()).toContain('cancelled')
   })
+
+  it('requests a server refresh when another approver has already decided', async () => {
+    const wrapper = mount(ApprovalPanel, { props: { workOrder: { work_order_id: 'wo-003', status: 'draft' }, role: 'approver' }, global: { provide: { api: { request: vi.fn().mockRejectedValue({ code: 'approval_already_decided' }) } } } })
+    await wrapper.get('button[name="approve"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.emitted('refresh')).toHaveLength(1)
+  })
 })

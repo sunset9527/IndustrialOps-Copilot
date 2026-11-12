@@ -14,7 +14,7 @@ v0.4 已完成真实发布验证：设备台账、证据绑定工单、人工审
 | 文件处理 | Python 模块校验上传路径和扩展名，解析 TXT、PDF、DOCX，并通过同步 worker 记录任务状态。 | `tests/v01/test_upload_security.py`、`test_document_parser.py`、`test_task_state.py`、`test_upload_worker.py` |
 | 检索基础 | 内存 BM25、余弦向量检索、RRF、注入式重排、Hit@k 计算与索引快照。向量和评分函数由调用方提供。 | `tests/v01/test_bm25_retriever.py`、`test_vector_retriever.py`、`test_rank_fusion.py`、`test_reranker.py`、`test_retrieval_metrics.py`、`test_index_snapshot.py` |
 | 工作流骨架 | 标准库实现请求级状态与事件，返回受控的能力边界或错误。 | `tests/v01/test_workflow_skeleton.py` |
-| Vue 首页 | 提供 API 健康检查链接。API 客户端在内存管理 Bearer 令牌，处理 401 和结构化错误。 | `frontend/tests/` |
+| Vue 工业工作台（v0.5 自动化验证） | 登录、路由守卫、设备总览、服务端设备上下文、诊断、证据/安全/不确定性、工单草稿及批准/拒绝界面；设备和工单均为合成演示数据。真实浏览器验收前不标记 `release_verified`。 | `frontend/tests/` |
 
 ## 本地启动
 
@@ -106,7 +106,7 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 ## 当前边界
 
-上传和检索的 HTTP 接口、浏览器跨域 API与 Redis 服务尚待验证；Vue 设备台账/工单审批前端工作台属于 v0.5，未在本阶段实现。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 的 MySQL/Uvicorn 重启恢复链路已真实通过；Codex 受限执行环境中的 `socketpair` 异常不代表产品运行时限制。
+v0.5 前端已通过组件自动化测试和生产构建，但尚未完成 CNC 主案例与真空泵迁移案例的真实浏览器验收，因此不能标记为 `release_verified`。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 的 MySQL/Uvicorn 重启恢复链路已真实通过；Codex 受限执行环境中的 `socketpair` 异常不代表产品运行时限制。
 
 ## v0.3（证据驱动诊断工作流，已完成）
 

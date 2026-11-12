@@ -2,6 +2,7 @@
 import { computed, inject, ref } from 'vue'
 
 const props = defineProps({ workOrder: { type: Object, required: true }, role: { type: String, required: true } })
+const emit = defineEmits(['refresh'])
 const api = inject('api')
 const status = ref(props.workOrder.status)
 const canApprove = computed(() => ['approver', 'admin'].includes(props.role))
@@ -9,10 +10,7 @@ const rejectionReason = ref('')
 const errorMessage = ref('')
 
 async function approve() {
-  const response = await api.request(`/api/work-orders/${props.workOrder.work_order_id}/approve`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: null }),
-  })
-  status.value = response.status
+  try { const response = await api.request(`/api/work-orders/${props.workOrder.work_order_id}/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: null }) }); status.value = response.status } catch (error) { if (error.code === 'approval_already_decided' || error.code === 'stale_resource_version') emit('refresh'); else throw error }
 }
 
 async function reject() {
@@ -21,10 +19,7 @@ async function reject() {
     return
   }
   errorMessage.value = ''
-  const response = await api.request(`/api/work-orders/${props.workOrder.work_order_id}/reject`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: rejectionReason.value }),
-  })
-  status.value = response.status
+  try { const response = await api.request(`/api/work-orders/${props.workOrder.work_order_id}/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: rejectionReason.value }) }); status.value = response.status } catch (error) { if (error.code === 'approval_already_decided' || error.code === 'stale_resource_version') emit('refresh'); else throw error }
 }
 </script>
 

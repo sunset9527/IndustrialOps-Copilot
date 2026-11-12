@@ -8,6 +8,7 @@ data/models/
 data/source_manifests/*.csv
 tmp/
 .download_chrome_profile/
+.superpowers/
 
 # Local environment
 .venv/

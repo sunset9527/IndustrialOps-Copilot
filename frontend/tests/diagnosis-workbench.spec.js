@@ -14,7 +14,7 @@ describe('DiagnosisWorkbench', () => {
   it('constructs the diagnosis request from the selected asset server context', async () => {
     const request = vi.fn().mockResolvedValue({
       status: 'answered',
-      confirmed_facts: [], candidate_causes: ['换刀位置确认未完成。'], inspection_steps: [],
+      confirmed_facts: [], candidate_causes: ['换刀位置确认未完成。'], inspection_steps: ['确认能量隔离。'],
       safety_prerequisites: [], uncertainties: [], required_information: [], escalation_conditions: [], citations: [],
     })
     const wrapper = mount(DiagnosisWorkbench, {
@@ -38,6 +38,7 @@ describe('DiagnosisWorkbench', () => {
       }),
     })
     expect(wrapper.text()).toContain('换刀位置确认未完成。')
+    expect(wrapper.get('button[name="open-draft"]').text()).toContain('生成工单草稿')
   })
 
   it('clears an earlier device result when the selected asset changes', async () => {

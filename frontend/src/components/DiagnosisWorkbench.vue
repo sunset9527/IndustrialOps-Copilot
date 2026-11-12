@@ -2,6 +2,7 @@
 import { inject, ref, watch } from 'vue'
 
 import DiagnosisResult from './DiagnosisResult.vue'
+import WorkOrderDraftDrawer from './WorkOrderDraftDrawer.vue'
 
 const props = defineProps({
   asset: { type: Object, required: true },
@@ -43,6 +44,7 @@ async function submit() {
       <button type="submit">运行诊断</button>
     </form>
     <DiagnosisResult v-if="result" :result="result" />
+    <WorkOrderDraftDrawer v-if="result" :asset="asset" :diagnosis="result" />
   </section>
 </template>
 
