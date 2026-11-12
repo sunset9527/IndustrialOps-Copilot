@@ -19,4 +19,26 @@ describe('ApprovalPanel', () => {
     })
     expect(wrapper.text()).toContain('approved')
   })
+
+  it('requires a rejection reason before submitting to the dedicated reject endpoint', async () => {
+    const request = vi.fn().mockResolvedValue({ status: 'cancelled' })
+    const wrapper = mount(ApprovalPanel, {
+      props: { workOrder: { work_order_id: 'wo-002', status: 'draft' }, role: 'admin' },
+      global: { provide: { api: { request } } },
+    })
+
+    await wrapper.get('button[name="reject"]').trigger('click')
+    expect(wrapper.get('[role="alert"]').text()).toContain('请填写拒绝理由')
+    expect(request).not.toHaveBeenCalled()
+
+    await wrapper.get('textarea[name="rejectionReason"]').setValue('证据不足，需补充现场信息。')
+    await wrapper.get('button[name="reject"]').trigger('click')
+    await flushPromises()
+
+    expect(request).toHaveBeenCalledWith('/api/work-orders/wo-002/reject', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: '证据不足，需补充现场信息。' }),
+    })
+    expect(wrapper.text()).toContain('cancelled')
+  })
 })
