@@ -57,3 +57,34 @@ def test_assets_api_enforces_admin_writes_and_exposes_versioned_soft_retirement(
     assert retired.json()["status"] == "out_of_service"
     assert retired.json()["version"] == 2
     assert sessions().query(AuditEvent.action).all() == [("asset.created",), ("asset.updated",)]
+
+
+def test_assets_api_exposes_server_owned_equipment_context_for_generic_diagnosis() -> None:
+    client, admin_token, _, _ = _prepared_client()
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    created = client.post(
+        "/api/equipment/assets",
+        headers=headers,
+        json={
+            "asset_id": "cnc-demo-001",
+            "equipment_model_id": "haas-vf2-ngc",
+            "display_name": "CNC 001",
+        },
+    )
+
+    assert created.status_code == 201
+    assert created.json() == {
+        "asset_id": "cnc-demo-001",
+        "equipment_model_id": "haas-vf2-ngc",
+        "pack_id": "cnc_pack_v1.0.0",
+        "manufacturer": "Haas",
+        "model_name": "VF-2",
+        "controller_or_firmware_scope": None,
+        "display_name": "CNC 001",
+        "site": None,
+        "line": None,
+        "location": None,
+        "status": "available",
+        "synthetic": True,
+        "version": 1,
+    }

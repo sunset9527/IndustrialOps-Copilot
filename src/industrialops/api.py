@@ -93,6 +93,10 @@ class AssetResponse(BaseModel):
 
     asset_id: str
     equipment_model_id: str
+    pack_id: str
+    manufacturer: str
+    model_name: str
+    controller_or_firmware_scope: str | None
     display_name: str
     site: str | None
     line: str | None

@@ -57,3 +57,27 @@ class Asset(Base):
     )
 
     equipment_model: Mapped[EquipmentModel] = relationship(back_populates="assets")
+
+    @property
+    def pack_id(self) -> str:
+        """Expose the selected model's frozen pack as read-only asset context."""
+
+        return self.equipment_model.pack_id
+
+    @property
+    def manufacturer(self) -> str:
+        """Expose the model manufacturer without duplicating it on an asset."""
+
+        return self.equipment_model.manufacturer
+
+    @property
+    def model_name(self) -> str:
+        """Expose the model display name without duplicating it on an asset."""
+
+        return self.equipment_model.model_name
+
+    @property
+    def controller_or_firmware_scope(self) -> str | None:
+        """Expose the declared controller or firmware compatibility scope."""
+
+        return self.equipment_model.controller_or_firmware_scope

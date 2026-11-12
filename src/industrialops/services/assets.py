@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from industrialops.models.assets import Asset, EquipmentModel
 
@@ -70,7 +70,13 @@ def list_assets(
     total = db.scalar(select(func.count()).select_from(Asset).join(EquipmentModel).where(*filters)) or 0
     assets = list(
         db.scalars(
-            select(Asset).join(EquipmentModel).where(*filters).order_by(Asset.asset_id).offset(offset).limit(limit)
+            select(Asset)
+            .join(EquipmentModel)
+            .options(selectinload(Asset.equipment_model))
+            .where(*filters)
+            .order_by(Asset.asset_id)
+            .offset(offset)
+            .limit(limit)
         )
     )
     return assets, total
