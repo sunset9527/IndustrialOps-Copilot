@@ -15,6 +15,7 @@ class Settings:
     database_url: str
     redis_key_prefix: str
     request_max_bytes: int
+    auth_session_ttl_seconds: int = 3600
     deepseek_api_key: str | None = None
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-flash"
@@ -32,6 +33,7 @@ class Settings:
             ),
             redis_key_prefix=environment.get("INDUSTRIALOPS_REDIS_KEY_PREFIX", "industrialops:"),
             request_max_bytes=int(environment.get("INDUSTRIALOPS_REQUEST_MAX_BYTES", "26214400")),
+            auth_session_ttl_seconds=int(environment.get("INDUSTRIALOPS_AUTH_SESSION_TTL_SECONDS", "3600")),
             deepseek_api_key=environment.get("INDUSTRIALOPS_DEEPSEEK_API_KEY") or None,
             deepseek_base_url=environment.get("INDUSTRIALOPS_DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
             deepseek_model=environment.get("INDUSTRIALOPS_DEEPSEEK_MODEL", "deepseek-flash"),

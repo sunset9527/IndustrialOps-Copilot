@@ -46,7 +46,7 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
         "INDUSTRIALOPS_FRONTEND_PORT",
         "INDUSTRIALOPS_DATABASE_URL",
         "INDUSTRIALOPS_REDIS_KEY_PREFIX",
-        "INDUSTRIALOPS_REQUEST_MAX_BYTES", "INDUSTRIALOPS_DEEPSEEK_API_KEY",
+        "INDUSTRIALOPS_REQUEST_MAX_BYTES", "INDUSTRIALOPS_AUTH_SESSION_TTL_SECONDS", "INDUSTRIALOPS_DEEPSEEK_API_KEY",
         "INDUSTRIALOPS_DEEPSEEK_BASE_URL", "INDUSTRIALOPS_DEEPSEEK_MODEL",
         "INDUSTRIALOPS_DEEPSEEK_TIMEOUT", "INDUSTRIALOPS_DEEPSEEK_MAX_TOKENS",
     }
@@ -94,10 +94,13 @@ def test_release_readme_distinguishes_api_routes_from_library_capabilities() -> 
     readme = read_project_file("README.md")
     documented_routes = set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE) (/[^`]+)`", readme))
     application_routes = set(app.openapi()["paths"])
-    assert documented_routes == application_routes == {"/health", "/ready", "/api/diagnosis/query"}
+    assert documented_routes == application_routes == {
+        "/health", "/ready", "/api/auth/login", "/api/auth/me", "/api/diagnosis/query",
+    }
     _, boundary = readme.split("## 当前边界", maxsplit=1)
-    for unsupported_capability in ("登录", "上传", "检索的 HTTP 接口", "工单"):
+    for unsupported_capability in ("上传", "检索的 HTTP 接口", "工单"):
         assert unsupported_capability in boundary
+    assert "登录" not in boundary
     assert "设备包加载" not in boundary
     assert "local_evidence_only" in readme
 

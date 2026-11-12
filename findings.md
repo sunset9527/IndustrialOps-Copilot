@@ -8,6 +8,8 @@
 - 现有 `User` 已有 `role` 字段但没有 HTTP 登录态；`AuditEvent` 已支持事务内追加。v0.4 应扩展而非复制第二套审计库。
 - 规划要求选择性吸收 Machina（Apache-2.0）、industrial-maintenance-api（MIT）和 Uptime Copilot（MIT）的领域、分层与人工审批思路；默认独立实现，若直接移植具体代码则必须更新 `THIRD_PARTY_NOTICES.md`。
 - 沙箱内的 FastAPI `TestClient` 无法启动 AnyIO 的 Windows Proactor 事件循环：faulthandler 显示阻塞在内部 socketpair 的 `accept()`，应用尚未接收 `/health` 请求。沙箱外同一 `tests/v01/test_health_routes.py` 为 4 passed，全仓为 194 passed；这是执行环境限制而不是本次代码回归。
+- 使用 FastAPI `TestClient` 验证同步 SQLAlchemy 路由时，SQLite 内存库必须使用 `StaticPool` 加 `connect_args={"check_same_thread": False}`；否则由 TestClient 线程池执行的路由无法复用测试线程建立的连接。生产 MySQL/PyMySQL 不使用这一 SQLite 测试配置。
+- 认证 API 新增后，README 路由清单必须与 OpenAPI paths 精确一致；`.env.example` 也必须列出新运行时设置 `INDUSTRIALOPS_AUTH_SESSION_TTL_SECONDS`，否则交付真实性测试会失败。
 
 ## 2026-11-07
 
