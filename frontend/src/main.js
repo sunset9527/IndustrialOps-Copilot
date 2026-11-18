@@ -14,6 +14,7 @@ async function bootstrap() {
     isAuthenticated: () => user.value !== null,
     async login(credentials) { user.value = await session.login(credentials); return user.value },
     async register(details) { user.value = await session.register(details); return user.value },
+    logout() { session.logout(); user.value = null },
   }
   const router = createIndustrialOpsRouter({ isAuthenticated: auth.isAuthenticated })
   const app = createApp(App)

@@ -106,7 +106,7 @@ E:\python\python.exe -m industrialops.evaluation.run_v02_baseline --project-root
 
 ## 当前边界
 
-上传、浏览器检索的 HTTP 接口与 Redis 服务尚待验证；完整前端工作台不属于 v0.5。v0.5 前端已通过组件自动化测试和生产构建，但尚未完成 CNC 主案例与真空泵迁移案例的真实浏览器验收，因此不能标记为 `release_verified`。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 的 MySQL/Uvicorn 重启恢复链路已真实通过；Codex 受限执行环境中的 `socketpair` 异常不代表产品运行时限制。
+上传、浏览器检索的 HTTP 接口与 Redis 服务尚待验证；完整前端工作台不属于 v0.5。v0.5 已在本机浏览器完成普通账号注册、CNC 诊断/证据绑定草稿/人工批准，以及无需重启的真空泵切换诊断验收，状态为 `release_verified`。v0.2 当前是离线检索基线，不应包装成已上线的诊断系统。v0.4 的 MySQL/Uvicorn 重启恢复链路已真实通过；Codex 受限执行环境中的 `socketpair` 异常不代表产品运行时限制。
 
 ## v0.3（证据驱动诊断工作流，已完成）
 

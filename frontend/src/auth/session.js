@@ -25,6 +25,11 @@ export function createAuthSession({ api, storage }) {
       return adopt(response)
     },
 
+    logout() {
+      api.setToken(null)
+      storage.removeItem(accessTokenKey)
+    },
+
     async restore() {
       const token = storage.getItem(accessTokenKey)
       if (!token) {

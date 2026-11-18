@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-- 状态：`v0.4_release_verified`。v0.1、v0.2、v0.3 与 v0.4 均已完成对应发布验收。
+- 状态：`v0.5_release_verified`。v0.1、v0.2、v0.3、v0.4 与 v0.5 均已完成对应发布验收。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.4 只交付后端、数据库迁移和 API，不提前实现 v0.5 前端。
 - 设计依据：`docs/superpowers/specs/2026-11-11-v0.4-assets-work-orders-approval-design.md`（提交 `efa2c8c`）。
 

@@ -24,7 +24,7 @@ _DEMO_MODELS = (
         "equipment_model_id": "edwards-nxds-standard",
         "pack_id": "dry_vacuum_pump_pack_v1.0.0",
         "manufacturer": "Edwards",
-        "model_name": "nXDS",
+        "model_name": "nXDS10i",
         "controller_or_firmware_scope": None,
     },
 )
@@ -51,8 +51,14 @@ def seed_demo_assets(db: Session) -> int:
     """Add the two documented synthetic assets when they are absent, never at import time."""
 
     for model in _DEMO_MODELS:
-        if db.scalar(select(EquipmentModel).where(EquipmentModel.equipment_model_id == model["equipment_model_id"])) is None:
+        equipment_model = db.scalar(
+            select(EquipmentModel).where(EquipmentModel.equipment_model_id == model["equipment_model_id"])
+        )
+        if equipment_model is None:
             db.add(EquipmentModel(**model))
+        else:
+            for field, value in model.items():
+                setattr(equipment_model, field, value)
     db.flush()
 
     created = 0

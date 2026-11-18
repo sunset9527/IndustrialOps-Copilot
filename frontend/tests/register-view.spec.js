@@ -29,6 +29,6 @@ describe('RegisterView', () => {
     await wrapper.get('input[name="password"]').setValue('123456789')
     await wrapper.get('form').trigger('submit')
 
-    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toContain('Password must contain at least 10 characters'))
+    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toContain('密码至少需要 10 个字符'))
   })
 })

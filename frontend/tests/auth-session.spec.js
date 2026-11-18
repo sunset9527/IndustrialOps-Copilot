@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createApiClient } from '../src/api/client.js'
 import { createAuthSession } from '../src/auth/session.js'
@@ -78,5 +78,26 @@ describe('browser authentication session', () => {
     const session = createAuthSession({ api, storage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v), removeItem: (k) => storage.delete(k) } })
     await expect(session.register({ username: 'new-user', email: 'new@example.com', password: 'a long memorable password' })).resolves.toEqual({ username: 'new-user', role: 'user' })
     expect(storage.get('industrialops.accessToken')).toBe('registered-token')
+  })
+
+  it('clears the stored token and in-memory authorization when logging out', async () => {
+    const storage = new Map([['industrialops.accessToken', 'active-token']])
+    const authorization = []
+    const session = createAuthSession({
+      api: {
+        setToken: (token) => authorization.push(token),
+        request: vi.fn(),
+      },
+      storage: {
+        getItem: (key) => storage.get(key) ?? null,
+        setItem: (key, value) => storage.set(key, value),
+        removeItem: (key) => storage.delete(key),
+      },
+    })
+
+    session.logout()
+
+    expect(storage.has('industrialops.accessToken')).toBe(false)
+    expect(authorization).toEqual([null])
   })
 })
