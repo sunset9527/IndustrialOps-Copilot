@@ -1,5 +1,15 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-19（v0.6 工程化与离线交付）
+
+- 已完成并提交 v0.6 设计规格（`6abe424`）；用户已批准实施。实现计划位于 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
+- 已按 TDD 实现离线配置门控：`INDUSTRIALOPS_OFFLINE=true` 时，即使存在 DeepSeek Key 也不会构造外部 HTTP 请求；本地模型、知识包、注册表和索引路径均改为显式配置，诊断运行时不再硬编码 Windows 模型路径。
+- 已交付本地不可变索引存储：索引版本由冻结包、注册表、BGE 指纹与格式版本确定；构建使用临时目录后原子发布，完整输入可复用，损坏索引被稳定错误码拒绝。
+- 已交付 `industrialops.bootstrap`：按预检、Alembic、合成资产、冻结包、索引顺序执行，任一失败即停止；API 只在 bootstrap 成功后启动。`/health` 保持存活探针，`/ready` 报告数据库、迁移、知识包、索引、模型与离线策略。
+- 已交付 `db → bootstrap → api → web` Compose、Vue/Nginx 多阶段镜像、私有资料只读挂载、索引/数据库命名卷、结构化日志脱敏、GitHub Actions 和 Windows PowerShell 冷启动/备份恢复说明。原始资料、冻结包与模型不进入镜像或 CI。
+- 自动化验证：v0.6、新检索与相关 v0.3 测试 30 项通过；前端 22 项通过，Vite 生产构建通过；交付静态测试和 `docker compose config` 通过。后端 Docker 镜像尚未实际构建，因为本会话 Docker Desktop Linux 引擎未启动。
+- 当前 Codex 受限环境对 Windows Proactor 的 `socketpair()` 会阻断 FastAPI `TestClient` 和部分 `asyncio.run()` 测试，已用 faulthandler 定位；这与既有已知环境限制一致。未将该问题归因于应用代码；完整 HTTP 回归与 Docker 冷启动需在用户本机正常 PowerShell/Docker 环境执行。
+
 ## 2026-11-18（v0.5 工业前端与演示闭环）
 
 - 已完成普通用户自助注册、自动登录、角色展示与退出；注册始终创建 `user`，错误以中文字段提示呈现。

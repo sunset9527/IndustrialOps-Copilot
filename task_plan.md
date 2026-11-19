@@ -6,9 +6,17 @@
 
 ## 当前阶段
 
-- 状态：`v0.5_release_verified`。v0.1、v0.2、v0.3、v0.4 与 v0.5 均已完成对应发布验收。
-- 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.4 只交付后端、数据库迁移和 API，不提前实现 v0.5 前端。
-- 设计依据：`docs/superpowers/specs/2026-11-11-v0.4-assets-work-orders-approval-design.md`（提交 `efa2c8c`）。
+- 状态：`v0.6_implemented`。v0.1、v0.2、v0.3、v0.4 与 v0.5 均已完成对应发布验收；v0.6 尚未进行 Docker Desktop 真实冷启动，不能标为 `automated_verified` 或 `release_verified`。
+- 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
+- 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
+
+## v0.6 分片计划
+
+1. `[complete]` 配置扩展与离线门控：新增显式知识包、索引和本地模型路径；离线模式即使存在 API Key 也不会构造 DeepSeek HTTP 请求。
+2. `[complete]` 可再生索引：索引身份绑定知识包内容哈希、注册表哈希、BGE 指纹与格式版本；完整索引可复用，损坏或身份不一致显式拒绝。
+3. `[complete]` bootstrap 与就绪：显式顺序执行预检、迁移、合成资产初始化、知识包校验和索引准备；`/health` 与可报告依赖状态的 `/ready` 分离。
+4. `[complete]` 容器、日志与 CI：交付 MySQL、bootstrap、API、Vue/Nginx 四服务编排，只读挂载私有资料、索引卷、输出脱敏和 CI 配置。
+5. `[pending]` 启动 Docker Desktop 后按 `docs/operations/v0.6-offline-delivery.md` 完成镜像构建、无历史卷冷启动、离线双设备诊断、工单重启恢复、备份恢复与验收报告。
 
 ## v0.4 分片计划
 

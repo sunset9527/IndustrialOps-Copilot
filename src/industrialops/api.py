@@ -19,6 +19,7 @@ from starlette.middleware.cors import CORSMiddleware
 from industrialops.app_metadata import PRODUCT_NAME
 from industrialops.checkpoint import SQLAlchemyCheckpointSaver
 from industrialops.config import Settings
+from industrialops.readiness import ReadinessReport, build_readiness_checker
 from industrialops.diagnosis.response import diagnosis_json_response
 from industrialops.diagnosis.runtime import build_default_workflow
 from industrialops.diagnosis.schemas import DiagnosisRequest, DiagnosisResult
@@ -208,6 +209,7 @@ def create_app(
     *,
     diagnosis_workflow: object | None = None,
     session_factory: SessionFactory | None = None,
+    readiness_checker: Callable[[], ReadinessReport] | None = None,
 ) -> FastAPI:
     """Create the domain-neutral v0.1 application."""
 
@@ -231,6 +233,7 @@ def create_app(
     # Loading a frozen pack verifies its content hash and can be expensive. Keep
     # application import and non-diagnosis endpoints independent from that work.
     app.state.diagnosis_workflow = diagnosis_workflow
+    app.state.readiness_checker = readiness_checker or build_readiness_checker(settings)
     app.add_middleware(RequestBodyLimitMiddleware, max_bytes=settings.request_max_bytes)
 
     @app.exception_handler(StarletteHTTPException)
@@ -308,8 +311,9 @@ def create_app(
         return {"status": "ok", "product": PRODUCT_NAME}
 
     @app.get("/ready")
-    def ready() -> dict[str, object]:
-        return {"status": "ready", "dependencies": []}
+    def ready() -> JSONResponse:
+        report = app.state.readiness_checker()
+        return JSONResponse(status_code=200 if report.ready else 503, content=report.as_dict())
 
     @app.post("/api/auth/login", response_model=LoginResponse)
     def login(request: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse | JSONResponse:

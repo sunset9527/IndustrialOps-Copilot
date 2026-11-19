@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from collections.abc import Mapping
+import hashlib
 
 from industrialops.config import Settings
 from industrialops.diagnosis.context import EquipmentContextResolver, ResolvedEquipmentContext
@@ -13,8 +14,9 @@ from industrialops.diagnosis.schemas import DiagnosisRequest
 from industrialops.diagnosis.workflow import DiagnosisWorkflow
 from industrialops.knowledge.pack_loader import EquipmentPack, EquipmentPackLoader, StructuredEvidence
 from industrialops.retrieval.industrial import AlarmCodeIndex, CompatibilityQuery, EquipmentMetadataFilter, IndustrialRetriever
-from industrialops.retrieval.local_models import LocalBgeM3, LocalCrossEncoder
+from industrialops.retrieval.local_models import LocalBgeM3, LocalCrossEncoder, model_fingerprint
 from industrialops.retrieval.bm25 import Bm25Index, RetrievalDocument
+from industrialops.retrieval.index_store import IndexStore
 
 
 class PackScopedEvidenceRetriever:
@@ -68,8 +70,15 @@ class PackScopedEvidenceRetriever:
 class LocalV02Retriever:
     """Lazy, pack-local BGE-M3/RRF/reranker index used by the diagnosis runtime."""
 
-    def __init__(self, pack: EquipmentPack, embedding_path: Path, reranker_path: Path) -> None:
+    def __init__(
+        self,
+        pack: EquipmentPack,
+        embedding_path: Path,
+        reranker_path: Path,
+        document_vectors: Mapping[str, object],
+    ) -> None:
         self._pack, self._embedding_path, self._reranker_path = pack, embedding_path, reranker_path
+        self._document_vectors = document_vectors
         self._retriever: IndustrialRetriever | None = None
 
     def retrieve(self, query: str, compatibility: CompatibilityQuery, *, limit: int):
@@ -92,13 +101,19 @@ class LocalV02Retriever:
             # letting one unusually long PDF extraction dominate first-query
             # latency. Source text and citations remain untouched.
             index_text = lambda item: (item.text + " " + item.text_zh)[:1000]
-            vectors = embedding.embed([index_text(item) for item in documents])
+            vectors = {
+                item.document_id: self._document_vectors[item.document_id]
+                for item in documents
+                if item.document_id in self._document_vectors
+            }
+            if len(vectors) != len(documents):
+                return []
             reranker = LocalCrossEncoder(self._reranker_path)
             by_id = {item.document_id: item for item in documents}
             self._retriever = IndustrialRetriever(
                 candidate_pack,
                 embedder=lambda value: embedding.embed(value),
-                document_vectors=dict(zip((item.document_id for item in documents), vectors, strict=True)),
+                document_vectors=vectors,
                 scorer=lambda question, document_id: reranker.score(question, index_text(by_id[document_id])),
             )
         return self._retriever.retrieve(query, compatibility, limit=limit)
@@ -106,17 +121,34 @@ class LocalV02Retriever:
 
 def build_default_workflow(settings: Settings) -> DiagnosisWorkflow:
     root = Path(__file__).resolve().parents[3]
-    loader = EquipmentPackLoader(root / "data" / "packs", root / "config" / "equipment_pack_registry_v1.json")
+    packs_root = settings.packs_root if settings.packs_root.is_absolute() else root / settings.packs_root
+    registry_path = settings.pack_registry_path if settings.pack_registry_path.is_absolute() else root / settings.pack_registry_path
+    indexes_root = settings.indexes_root if settings.indexes_root.is_absolute() else root / settings.indexes_root
+    loader = EquipmentPackLoader(packs_root, registry_path)
     packs = {
         pack_id: loader.load(pack_id)
         for pack_id in ("cnc_pack_v1.0.0", "dry_vacuum_pump_pack_v1.0.0")
     }
+    registry_sha256 = hashlib.sha256(registry_path.read_bytes()).hexdigest()
+    index_store = IndexStore(indexes_root)
+    embedding_fingerprint = model_fingerprint(settings.bge_model_path)
+    vectors_by_pack = {
+        pack_id: index_store.read_vectors(index_store.expected_artifact(
+            pack, registry_sha256=registry_sha256, model_fingerprint=embedding_fingerprint
+        ))
+        for pack_id, pack in packs.items()
+    }
     return DiagnosisWorkflow(
-        resolver=EquipmentContextResolver.from_registry_path(root / "config" / "equipment_pack_registry_v1.json"),
+        resolver=EquipmentContextResolver.from_registry_path(registry_path),
         retrieve=PackScopedEvidenceRetriever(
             packs,
             document_retrievers={
-                pack_id: LocalV02Retriever(pack, Path(r"E:\huggingface\model"), Path(r"E:\huggingface\bge-reranker-base"))
+                pack_id: LocalV02Retriever(
+                    pack,
+                    settings.bge_model_path,
+                    settings.reranker_model_path,
+                    vectors_by_pack[pack_id],
+                )
                 for pack_id, pack in packs.items()
             },
         ),
@@ -126,5 +158,6 @@ def build_default_workflow(settings: Settings) -> DiagnosisWorkflow:
             model=settings.deepseek_model,
             timeout_seconds=settings.deepseek_timeout_seconds,
             max_tokens=settings.deepseek_max_tokens,
+            offline_mode=settings.offline_mode,
         ),
     )

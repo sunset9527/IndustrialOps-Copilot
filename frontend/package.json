@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "test": "vitest run",
+    "test": "vitest run --pool=forks --maxWorkers=1 --no-file-parallelism",
     "test:watch": "vitest",
     "build": "vite build"
   },

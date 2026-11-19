@@ -4,10 +4,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md alembic.ini ./
 COPY api/ api/
+COPY alembic/ alembic/
+COPY config/ config/
 COPY src/ src/
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir '.[local-models]'
+RUN mkdir -p /app/data/indexes && chown -R 10001:10001 /app
 
 USER 10001:10001
 EXPOSE 8100

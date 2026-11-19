@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Test backend
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install '.[test]'
+          python -m pytest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Test and build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test
+          npm run build
+      - name: Build public container images
+        run: |
+          docker build --tag industrialops-api:ci .
+          docker build --tag industrialops-web:ci frontend
+      - name: Validate Compose configuration
+        env:
+          INDUSTRIALOPS_DB_PASSWORD: ci-password-only
+          INDUSTRIALOPS_DB_ROOT_PASSWORD: ci-root-password-only
+          INDUSTRIALOPS_PACKS_PATH: /tmp/industrialops-packs
+          INDUSTRIALOPS_BGE_MODEL_PATH: /tmp/industrialops-bge
+          INDUSTRIALOPS_RERANKER_MODEL_PATH: /tmp/industrialops-reranker
+        run: docker compose config

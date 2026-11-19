@@ -2,6 +2,12 @@
 
 v0.4 已完成真实发布验证：设备台账、证据绑定工单、人工审批中断/恢复、确定性状态流转和审计链路均已接入后端 API，并在本机 MySQL + Uvicorn 重启恢复链路中验证。当前状态为 `release_verified`。
 
+## v0.6 工程化与离线交付
+
+v0.6 已实现完整演示栈的 `db → bootstrap → api → web` Compose 编排：bootstrap 显式执行迁移、合成资产初始化、冻结知识包验证与本地索引准备；API 只在 bootstrap 成功后启动。知识包和模型均以只读宿主机挂载使用，不进入镜像或 CI。默认离线模式禁止外部回答器，即使环境中存在外部 API Key 也只返回本地证据约束回答。
+
+当前状态为 `implemented`：针对配置、离线门控、索引、bootstrap、就绪、日志、容器和 CI 的自动化契约已通过；Docker Desktop Linux 引擎尚未在本机会话中启动，镜像构建和无历史卷的真实 Docker 冷启动尚未执行，因此不能标为 `automated_verified` 或 `release_verified`。完整 Windows PowerShell 冷启动、状态排查、备份和恢复流程见 [v0.6 本地离线交付与恢复](docs/operations/v0.6-offline-delivery.md)。
+
 ## 已实现
 
 | 能力 | v0.1 范围 | 验证 |
@@ -45,18 +51,9 @@ npm.cmd run dev
 
 前端地址为 `http://localhost:5174`，默认 API 地址为 `http://localhost:8100`。如需更换 API 地址，在启动 Vite 或构建前设置 `VITE_INDUSTRIALOPS_API_BASE_URL`，或在 `frontend/.env.local` 中设置。
 
-## Docker API
+## Docker 完整演示栈
 
-安装 Docker Engine 和 Compose 后，从仓库根目录执行以下命令。镜像构建需要 Python 基础镜像及可访问的 Python 包索引。
-
-```powershell
-docker compose config
-docker compose up --build -d
-Invoke-RestMethod http://127.0.0.1:8100/health
-docker compose down
-```
-
-Compose 只运行 `industrialops-api` 并绑定本机的 `8100` 端口。Vue 仍可按上面的 Vite 命令运行。
+Docker Compose 运行 MySQL、一次性 bootstrap、FastAPI 和 Vue/Nginx。前端位于 `http://127.0.0.1:5174`，API/健康接口位于 `http://127.0.0.1:8100`。先按 [v0.6 本地离线交付与恢复](docs/operations/v0.6-offline-delivery.md) 配置 `.env`、执行预检并完成启动；不要把知识包、模型、`.env`、数据库卷或备份提交到仓库。
 
 ## v0.4 MySQL 发布验收（已完成，可复现）
 

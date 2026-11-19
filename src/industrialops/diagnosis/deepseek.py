@@ -30,6 +30,7 @@ class DeepSeekAnswerGenerator:
         timeout_seconds: float,
         max_tokens: int,
         base_url: str = "https://api.deepseek.com",
+        offline_mode: bool = False,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
         self._api_key = api_key
@@ -37,6 +38,7 @@ class DeepSeekAnswerGenerator:
         self._timeout_seconds = timeout_seconds
         self._max_tokens = max_tokens
         self._base_url = base_url.rstrip("/")
+        self._offline_mode = offline_mode
         self._transport = transport
 
     @classmethod
@@ -48,6 +50,7 @@ class DeepSeekAnswerGenerator:
         timeout_seconds: float,
         max_tokens: int,
         base_url: str = "https://api.deepseek.com",
+        offline_mode: bool = False,
         transport: httpx.BaseTransport | None = None,
     ) -> "DeepSeekAnswerGenerator":
         return cls(
@@ -56,6 +59,7 @@ class DeepSeekAnswerGenerator:
             timeout_seconds=timeout_seconds,
             max_tokens=max_tokens,
             base_url=base_url,
+            offline_mode=offline_mode,
             transport=transport,
         )
 
@@ -67,6 +71,8 @@ class DeepSeekAnswerGenerator:
         citations: Mapping[str, Citation],
         allowed_fields: Sequence[str],
     ) -> GeneratedAnswer:
+        if self._offline_mode:
+            return self._fallback(approved_evidence, allowed_fields, "OFFLINE_MODE_ENABLED")
         if not self._api_key:
             return self._fallback(approved_evidence, allowed_fields, "DEEPSEEK_API_KEY_MISSING")
         response = self._request(question, approved_evidence, allowed_fields)

@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from industrialops.app_metadata import PRODUCT_NAME
 from industrialops.config import Settings
 from industrialops.api import create_app
+from industrialops.readiness import DependencyStatus, ReadinessReport
 
 
 def test_health_route_reports_the_industrialops_product_identity() -> None:
@@ -16,13 +17,23 @@ def test_health_route_reports_the_industrialops_product_identity() -> None:
     assert response.json() == {"status": "ok", "product": PRODUCT_NAME}
 
 
-def test_ready_route_has_no_implicit_dependency_on_heritagemind_services() -> None:
-    client = TestClient(create_app(Settings.from_environment({})))
+def test_ready_route_reports_the_injected_delivery_dependency_state() -> None:
+    client = TestClient(create_app(
+        Settings.from_environment({}),
+        readiness_checker=lambda: ReadinessReport((
+            DependencyStatus("database", "ready", None, "Database connection verified"),
+        )),
+    ))
 
     response = client.get("/ready")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "ready", "dependencies": []}
+    assert response.json() == {
+        "status": "ready",
+        "dependencies": [
+            {"name": "database", "status": "ready", "code": None, "detail": "Database connection verified"},
+        ],
+    }
 
 
 def test_unknown_route_uses_a_stable_non_leaking_error_contract() -> None:

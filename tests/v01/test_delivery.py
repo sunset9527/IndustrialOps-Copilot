@@ -42,6 +42,8 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
         if line and not line.startswith("#")
     )
     assert set(values) == {
+        "INDUSTRIALOPS_DB_PASSWORD", "INDUSTRIALOPS_DB_ROOT_PASSWORD", "INDUSTRIALOPS_OFFLINE",
+        "INDUSTRIALOPS_PACKS_PATH", "INDUSTRIALOPS_BGE_MODEL_PATH", "INDUSTRIALOPS_RERANKER_MODEL_PATH",
         "INDUSTRIALOPS_API_PORT",
         "INDUSTRIALOPS_FRONTEND_PORT",
         "INDUSTRIALOPS_DATABASE_URL",
@@ -49,6 +51,7 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
         "INDUSTRIALOPS_REQUEST_MAX_BYTES", "INDUSTRIALOPS_AUTH_SESSION_TTL_SECONDS", "INDUSTRIALOPS_DEEPSEEK_API_KEY",
         "INDUSTRIALOPS_DEEPSEEK_BASE_URL", "INDUSTRIALOPS_DEEPSEEK_MODEL",
         "INDUSTRIALOPS_DEEPSEEK_TIMEOUT", "INDUSTRIALOPS_DEEPSEEK_MAX_TOKENS",
+        "INDUSTRIALOPS_PACKS_ROOT", "INDUSTRIALOPS_PACK_REGISTRY_PATH", "INDUSTRIALOPS_INDEXES_ROOT",
     }
     settings = Settings.from_environment(values)
     assert (settings.api_port, settings.frontend_port) == (8100, 5174)
@@ -57,18 +60,20 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
     assert settings.request_max_bytes == Settings.from_environment({}).request_max_bytes
     assert settings.deepseek_api_key is None
     assert settings.deepseek_model == "deepseek-flash"
+    assert settings.offline_mode is True
 
 
-def test_compose_runs_only_the_industrialops_api_on_port_8100() -> None:
+def test_compose_runs_the_complete_industrialops_stack_on_loopback_ports() -> None:
     assert (ROOT / "docker-compose.yml").is_file()
     compose = yaml.safe_load(read_project_file("docker-compose.yml"))
     assert compose["name"] == "industrialops"
-    assert set(compose["services"]) == {"api"}
+    assert set(compose["services"]) == {"db", "bootstrap", "api", "web"}
     api = compose["services"]["api"]
-    assert api["container_name"] == "industrialops-api"
     assert api["build"]["dockerfile"] == "Dockerfile"
     assert api["ports"] == ["127.0.0.1:8100:8100"]
-    assert not api.get("volumes")
+    assert api["depends_on"]["bootstrap"]["condition"] == "service_completed_successfully"
+    assert compose["services"]["web"]["ports"] == ["127.0.0.1:5174:80"]
+    assert "ports" not in compose["services"]["db"]
     assert re.search(r"\bport:\s*5174\b", read_project_file("frontend/vite.config.js"))
 
 
@@ -85,7 +90,8 @@ def test_container_entrypoint_and_build_context_exclude_local_data() -> None:
     patterns = [line for line in read_project_file(".dockerignore").splitlines() if line and not line.startswith("#")]
     assert patterns[0] == "**"
     assert {line for line in patterns if line.startswith("!")} == {
-        "!pyproject.toml", "!README.md", "!api/", "!api/**", "!src/", "!src/**",
+        "!pyproject.toml", "!README.md", "!alembic.ini", "!api/", "!api/**", "!alembic/", "!alembic/**",
+        "!config/", "!config/**", "!src/", "!src/**",
     }
 
 

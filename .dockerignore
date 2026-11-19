@@ -2,8 +2,13 @@
 **
 !pyproject.toml
 !README.md
+!alembic.ini
 !api/
 !api/**
+!alembic/
+!alembic/**
+!config/
+!config/**
 !src/
 !src/**
 **/__pycache__/
