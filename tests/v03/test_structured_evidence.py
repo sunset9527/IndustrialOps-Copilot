@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from industrialops.knowledge.pack_loader import EquipmentPackLoader, StructuredEvidence
 
 
+@pytest.mark.skipif(
+    not (Path(__file__).parents[2] / "data" / "packs" / "cnc_pack_v1.0.0" / "manifest.json").is_file(),
+    reason="requires nonredistributable local frozen equipment packs",
+)
 def test_loader_exposes_all_auto_reviewed_structured_evidence_from_a_frozen_pack() -> None:
     project_root = Path(__file__).parents[2]
     loader = EquipmentPackLoader(

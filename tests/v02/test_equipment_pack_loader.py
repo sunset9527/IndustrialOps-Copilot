@@ -189,6 +189,10 @@ def test_loader_rejects_a_corpus_whose_content_hash_no_longer_matches(tmp_path: 
         EquipmentPackLoader(packs_root, registry_path).load("cnc_pack_v1.0.0")
 
 
+@pytest.mark.skipif(
+    not (Path(__file__).parents[2] / "data" / "packs" / "cnc_pack_v1.0.0" / "manifest.json").is_file(),
+    reason="requires nonredistributable local frozen equipment packs",
+)
 def test_loader_independently_loads_both_real_frozen_packs() -> None:
     project_root = Path(__file__).parents[2]
     loader = EquipmentPackLoader(

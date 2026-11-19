@@ -19,6 +19,7 @@ dist/
 *.egg-info/
 __pycache__/
 .pytest_cache/
+.pytest-run/
 *.py[cod]
 .env
 backups/

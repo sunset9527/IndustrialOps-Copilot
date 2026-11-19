@@ -37,4 +37,4 @@ namespaces = false
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-addopts = "-q --basetemp=tmp/pytest-run"
+addopts = "-q --basetemp=.pytest-run"

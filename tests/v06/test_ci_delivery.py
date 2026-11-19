@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import tomllib
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,3 +17,9 @@ def test_ci_runs_backend_frontend_and_container_configuration_checks_without_pri
     assert "docker compose config" in workflow
     assert "data/packs" not in workflow
     assert "E:\\huggingface" not in workflow
+
+
+def test_pytest_base_temp_uses_a_clean_checkout_relative_directory() -> None:
+    configuration = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert configuration["tool"]["pytest"]["ini_options"]["addopts"] == "-q --basetemp=.pytest-run"
