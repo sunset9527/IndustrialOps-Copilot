@@ -38,7 +38,9 @@ class LocalBgeM3:
         local indexing needlessly memory-intensive in the Docker demo stack.
         """
 
-        model.client.max_seq_length = 512
+        client = getattr(model, "client", None)
+        if client is not None:
+            client.max_seq_length = 512
     def embed(self, texts: str | list[str]) -> Sequence[float] | list[Sequence[float]]:
         if isinstance(texts, list):
             vectors = [

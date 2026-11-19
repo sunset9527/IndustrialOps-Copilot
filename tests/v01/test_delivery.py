@@ -90,7 +90,7 @@ def test_container_entrypoint_and_build_context_exclude_local_data() -> None:
     patterns = [line for line in read_project_file(".dockerignore").splitlines() if line and not line.startswith("#")]
     assert patterns[0] == "**"
     assert {line for line in patterns if line.startswith("!")} == {
-        "!pyproject.toml", "!README.md", "!alembic.ini", "!api/", "!api/**", "!alembic/", "!alembic/**",
+        "!pyproject.toml", "!README.md", "!alembic.ini", "!constraints-docker-cpu.txt", "!api/", "!api/**", "!alembic/", "!alembic/**",
         "!config/", "!config/**", "!src/", "!src/**",
     }
 
