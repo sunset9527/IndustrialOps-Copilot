@@ -32,10 +32,20 @@ class Settings:
     indexes_root: Path = Path("data/indexes")
     bge_model_path: Path = Path(r"E:\huggingface\model")
     reranker_model_path: Path = Path(r"E:\huggingface\bge-reranker-base")
+    evaluation_profile: str = "deterministic"
+    evaluation_judge_enabled: bool = False
+    evaluation_judge_provider: str | None = None
+    evaluation_judge_base_url: str | None = None
+    evaluation_judge_model: str | None = None
+    evaluation_judge_api_key: str | None = None
 
     @classmethod
     def from_environment(cls, environment: Mapping[str, str]) -> "Settings":
-        return cls(
+        evaluation_profile = _read_evaluation_profile(environment)
+        evaluation_judge_enabled = _read_boolean(
+            environment, "INDUSTRIALOPS_EVALUATION_JUDGE_ENABLED", default=False
+        )
+        settings = cls(
             api_port=int(environment.get("INDUSTRIALOPS_API_PORT", "8100")),
             frontend_port=int(environment.get("INDUSTRIALOPS_FRONTEND_PORT", "5174")),
             database_url=environment.get(
@@ -60,7 +70,15 @@ class Settings:
             reranker_model_path=Path(
                 environment.get("INDUSTRIALOPS_RERANKER_MODEL_PATH", r"E:\huggingface\bge-reranker-base")
             ),
+            evaluation_profile=evaluation_profile,
+            evaluation_judge_enabled=evaluation_judge_enabled,
+            evaluation_judge_provider=environment.get("INDUSTRIALOPS_EVALUATION_JUDGE_PROVIDER") or None,
+            evaluation_judge_base_url=environment.get("INDUSTRIALOPS_EVALUATION_JUDGE_BASE_URL") or None,
+            evaluation_judge_model=environment.get("INDUSTRIALOPS_EVALUATION_JUDGE_MODEL") or None,
+            evaluation_judge_api_key=environment.get("INDUSTRIALOPS_EVALUATION_JUDGE_API_KEY") or None,
         )
+        _validate_evaluation_settings(settings)
+        return settings
 
 
 def _read_boolean(environment: Mapping[str, str], name: str, *, default: bool) -> bool:
@@ -73,3 +91,30 @@ def _read_boolean(environment: Mapping[str, str], name: str, *, default: bool) -
     if normalized in {"0", "false", "no", "off"}:
         return False
     raise ConfigurationError(f"CONFIG_OFFLINE_MODE_INVALID: {name} must be a boolean")
+
+
+def _read_evaluation_profile(environment: Mapping[str, str]) -> str:
+    profile = environment.get("INDUSTRIALOPS_EVALUATION_PROFILE", "deterministic").strip().casefold()
+    if profile not in {"deterministic", "framework-smoke", "judge"}:
+        raise ConfigurationError(
+            "CONFIG_EVALUATION_PROFILE_INVALID: INDUSTRIALOPS_EVALUATION_PROFILE must be deterministic, framework-smoke, or judge"
+        )
+    return profile
+
+
+def _validate_evaluation_settings(settings: Settings) -> None:
+    if settings.evaluation_profile != "judge":
+        if settings.evaluation_judge_enabled:
+            raise ConfigurationError("CONFIG_EVALUATION_JUDGE_PROFILE_REQUIRED")
+        return
+    if not settings.evaluation_judge_enabled:
+        raise ConfigurationError("CONFIG_EVALUATION_JUDGE_OPT_IN_REQUIRED")
+    if not all(
+        (
+            settings.evaluation_judge_provider,
+            settings.evaluation_judge_base_url,
+            settings.evaluation_judge_model,
+            settings.evaluation_judge_api_key,
+        )
+    ):
+        raise ConfigurationError("CONFIG_EVALUATION_JUDGE_CONFIGURATION_INCOMPLETE")
