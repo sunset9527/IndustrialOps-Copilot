@@ -6,6 +6,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 
 from alembic.config import Config
@@ -66,7 +67,7 @@ def inspect_readiness(checks: Mapping[str, Callable[[], str]]) -> ReadinessRepor
 def build_readiness_checker(settings: Settings) -> Callable[[], ReadinessReport]:
     """Build the production checker without doing I/O during app construction."""
 
-    root = Path(__file__).resolve().parents[2]
+    root = _project_root()
     paths = _RuntimePaths.from_settings(settings, root)
 
     def check() -> ReadinessReport:
@@ -80,6 +81,13 @@ def build_readiness_checker(settings: Settings) -> Callable[[], ReadinessReport]
         })
 
     return check
+
+
+def _project_root() -> Path:
+    """Find deployment files when the package is installed in site-packages."""
+
+    configured_root = os.environ.get("INDUSTRIALOPS_PROJECT_ROOT")
+    return Path(configured_root) if configured_root else Path.cwd()
 
 
 @dataclass(frozen=True)
