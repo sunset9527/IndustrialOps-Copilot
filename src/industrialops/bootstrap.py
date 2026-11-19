@@ -52,7 +52,7 @@ def run_bootstrap_steps(steps: Mapping[str, Callable[[], str]]) -> list[dict[str
 def bootstrap(settings: Settings, *, project_root: Path | None = None) -> list[dict[str, str]]:
     """Run the production bootstrap sequence; it never mutates frozen packs."""
 
-    root = project_root or Path(__file__).resolve().parents[2]
+    root = _project_root(project_root)
     paths = _RuntimePaths.from_settings(settings, root)
     return run_bootstrap_steps({
         "preflight": lambda: _preflight(settings, paths),
@@ -61,6 +61,20 @@ def bootstrap(settings: Settings, *, project_root: Path | None = None) -> list[d
         "knowledge_packs": lambda: _verify_packs(paths),
         "indexes": lambda: _prepare_indexes(paths),
     })
+
+
+def _project_root(project_root: Path | None) -> Path:
+    """Locate deployment files when this module is installed as a package.
+
+    In the production image ``industrialops`` lives in site-packages, while
+    Alembic and the delivery configuration remain in ``/app``.  Resolve that
+    deployment directory explicitly instead of deriving it from this module.
+    """
+
+    if project_root is not None:
+        return project_root
+    configured_root = os.environ.get("INDUSTRIALOPS_PROJECT_ROOT")
+    return Path(configured_root) if configured_root else Path.cwd()
 
 
 def _preflight(settings: Settings, paths: _RuntimePaths) -> str:

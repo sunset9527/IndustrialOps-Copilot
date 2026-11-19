@@ -24,6 +24,7 @@ services:
     command: ["python", "-m", "industrialops.bootstrap"]
     environment: &api-environment
       INDUSTRIALOPS_DATABASE_URL: "mysql+pymysql://industrialops:${INDUSTRIALOPS_DB_PASSWORD:?Set INDUSTRIALOPS_DB_PASSWORD in .env}@db:3306/industrialops"
+      INDUSTRIALOPS_PROJECT_ROOT: /app
       INDUSTRIALOPS_OFFLINE: "${INDUSTRIALOPS_OFFLINE:-true}"
       INDUSTRIALOPS_PACKS_ROOT: /local/packs
       INDUSTRIALOPS_PACK_REGISTRY_PATH: /app/config/equipment_pack_registry_v1.json

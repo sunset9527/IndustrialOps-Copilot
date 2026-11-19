@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from industrialops.bootstrap import BootstrapError, run_bootstrap_steps
+from industrialops.bootstrap import BootstrapError, _project_root, run_bootstrap_steps
+
+
+def test_bootstrap_uses_the_explicit_project_root_when_packaged(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("INDUSTRIALOPS_PROJECT_ROOT", "/app")
+
+    assert _project_root(None).as_posix() == "/app"
 
 
 def test_bootstrap_runs_every_explicit_step_once_in_delivery_order() -> None:
