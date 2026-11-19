@@ -35,6 +35,9 @@ services:
       TRANSFORMERS_OFFLINE: "1"
       LANGCHAIN_TRACING_V2: "false"
       LANGSMITH_TRACING: "false"
+      USER: industrialops
+      HOME: /tmp
+      TORCHINDUCTOR_CACHE_DIR: /tmp/torchinductor
     volumes:
       - "${INDUSTRIALOPS_PACKS_PATH:?Set INDUSTRIALOPS_PACKS_PATH in .env}:/local/packs:ro"
       - "${INDUSTRIALOPS_BGE_MODEL_PATH:?Set INDUSTRIALOPS_BGE_MODEL_PATH in .env}:/local/models/bge-m3:ro"

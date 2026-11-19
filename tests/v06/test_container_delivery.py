@@ -19,6 +19,10 @@ def test_compose_defines_the_complete_local_delivery_stack_with_bootstrap_gate()
     assert compose["services"]["web"]["ports"] == ["127.0.0.1:5174:80"]
     assert compose["services"]["bootstrap"]["command"] == ["python", "-m", "industrialops.bootstrap"]
     assert all(volume.endswith(":ro") for volume in compose["services"]["bootstrap"]["volumes"][:3])
+    environment = compose["services"]["bootstrap"]["environment"]
+    assert environment["USER"] == "industrialops"
+    assert environment["HOME"] == "/tmp"
+    assert environment["TORCHINDUCTOR_CACHE_DIR"] == "/tmp/torchinductor"
 
 
 def test_container_builds_exclude_private_evidence_and_use_a_runtime_only_web_image() -> None:

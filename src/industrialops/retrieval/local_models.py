@@ -24,8 +24,21 @@ class LocalBgeM3:
                 model_kwargs={"device": "cpu"},
                 encode_kwargs={"normalize_embeddings": True},
             )
+            self._cap_sequence_length(self._model)
         except Exception as error: raise LocalModelUnavailableError("local BGE-M3 is unavailable") from error
         self.loaded_from_local, self.fingerprint = True, model_fingerprint(path)
+
+    @staticmethod
+    def _cap_sequence_length(model: object) -> None:
+        """Prevent a whole source document from becoming an 8k-token batch.
+
+        Frozen pack entries preserve source-level citation identity and can be
+        much longer than an embedding model's practical retrieval input.  The
+        BGE-M3 default accepts a very large context, which makes first-time
+        local indexing needlessly memory-intensive in the Docker demo stack.
+        """
+
+        model.client.max_seq_length = 512
     def embed(self, texts: str | list[str]) -> Sequence[float] | list[Sequence[float]]:
         if isinstance(texts, list):
             vectors = [
