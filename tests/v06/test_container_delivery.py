@@ -25,10 +25,15 @@ def test_container_builds_exclude_private_evidence_and_use_a_runtime_only_web_im
     backend = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     frontend = (ROOT / "frontend" / "Dockerfile").read_text(encoding="utf-8")
     ignore = (ROOT / ".dockerignore").read_text(encoding="utf-8")
+    cpu_constraints = (ROOT / "constraints-docker-cpu.txt").read_text(encoding="utf-8")
 
     assert "COPY alembic/ alembic/" in backend
     assert "COPY config/ config/" in backend
     assert "'.[local-models]'" in backend
+    assert "constraints-docker-cpu.txt" in backend
+    assert "https://download.pytorch.org/whl/cpu" in backend
+    assert "torch==2.10.0+cpu" in cpu_constraints
+    assert "!constraints-docker-cpu.txt" in ignore
     assert "mkdir -p /app/data/indexes" in backend
     assert "chown -R 10001:10001 /app" in backend
     assert "USER 10001:10001" in backend

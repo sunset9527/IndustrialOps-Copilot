@@ -1,0 +1,4 @@
+# The production demo stack performs local inference only.  Keep the Linux
+# image on PyTorch's CPU wheel so resolving the general PyPI torch package
+# cannot pull CUDA runtime libraries into the image.
+torch==2.10.0+cpu
