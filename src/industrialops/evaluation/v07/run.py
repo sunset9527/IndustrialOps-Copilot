@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 from pathlib import Path
 
@@ -10,7 +11,12 @@ from industrialops.diagnosis.context import EquipmentContextResolver
 from industrialops.diagnosis.deepseek import DeepSeekAnswerGenerator
 from industrialops.diagnosis.workflow import DiagnosisWorkflow
 from industrialops.evaluation.v07.diagnosis_projection import project_diagnosis_hard_gates
+from industrialops.evaluation.v07.deepeval_adapter import to_trace_spans
+from industrialops.evaluation.v07.framework_smoke import build_deepeval_trace_case, build_ragas_dataset
+from industrialops.evaluation.v07.frameworks import framework_availability
+from industrialops.evaluation.v07.ragas_adapter import to_ragas_row
 from industrialops.evaluation.v07.runner import run_deterministic_evaluation
+from industrialops.diagnosis.schemas import WorkflowEvent
 
 
 def main() -> None:
@@ -18,8 +24,23 @@ def main() -> None:
     parser.add_argument("--project-root", type=Path, default=Path.cwd())
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output-root", type=Path, default=Path("data/evaluation/reports/v07"))
+    parser.add_argument("--profile", choices=("deterministic", "framework-smoke", "judge"), default="deterministic")
     args = parser.parse_args()
     root = args.project_root.resolve()
+    frozen_inputs = (root / "data/evaluation/scenario_eval_v1.jsonl", root / "data/evaluation/guardrail_eval_v1.jsonl")
+    if args.profile == "framework-smoke":
+        cases, results = framework_smoke_cases()
+        run_deterministic_evaluation(
+            output_root=root / args.output_root,
+            run_id=args.run_id,
+            frozen_inputs=frozen_inputs,
+            case_results=cases,
+            profile="framework-smoke",
+            framework_results=results,
+        )
+        return
+    if args.profile == "judge":
+        raise SystemExit("EVALUATION_JUDGE_RUN_REQUIRES_APPROVED_SCENARIOS_AND_EXPLICIT_CONFIGURATION")
     workflow = DiagnosisWorkflow(
         resolver=EquipmentContextResolver.from_registry_path(root / "config/equipment_pack_registry_v1.json"),
         retrieve=lambda request, context, route: (),
@@ -35,7 +56,52 @@ def main() -> None:
         expected = {"refuse": "blocked", "escalate": "blocked", "insufficient_evidence": "insufficient_evidence"}[str(case["expected_outcome"])]
         gate = project_diagnosis_hard_gates(result, requested_pack_id=pack_id)
         cases.append({"case_id": case["eval_id"], "expected_status": expected, "actual_status": result.status, "hard_gate_passed": gate.passed and result.status == expected, "violation_ids": gate.violation_ids})
-    run_deterministic_evaluation(output_root=(root / args.output_root), run_id=args.run_id, frozen_inputs=(root / "data/evaluation/scenario_eval_v1.jsonl", root / "data/evaluation/guardrail_eval_v1.jsonl"), case_results=cases)
+    run_deterministic_evaluation(output_root=(root / args.output_root), run_id=args.run_id, frozen_inputs=frozen_inputs, case_results=cases)
+
+
+def framework_smoke_cases() -> tuple[tuple[dict[str, object], ...], dict[str, dict[str, object]]]:
+    """Run real optional SDK object construction without a network Judge."""
+
+    availabilities = {name: framework_availability(name) for name in ("ragas", "deepeval")}
+    results = {name: asdict(result) for name, result in availabilities.items()}
+    row = to_ragas_row(
+        scenario_id="framework-smoke-public-fixture",
+        question="公开夹具问题",
+        response="公开夹具响应",
+        retrieved_contexts=("approved fixture context",),
+        reference_contexts=("reviewed fixture context",),
+        reference="reviewed fixture reference",
+        pack_id="public_fixture_pack",
+        evidence_ids=("fixture-evidence-1",),
+    )
+    spans = to_trace_spans((
+        WorkflowEvent(node="intent_router", status="completed", duration_ms=0.1, input_count=1, output_count=1),
+        WorkflowEvent(node="answer_composer", status="answered", duration_ms=0.1, input_count=1, output_count=1),
+    ))
+    cases: list[dict[str, object]] = []
+    for name, available in availabilities.items():
+        status = available.status
+        error_code = available.error_code
+        if status == "available":
+            try:
+                if name == "ragas":
+                    build_ragas_dataset((row,))
+                else:
+                    build_deepeval_trace_case(scenario_id="framework-smoke-public-fixture", spans=spans)
+            except Exception:
+                status = "error"
+                error_code = "EVALUATION_FRAMEWORK_SMOKE_FAILED"
+        results[name]["status"] = status
+        results[name]["error_code"] = error_code
+        cases.append(
+            {
+                "case_id": f"framework-{name}",
+                "hard_gate_passed": True,
+                "status": "completed" if status == "available" else "not_run" if status == "framework_unavailable" else "error",
+                "reason": error_code,
+            }
+        )
+    return tuple(cases), results
 
 
 if __name__ == "__main__":

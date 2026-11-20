@@ -18,6 +18,8 @@ def run_deterministic_evaluation(
     frozen_inputs: tuple[Path, ...],
     case_results: Iterable[Mapping[str, object]],
     before_run_id: str | None = None,
+    profile: str = "deterministic",
+    framework_results: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Write a before-style deterministic run without mutating frozen inputs."""
 
@@ -34,16 +36,19 @@ def run_deterministic_evaluation(
         for case in cases
         if case.get("hard_gate_passed") is False
     ]
+    if profile not in {"deterministic", "framework-smoke", "judge"}:
+        raise ValueError("EVALUATION_PROFILE_INVALID")
     report: dict[str, object] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "run_id": run_id,
         "purpose": purpose,
         "before_run_id": before_run_id,
-        "profile": "deterministic",
+        "profile": profile,
         "frozen_input_hashes": frozen_hashes,
         "cases": cases,
         "hard_gates": {"passed": not failed_case_ids, "failed_case_ids": failed_case_ids},
         "failure_samples": failure_samples,
+        "framework_results": dict(framework_results or {}),
     }
     (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     _write_jsonl(destination / "cases.jsonl", cases)
@@ -51,7 +56,7 @@ def run_deterministic_evaluation(
     (destination / "environment.json").write_text(
         json.dumps(
             {
-                "profile": "deterministic",
+                "profile": profile,
                 "generated_at_utc": report["generated_at_utc"],
                 "frozen_input_count": len(frozen_inputs),
             },

@@ -37,3 +37,20 @@ def test_deterministic_runner_fails_report_when_any_case_fails_a_hard_gate(tmp_p
 
     assert report["hard_gates"]["passed"] is False
     assert report["hard_gates"]["failed_case_ids"] == ["unsafe-1"]
+
+
+def test_runner_records_framework_smoke_as_a_distinct_profile(tmp_path: Path) -> None:
+    scenario = tmp_path / "scenario.jsonl"
+    scenario.write_text('{}\n', encoding="utf-8")
+
+    report = run_deterministic_evaluation(
+        output_root=tmp_path / "reports",
+        run_id="validation-framework-001",
+        frozen_inputs=(scenario,),
+        case_results=({"case_id": "framework-smoke", "hard_gate_passed": True},),
+        profile="framework-smoke",
+        framework_results={"ragas": {"status": "available", "version": "0.4.4"}},
+    )
+
+    assert report["profile"] == "framework-smoke"
+    assert report["framework_results"] == {"ragas": {"status": "available", "version": "0.4.4"}}
