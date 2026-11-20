@@ -46,4 +46,27 @@ def run_deterministic_evaluation(
         "failure_samples": failure_samples,
     }
     (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_jsonl(destination / "cases.jsonl", cases)
+    _write_jsonl(destination / "failures.jsonl", failure_samples)
+    (destination / "environment.json").write_text(
+        json.dumps(
+            {
+                "profile": "deterministic",
+                "generated_at_utc": report["generated_at_utc"],
+                "frozen_input_count": len(frozen_inputs),
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     return report
+
+
+def _write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> None:
+    """Persist each audited record separately so failures remain inspectable."""
+
+    path.write_text(
+        "".join(json.dumps(dict(record), ensure_ascii=False) + "\n" for record in records),
+        encoding="utf-8",
+    )

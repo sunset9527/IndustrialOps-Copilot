@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -29,3 +30,11 @@ def test_after_report_requires_a_before_run_and_preserves_failure_samples(tmp_pa
 
     assert report["before_run_id"] == "before-001"
     assert report["failure_samples"] == [{"case_id": "case-1", "violation_ids": ["PACK_CONTAMINATION"]}]
+    destination = tmp_path / "reports" / "after-001"
+    assert json.loads((destination / "cases.jsonl").read_text(encoding="utf-8")) == {
+        "case_id": "case-1", "hard_gate_passed": False, "violation_ids": ["PACK_CONTAMINATION"]
+    }
+    assert json.loads((destination / "failures.jsonl").read_text(encoding="utf-8")) == {
+        "case_id": "case-1", "violation_ids": ["PACK_CONTAMINATION"]
+    }
+    assert json.loads((destination / "environment.json").read_text(encoding="utf-8"))["profile"] == "deterministic"
