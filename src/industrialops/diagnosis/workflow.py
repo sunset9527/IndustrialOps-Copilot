@@ -13,7 +13,7 @@ from industrialops.diagnosis.evidence import EvidenceGapDetector
 from industrialops.diagnosis.faults import FaultDiagnosisService
 from industrialops.diagnosis.intent import IntentRoute, IntentRouter
 from industrialops.diagnosis.safety import SafetyDecision, SafetyPolicyGate
-from industrialops.diagnosis.schemas import Citation, DiagnosisRequest, DiagnosisResult
+from industrialops.diagnosis.schemas import Citation, DiagnosisRequest, DiagnosisResult, WorkflowEvent
 from industrialops.knowledge.pack_loader import StructuredEvidence
 
 
@@ -141,13 +141,16 @@ class DiagnosisWorkflow:
                 request_id=request_id, status="out_of_scope", intent=route.intent,
                 uncertainties=("该请求不在已加载设备知识包的工业运维范围内。",),
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
+                workflow_events=self._events(trace, "out_of_scope"),
             )
             return {"result": result, "trace": trace}
         if route.intent == "work_order_draft":
             result = DiagnosisResult(
                 request_id=request_id, status="needs_information", intent=route.intent,
-                uncertainties=("工单草稿与人工审批属于 v0.4，当前版本未开放。",),
+                uncertainties=("请先完成并保存一次诊断，再使用工单草稿接口提交人工审批。",),
+                recommended_next_action="create_work_order_draft_from_diagnosis",
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
+                workflow_events=self._events(trace, "needs_information"),
             )
             return {"result": result, "trace": trace}
 
@@ -159,6 +162,7 @@ class DiagnosisWorkflow:
                 required_information=("请提供设备型号后再继续。",) if safety.status == "needs_information" else (),
                 escalation_conditions=safety.rule_ids,
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
+                workflow_events=self._events(trace, status, safety.rule_ids[0] if safety.rule_ids else None),
             )
             return {"result": result, "trace": trace}
 
@@ -192,5 +196,20 @@ class DiagnosisWorkflow:
             citations=tuple(citations[item] for item in used_ids),
             generation={"provider": generated.provider, "model": generated.model, "fallback_used": generated.provider != "deepseek", "fallback_reason": generated.fallback_reason},
             workflow_trace=trace,
+            workflow_events=self._events(trace, status, generated.fallback_reason),
         )
         return {"result": result, "trace": trace}
+
+    @staticmethod
+    def _events(trace: tuple[str, ...], final_status: str, reason: str | None = None) -> tuple[WorkflowEvent, ...]:
+        return tuple(
+            WorkflowEvent(
+                node=node,
+                status=final_status if index == len(trace) - 1 else "completed",
+                duration_ms=0.0,
+                input_count=0,
+                output_count=0,
+                reason=reason if index == len(trace) - 1 else None,
+            )
+            for index, node in enumerate(trace)
+        )

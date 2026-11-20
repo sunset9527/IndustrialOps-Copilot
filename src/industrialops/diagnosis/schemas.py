@@ -25,6 +25,17 @@ class Citation(BaseModel):
     evidence_locator: str
 
 
+class WorkflowEvent(BaseModel):
+    """Observable workflow metadata; deliberately excludes prompts and evidence text."""
+
+    node: str
+    status: str
+    duration_ms: float = Field(ge=0)
+    input_count: int = Field(ge=0)
+    output_count: int = Field(ge=0)
+    reason: str | None = None
+
+
 class DiagnosisResult(BaseModel):
     request_id: str
     status: str
@@ -36,6 +47,8 @@ class DiagnosisResult(BaseModel):
     uncertainties: tuple[str, ...] = ()
     required_information: tuple[str, ...] = ()
     escalation_conditions: tuple[str, ...] = ()
+    recommended_next_action: str | None = None
     citations: tuple[Citation, ...] = ()
     generation: dict[str, object]
     workflow_trace: tuple[str, ...]
+    workflow_events: tuple[WorkflowEvent, ...] = ()
