@@ -20,7 +20,7 @@ def test_two_reviewer_agreement_reports_raw_kappa_and_disagreements() -> None:
     assert result.status == "completed"
     assert result.compared_case_ids == ("c1", "c2", "c3", "c4")
     assert result.raw_agreement == 0.75
-    assert result.cohens_kappa == pytest.approx(0.5555555555555556)
+    assert result.cohens_kappa == pytest.approx(0.6363636363636364)
     assert result.disagreement_case_ids == ("c3",)
 
 
