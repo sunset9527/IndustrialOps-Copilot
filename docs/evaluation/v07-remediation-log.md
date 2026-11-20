@@ -34,3 +34,9 @@
 ## 2026-11-20：人工审核校准能力
 
 - 已新增纯本地的双审核者标签校验、原始一致率、Cohen's Kappa 和分歧案例计算。它仅接受两个显式、不同审核者的一题一标；单人数据返回 `not_run`，重复标签会被拒绝，绝不把模型输出或重复采样伪装成人工复核。
+
+## 2026-11-20：隔离 MySQL 与真实 HTTP 验收
+
+- 创建独立 `industrialops_v07_validation` 库并运行现有迁移与 synthetic 资产初始化；未修改既有 `industrialops` 库。
+- 现有 bootstrap 完成两个冻结包验证和两个本地索引构建。
+- 临时 Uvicorn HTTP 验收已完成双设备诊断、引用包隔离、普通用户 403 审批拒绝、approver 批准和停止/重启后的同 `thread_id` 恢复。完整事实见 [本机 HTTP 验收](v07-local-http-validation.md)。
