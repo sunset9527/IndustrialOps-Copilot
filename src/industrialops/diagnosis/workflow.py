@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+import time
 from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -24,6 +25,7 @@ class DiagnosisGraphState(TypedDict, total=False):
     request_id: str
     request: dict[str, object]
     trace: tuple[str, ...]
+    events: tuple[WorkflowEvent, ...]
     route: IntentRoute
     context: ResolvedEquipmentContext
     retrieved_evidence: tuple[StructuredEvidence, ...]
@@ -57,7 +59,7 @@ class DiagnosisWorkflow:
         if not isinstance(request_id, str) or not request_id:
             raise ValueError("request_id is required")
         payload = {key: value for key, value in request.items() if key != "request_id"}
-        state = self._graph.invoke({"request": payload, "request_id": request_id, "trace": ()})
+        state = self._graph.invoke({"request": payload, "request_id": request_id, "trace": (), "events": ()})
         return state["result"]
 
     def _build_graph(self):
@@ -91,45 +93,73 @@ class DiagnosisWorkflow:
     def _trace(state: DiagnosisGraphState, node: str) -> tuple[str, ...]:
         return (*state.get("trace", ()), node)
 
+    def _record(
+        self,
+        state: DiagnosisGraphState,
+        node: str,
+        started: float,
+        *,
+        status: str = "completed",
+        input_count: int,
+        output_count: int,
+        reason: str | None = None,
+    ) -> dict[str, object]:
+        event = WorkflowEvent(
+            node=node,
+            status=status,
+            duration_ms=(time.perf_counter() - started) * 1000,
+            input_count=input_count,
+            output_count=output_count,
+            reason=reason,
+        )
+        return {"trace": self._trace(state, node), "events": (*state.get("events", ()), event)}
+
     @staticmethod
     def _request(state: DiagnosisGraphState) -> DiagnosisRequest:
         return DiagnosisRequest.model_validate(state["request"])
 
     def _intent_router(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         request = self._request(state)
-        return {"route": self._router.route(request), "trace": self._trace(state, "intent_router")}
+        return {"route": self._router.route(request), **self._record(state, "intent_router", started, input_count=1, output_count=1)}
 
     def _equipment_context_resolver(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
-        return {"context": self._resolver.resolve(self._request(state)), "trace": self._trace(state, "equipment_context_resolver")}
+        started = time.perf_counter()
+        return {"context": self._resolver.resolve(self._request(state)), **self._record(state, "equipment_context_resolver", started, input_count=1, output_count=1)}
 
     def _evidence_retriever(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         request = self._request(state)
         evidence = self._retrieve(request, state["context"], state["route"])
-        return {"retrieved_evidence": evidence, "trace": self._trace(state, "evidence_retriever")}
+        return {"retrieved_evidence": evidence, **self._record(state, "evidence_retriever", started, input_count=1, output_count=len(evidence))}
 
     def _compatibility_validator(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         context = state["context"]
         evidence = tuple(item for item in state.get("retrieved_evidence", ()) if item.pack_id == context.pack_id)
-        return {"compatible_evidence": evidence, "trace": self._trace(state, "compatibility_validator")}
+        return {"compatible_evidence": evidence, **self._record(state, "compatibility_validator", started, input_count=len(state.get("retrieved_evidence", ())), output_count=len(evidence))}
 
     def _fault_diagnosis_service(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
-        return {"extraction": self._fault_service.extract(state.get("compatible_evidence", ())), "trace": self._trace(state, "fault_diagnosis_service")}
+        started = time.perf_counter()
+        evidence = state.get("compatible_evidence", ())
+        return {"extraction": self._fault_service.extract(evidence), **self._record(state, "fault_diagnosis_service", started, input_count=len(evidence), output_count=1)}
 
     def _safety_policy_gate(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         request = self._request(state)
         context = state.get("context")
         if context is None:
             context = ResolvedEquipmentContext("pack_unknown", request.pack_id, None, None, None, None, None, "PACK_UNKNOWN")
-        return {
-            "safety": self._safety_gate.evaluate(request, intent=state["route"].intent, context=context),
-            "trace": self._trace(state, "safety_policy_gate"),
-        }
+        safety = self._safety_gate.evaluate(request, intent=state["route"].intent, context=context)
+        return {"safety": safety, **self._record(state, "safety_policy_gate", started, status=safety.status, input_count=1, output_count=1, reason=safety.rule_ids[0] if safety.rule_ids else None)}
 
     def _evidence_gap_detector(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         decision = self._gap_detector.evaluate(state["route"].intent, state.get("compatible_evidence", ()))
-        return {"evidence_decision": decision, "trace": self._trace(state, "evidence_gap_detector")}
+        return {"evidence_decision": decision, **self._record(state, "evidence_gap_detector", started, status=decision.status, input_count=len(state.get("compatible_evidence", ())), output_count=1)}
 
     def _answer_composer(self, state: DiagnosisGraphState) -> DiagnosisGraphState:
+        started = time.perf_counter()
         request = self._request(state)
         route = state["route"]
         trace = self._trace(state, "answer_composer")
@@ -141,7 +171,7 @@ class DiagnosisWorkflow:
                 request_id=request_id, status="out_of_scope", intent=route.intent,
                 uncertainties=("该请求不在已加载设备知识包的工业运维范围内。",),
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
-                workflow_events=self._events(trace, "out_of_scope"),
+                workflow_events=self._events(state, trace, started, "out_of_scope"),
             )
             return {"result": result, "trace": trace}
         if route.intent == "work_order_draft":
@@ -150,7 +180,7 @@ class DiagnosisWorkflow:
                 uncertainties=("请先完成并保存一次诊断，再使用工单草稿接口提交人工审批。",),
                 recommended_next_action="create_work_order_draft_from_diagnosis",
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
-                workflow_events=self._events(trace, "needs_information"),
+                workflow_events=self._events(state, trace, started, "needs_information"),
             )
             return {"result": result, "trace": trace}
 
@@ -162,7 +192,7 @@ class DiagnosisWorkflow:
                 required_information=("请提供设备型号后再继续。",) if safety.status == "needs_information" else (),
                 escalation_conditions=safety.rule_ids,
                 generation={"provider": "policy_gate", "fallback_used": False}, workflow_trace=trace,
-                workflow_events=self._events(trace, status, safety.rule_ids[0] if safety.rule_ids else None),
+                workflow_events=self._events(state, trace, started, status, safety.rule_ids[0] if safety.rule_ids else None),
             )
             return {"result": result, "trace": trace}
 
@@ -196,20 +226,12 @@ class DiagnosisWorkflow:
             citations=tuple(citations[item] for item in used_ids),
             generation={"provider": generated.provider, "model": generated.model, "fallback_used": generated.provider != "deepseek", "fallback_reason": generated.fallback_reason},
             workflow_trace=trace,
-            workflow_events=self._events(trace, status, generated.fallback_reason),
+            workflow_events=self._events(state, trace, started, status, generated.fallback_reason),
         )
         return {"result": result, "trace": trace}
 
     @staticmethod
-    def _events(trace: tuple[str, ...], final_status: str, reason: str | None = None) -> tuple[WorkflowEvent, ...]:
-        return tuple(
-            WorkflowEvent(
-                node=node,
-                status=final_status if index == len(trace) - 1 else "completed",
-                duration_ms=0.0,
-                input_count=0,
-                output_count=0,
-                reason=reason if index == len(trace) - 1 else None,
-            )
-            for index, node in enumerate(trace)
-        )
+    def _events(
+        state: DiagnosisGraphState, trace: tuple[str, ...], started: float, final_status: str, reason: str | None = None
+    ) -> tuple[WorkflowEvent, ...]:
+        return (*state.get("events", ()), WorkflowEvent(node=trace[-1], status=final_status, duration_ms=(time.perf_counter() - started) * 1000, input_count=1, output_count=1, reason=reason))
