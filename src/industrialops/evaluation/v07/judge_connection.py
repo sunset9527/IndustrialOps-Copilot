@@ -33,6 +33,7 @@ def verify_judge_connection(
             "model": model,
             "messages": [{"role": "user", "content": "Reply with exactly: JUDGE_CONNECTION_OK"}],
             "temperature": 0,
+            "thinking": {"type": "disabled"},
             "max_tokens": 64,
             "stream": False,
         },

@@ -29,6 +29,7 @@ def test_judge_connection_accepts_a_nonempty_model_reply_without_returning_its_t
         "model": "judge-model",
         "messages": [{"role": "user", "content": "Reply with exactly: JUDGE_CONNECTION_OK"}],
         "temperature": 0,
+        "thinking": {"type": "disabled"},
         "max_tokens": 64,
         "stream": False,
     }
