@@ -17,6 +17,7 @@ def run_deterministic_evaluation(
     run_id: str,
     frozen_inputs: tuple[Path, ...],
     case_results: Iterable[Mapping[str, object]],
+    before_run_id: str | None = None,
 ) -> dict[str, object]:
     """Write a before-style deterministic run without mutating frozen inputs."""
 
@@ -25,14 +26,24 @@ def run_deterministic_evaluation(
     cases = tuple(dict(result) for result in case_results)
     frozen_hashes = verifier.verify()
     failed_case_ids = [str(case.get("case_id", "unknown")) for case in cases if case.get("hard_gate_passed") is False]
+    purpose = "before" if run_id.startswith("before-") else "after" if run_id.startswith("after-") else "validation"
+    if purpose == "after" and not before_run_id:
+        raise ValueError("EVALUATION_BEFORE_RUN_REQUIRED")
+    failure_samples = [
+        {"case_id": str(case.get("case_id", "unknown")), "violation_ids": list(case.get("violation_ids", ())) }
+        for case in cases
+        if case.get("hard_gate_passed") is False
+    ]
     report: dict[str, object] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "run_id": run_id,
-        "purpose": "before" if run_id.startswith("before-") else "validation",
+        "purpose": purpose,
+        "before_run_id": before_run_id,
         "profile": "deterministic",
         "frozen_input_hashes": frozen_hashes,
         "cases": cases,
         "hard_gates": {"passed": not failed_case_ids, "failed_case_ids": failed_case_ids},
+        "failure_samples": failure_samples,
     }
     (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
