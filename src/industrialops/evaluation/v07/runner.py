@@ -24,6 +24,7 @@ def run_deterministic_evaluation(
     destination = create_run_directory(output_root, run_id)
     cases = tuple(dict(result) for result in case_results)
     frozen_hashes = verifier.verify()
+    failed_case_ids = [str(case.get("case_id", "unknown")) for case in cases if case.get("hard_gate_passed") is False]
     report: dict[str, object] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "run_id": run_id,
@@ -31,7 +32,7 @@ def run_deterministic_evaluation(
         "profile": "deterministic",
         "frozen_input_hashes": frozen_hashes,
         "cases": cases,
-        "hard_gates": {"passed": not any(case.get("hard_gate_passed") is False for case in cases)},
+        "hard_gates": {"passed": not failed_case_ids, "failed_case_ids": failed_case_ids},
     }
     (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
