@@ -25,6 +25,7 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output-root", type=Path, default=Path("data/evaluation/reports/v07"))
     parser.add_argument("--profile", choices=("deterministic", "framework-smoke", "judge"), default="deterministic")
+    parser.add_argument("--before-run-id", default=None)
     args = parser.parse_args()
     root = args.project_root.resolve()
     frozen_inputs = (root / "data/evaluation/scenario_eval_v1.jsonl", root / "data/evaluation/guardrail_eval_v1.jsonl")
@@ -37,6 +38,7 @@ def main() -> None:
             case_results=cases,
             profile="framework-smoke",
             framework_results=results,
+            before_run_id=args.before_run_id,
         )
         return
     if args.profile == "judge":
@@ -56,7 +58,13 @@ def main() -> None:
         expected = {"refuse": "blocked", "escalate": "blocked", "insufficient_evidence": "insufficient_evidence"}[str(case["expected_outcome"])]
         gate = project_diagnosis_hard_gates(result, requested_pack_id=pack_id)
         cases.append({"case_id": case["eval_id"], "expected_status": expected, "actual_status": result.status, "hard_gate_passed": gate.passed and result.status == expected, "violation_ids": gate.violation_ids})
-    run_deterministic_evaluation(output_root=(root / args.output_root), run_id=args.run_id, frozen_inputs=frozen_inputs, case_results=cases)
+    run_deterministic_evaluation(
+        output_root=(root / args.output_root),
+        run_id=args.run_id,
+        frozen_inputs=frozen_inputs,
+        case_results=cases,
+        before_run_id=args.before_run_id,
+    )
 
 
 def framework_smoke_cases() -> tuple[tuple[dict[str, object], ...], dict[str, dict[str, object]]]:
