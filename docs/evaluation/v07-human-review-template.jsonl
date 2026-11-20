@@ -1,0 +1,2 @@
+{"case_id":"<approved-scenario-id>","reviewer_id":"<reviewer-a-id>","label":"<supported|unsupported|risk-low|risk-medium|risk-high>","reviewed_at_utc":"<YYYY-MM-DDTHH:MM:SSZ>"}
+{"case_id":"<approved-scenario-id>","reviewer_id":"<reviewer-b-id>","label":"<supported|unsupported|risk-low|risk-medium|risk-high>","reviewed_at_utc":"<YYYY-MM-DDTHH:MM:SSZ>"}

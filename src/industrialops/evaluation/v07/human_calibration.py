@@ -10,6 +10,8 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from collections.abc import Iterable
+import json
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -39,6 +41,35 @@ class AgreementResult:
             "disagreement_case_ids": list(self.disagreement_case_ids),
             "reason": self.reason,
         }
+
+
+def load_review_labels(path: Path) -> tuple[ReviewLabel, ...]:
+    """Load independent reviewer labels from a compact, line-oriented file."""
+
+    labels: list[ReviewLabel] = []
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not raw_line.strip():
+            continue
+        try:
+            record = json.loads(raw_line)
+            case_id = record["case_id"]
+            reviewer_id = record["reviewer_id"]
+            label = record["label"]
+        except (TypeError, KeyError, json.JSONDecodeError) as error:
+            raise ValueError(f"EVALUATION_REVIEW_LABEL_INVALID: line {line_number}") from error
+        if not all(isinstance(value, str) and value.strip() for value in (case_id, reviewer_id, label)):
+            raise ValueError(f"EVALUATION_REVIEW_LABEL_INVALID: line {line_number}")
+        labels.append(ReviewLabel(case_id.strip(), reviewer_id.strip(), label.strip()))
+    return tuple(labels)
+
+
+def write_agreement_report(path: Path, report: dict[str, object]) -> None:
+    """Write a review result once so later review rounds remain traceable."""
+
+    if path.exists():
+        raise FileExistsError("EVALUATION_REVIEW_REPORT_EXISTS")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def calculate_two_reviewer_agreement(
