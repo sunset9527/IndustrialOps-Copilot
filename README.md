@@ -8,6 +8,12 @@ v0.6 已实现完整演示栈的 `db → bootstrap → api → web` Compose 编�
 
 当前状态为 `implemented`：针对配置、离线门控、索引、bootstrap、就绪、日志、容器和 CI 的自动化契约已通过；Docker Desktop Linux 引擎尚未在本机会话中启动，镜像构建和无历史卷的真实 Docker 冷启动尚未执行，因此不能标为 `automated_verified` 或 `release_verified`。完整 Windows PowerShell 冷启动、状态排查、备份和恢复流程见 [v0.6 本地离线交付与恢复](docs/operations/v0.6-offline-delivery.md)。
 
+## v0.7 评测收敛（进行中）
+
+v0.7 已实现冻结输入哈希、append-only 评测报告、确定性安全/跨包/审批门禁、五类诊断意图的可观察轨迹，以及 Ragas 0.4.4 / DeepEval 4.3.4 的真实 SDK 映射和离线 smoke。2026-11-20 的 v1 守护栏 before 运行中，5 条场景均符合预期终态，且没有跨包引用、危险步骤泄露或未审批执行。该结果只是 11 条 v1 冒烟集的一部分，不是泛化能力结论。
+
+本阶段尚不能标为 `automated_verified`：审核通过的扩展场景、双人标注/Kappa、真实 Judge 运行，以及隔离 MySQL 的双设备/工单恢复 HTTP 验收仍未完成。Judge 必须由操作者显式配置，安全和审批结论始终由确定性规则及人工审核决定。当前可复现事实、命令和限制见 [v0.7 修复日志](docs/evaluation/v07-remediation-log.md) 与 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)。
+
 ## 已实现
 
 | 能力 | v0.1 范围 | 验证 |

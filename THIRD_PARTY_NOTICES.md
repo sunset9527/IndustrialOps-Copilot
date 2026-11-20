@@ -12,6 +12,7 @@
 | 密码散列 | bcrypt | Apache-2.0 |
 | Python 构建与测试 | setuptools、pytest、PyYAML | MIT |
 | Python HTTP 测试 | HTTPX | BSD-3-Clause |
+| 可选评测框架 | Ragas、DeepEval | Apache-2.0 |
 | 前端及构建 | Vue、Vite、`@vitejs/plugin-vue` | MIT |
 
 ## 直接迁移的外部代码
