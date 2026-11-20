@@ -52,6 +52,9 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
         "INDUSTRIALOPS_DEEPSEEK_BASE_URL", "INDUSTRIALOPS_DEEPSEEK_MODEL",
         "INDUSTRIALOPS_DEEPSEEK_TIMEOUT", "INDUSTRIALOPS_DEEPSEEK_MAX_TOKENS",
         "INDUSTRIALOPS_PACKS_ROOT", "INDUSTRIALOPS_PACK_REGISTRY_PATH", "INDUSTRIALOPS_INDEXES_ROOT",
+        "INDUSTRIALOPS_EVALUATION_PROFILE", "INDUSTRIALOPS_EVALUATION_JUDGE_ENABLED",
+        "INDUSTRIALOPS_EVALUATION_JUDGE_PROVIDER", "INDUSTRIALOPS_EVALUATION_JUDGE_BASE_URL",
+        "INDUSTRIALOPS_EVALUATION_JUDGE_MODEL", "INDUSTRIALOPS_EVALUATION_JUDGE_API_KEY",
     }
     settings = Settings.from_environment(values)
     assert (settings.api_port, settings.frontend_port) == (8100, 5174)
@@ -61,6 +64,8 @@ def test_environment_example_matches_runtime_settings_and_uses_placeholder_crede
     assert settings.deepseek_api_key is None
     assert settings.deepseek_model == "deepseek-flash"
     assert settings.offline_mode is True
+    assert settings.evaluation_profile == "deterministic"
+    assert settings.evaluation_judge_enabled is False
 
 
 def test_compose_runs_the_complete_industrialops_stack_on_loopback_ports() -> None:
