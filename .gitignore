@@ -6,6 +6,7 @@ data/evaluation/*
 !data/evaluation/guardrail_eval_v1.jsonl
 !data/evaluation/scenario_eval_v1.jsonl
 data/packs/
+data/indexes/
 data/models/
 data/source_manifests/*.csv
 tmp/
