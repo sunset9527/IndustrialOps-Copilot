@@ -45,3 +45,10 @@
 
 - 在具备本机 socket 权限的基础运行环境执行 `pytest tests`：**286 passed, 1 skipped**。唯一跳过项是基础环境未安装的可选 Ragas/DeepEval smoke。
 - 在 `.venv-eval`（Ragas 0.4.4、DeepEval 4.3.4 已安装）执行同一命令：**287 passed**。因此可选框架 smoke 不再只是声明或 skip。
+
+## 2026-11-20：Judge 实测与未收口项
+
+- Hermes 4 条候选中仅 2 条具有完整证据锚点；经项目负责人机器辅助批准后进入独立 suite，另 2 条继续排除。
+- 两框架已用 DeepSeek 完成真实评分；结果保存在 `judge-owner-hermes-20261120-reconciled` 与统一 `judge-unified-20261120` 报告中。
+- Ragas 默认 Instructor 与 DeepSeek 结构化输出不兼容，已新增非思考 JSON 适配器；但该适配器尚未被正式 Judge CLI 调用。
+- 未完成项：端到端 Judge Runner、最新全量回归、README/项目规划最终收口、双人审核/Kappa、多次 Judge 采样与方差治理。
