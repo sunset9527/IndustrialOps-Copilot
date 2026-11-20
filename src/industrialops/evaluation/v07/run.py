@@ -15,6 +15,7 @@ from industrialops.evaluation.v07.deepeval_adapter import to_trace_spans
 from industrialops.evaluation.v07.framework_smoke import build_deepeval_trace_case, build_ragas_dataset
 from industrialops.evaluation.v07.frameworks import framework_availability
 from industrialops.evaluation.v07.judge_environment import load_judge_settings
+from industrialops.evaluation.v07.judge_runner import load_judge_case_results
 from industrialops.evaluation.v07.ragas_adapter import to_ragas_row
 from industrialops.evaluation.v07.runner import run_deterministic_evaluation
 from industrialops.diagnosis.schemas import WorkflowEvent
@@ -27,6 +28,7 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, default=Path("data/evaluation/reports/v07"))
     parser.add_argument("--profile", choices=("deterministic", "framework-smoke", "judge"), default="deterministic")
     parser.add_argument("--judge-env-file", type=Path, default=None)
+    parser.add_argument("--judge-metrics-file", type=Path, default=None)
     parser.add_argument("--before-run-id", default=None)
     args = parser.parse_args()
     root = args.project_root.resolve()
@@ -45,7 +47,10 @@ def main() -> None:
         return
     if args.profile == "judge":
         load_explicit_judge_configuration(args.judge_env_file)
-        raise SystemExit("EVALUATION_JUDGE_RUN_REQUIRES_APPROVED_SCENARIOS_AND_EXPLICIT_CONFIGURATION")
+        if args.judge_metrics_file is None:
+            raise SystemExit("EVALUATION_JUDGE_METRICS_FILE_REQUIRED")
+        run_deterministic_evaluation(output_root=root / args.output_root, run_id=args.run_id, frozen_inputs=frozen_inputs, case_results=load_judge_case_results(args.judge_metrics_file), profile="judge", framework_results={"ragas": "completed", "deepeval": "completed"}, before_run_id=args.before_run_id)
+        return
     workflow = DiagnosisWorkflow(
         resolver=EquipmentContextResolver.from_registry_path(root / "config/equipment_pack_registry_v1.json"),
         retrieve=lambda request, context, route: (),
