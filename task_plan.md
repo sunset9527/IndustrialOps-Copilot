@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-- 状态：`v0.7_in_progress`。v0.7 的冻结输入、报告、硬门禁、五意图、结构化事件及 Ragas/DeepEval SDK smoke 已实现；尚未完成审核扩展集、Judge、隔离 MySQL 双设备/审批恢复验收和可退出的全量 HTTP TestClient 回归，因此不能标为 `automated_verified` 或 `release_verified`。
+- 状态：`v0.7_in_progress`。v0.7 的冻结输入、报告、硬门禁、五意图、结构化事件及 Ragas/DeepEval SDK smoke 已实现；隔离 MySQL 的双设备、审批和重启恢复 HTTP 验收也已完成。尚未完成审核扩展集、Judge 和可退出的全量 HTTP TestClient 回归，因此不能标为 `automated_verified` 或 `release_verified`。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
 - 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
 
@@ -14,7 +14,7 @@
 
 1. `[pending]` 由两名审核者基于冻结手册完成非同义改写的扩展场景与证据标注，随后冻结为独立 suite 并计算一致性。
 2. `[pending]` 在显式 Judge/embedding 配置下分别运行 Ragas 和 DeepEval Judge，记录模型、版本、成本、错误与同源偏差；不影响确定性硬门禁。
-3. `[pending]` 在隔离 MySQL 上执行两设备诊断、跨包/模型/版本/安全短路、草稿、审批、重启恢复、非法转换和审计快照的真实 Uvicorn 验收。
+3. `[complete]` 在隔离 MySQL 上运行 bootstrap；完成 CNC 告警、真空泵维护、跨包引用隔离、草稿、普通用户 403、approver 批准和 Uvicorn 重启恢复的真实 HTTP 验收。记录见 `docs/evaluation/v07-local-http-validation.md`。
 4. `[pending]` 在正常 Windows Python 事件循环环境执行全仓 pytest 与前端测试/构建，记录可复现退出码。
 
 ## v0.6 分片计划

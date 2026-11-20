@@ -5,7 +5,7 @@
 - 已增加 v0.7 冻结输入哈希校验、append-only 报告、跨包/危险步骤/审批绕过硬门禁，以及前后报告引用约束；v1 守护栏 before 运行的 5 条案例全部符合预期终态。
 - 已补齐五类意图的端到端覆盖、向后兼容的结构化工作流事件和审批快照门禁；事件只保留节点、状态、耗时、计数与稳定原因码。
 - Ragas 0.4.4、DeepEval 4.3.4 已在隔离环境中真实安装导入，并用真实 SDK 数据对象完成不联网 smoke；未配置 Judge，未生成或宣称 Judge 分数。
-- 阶段 0 与所有非 HTTP TestClient 的 v0.1-v0.7 分组回归通过；前端 12 文件、22 测试和生产构建均通过。受限执行环境的 Windows Proactor/asyncio 初始化阻塞使 TestClient 全量回归无法取得退出码。真实 Uvicorn 回环验证 `/health` 为 200、未知路由为稳定 404。完整 MySQL 双设备/审批恢复、审核扩展集和 Judge 校准仍待完成，v0.7 不能标记为 `automated_verified`。
+- 阶段 0 与所有非 HTTP TestClient 的 v0.1-v0.7 分组回归通过；前端 12 文件、22 测试和生产构建均通过。受限执行环境的 Windows Proactor/asyncio 初始化阻塞使 TestClient 全量回归无法取得退出码。隔离 MySQL 上的真实 Uvicorn 已完成 CNC/真空泵诊断、引用包隔离、普通用户审批拒绝、approver 批准和重启恢复。审核扩展集和 Judge 校准仍待完成，v0.7 不能标记为 `automated_verified`。
 
 ## 2026-11-19（v0.6 工程化与离线交付）
 
