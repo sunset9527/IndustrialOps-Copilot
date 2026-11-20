@@ -14,6 +14,7 @@ from industrialops.evaluation.v07.diagnosis_projection import project_diagnosis_
 from industrialops.evaluation.v07.deepeval_adapter import to_trace_spans
 from industrialops.evaluation.v07.framework_smoke import build_deepeval_trace_case, build_ragas_dataset
 from industrialops.evaluation.v07.frameworks import framework_availability
+from industrialops.evaluation.v07.judge_environment import load_judge_settings
 from industrialops.evaluation.v07.ragas_adapter import to_ragas_row
 from industrialops.evaluation.v07.runner import run_deterministic_evaluation
 from industrialops.diagnosis.schemas import WorkflowEvent
@@ -25,6 +26,7 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output-root", type=Path, default=Path("data/evaluation/reports/v07"))
     parser.add_argument("--profile", choices=("deterministic", "framework-smoke", "judge"), default="deterministic")
+    parser.add_argument("--judge-env-file", type=Path, default=None)
     parser.add_argument("--before-run-id", default=None)
     args = parser.parse_args()
     root = args.project_root.resolve()
@@ -42,6 +44,7 @@ def main() -> None:
         )
         return
     if args.profile == "judge":
+        load_explicit_judge_configuration(args.judge_env_file)
         raise SystemExit("EVALUATION_JUDGE_RUN_REQUIRES_APPROVED_SCENARIOS_AND_EXPLICIT_CONFIGURATION")
     workflow = DiagnosisWorkflow(
         resolver=EquipmentContextResolver.from_registry_path(root / "config/equipment_pack_registry_v1.json"),
@@ -65,6 +68,14 @@ def main() -> None:
         case_results=cases,
         before_run_id=args.before_run_id,
     )
+
+
+def load_explicit_judge_configuration(path: Path | None):
+    """Load the private file only for an explicitly requested Judge profile."""
+
+    if path is None:
+        raise ValueError("EVALUATION_JUDGE_ENV_FILE_REQUIRED")
+    return load_judge_settings(path)
 
 
 def framework_smoke_cases() -> tuple[tuple[dict[str, object], ...], dict[str, dict[str, object]]]:
