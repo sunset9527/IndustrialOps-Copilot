@@ -40,3 +40,8 @@
 - 创建独立 `industrialops_v07_validation` 库并运行现有迁移与 synthetic 资产初始化；未修改既有 `industrialops` 库。
 - 现有 bootstrap 完成两个冻结包验证和两个本地索引构建。
 - 临时 Uvicorn HTTP 验收已完成双设备诊断、引用包隔离、普通用户 403 审批拒绝、approver 批准和停止/重启后的同 `thread_id` 恢复。完整事实见 [本机 HTTP 验收](v07-local-http-validation.md)。
+
+## 2026-11-20：全量 Python 回归
+
+- 在具备本机 socket 权限的基础运行环境执行 `pytest tests`：**286 passed, 1 skipped**。唯一跳过项是基础环境未安装的可选 Ragas/DeepEval smoke。
+- 在 `.venv-eval`（Ragas 0.4.4、DeepEval 4.3.4 已安装）执行同一命令：**287 passed**。因此可选框架 smoke 不再只是声明或 skip。

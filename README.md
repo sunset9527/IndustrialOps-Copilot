@@ -12,7 +12,7 @@ v0.6 已实现完整演示栈的 `db → bootstrap → api → web` Compose 编�
 
 v0.7 已实现冻结输入哈希、append-only 评测报告、确定性安全/跨包/审批门禁、五类诊断意图的可观察轨迹，以及 Ragas 0.4.4 / DeepEval 4.3.4 的真实 SDK 映射和离线 smoke。2026-11-20 的 v1 守护栏 before 运行中，5 条场景均符合预期终态，且没有跨包引用、危险步骤泄露或未审批执行。该结果只是 11 条 v1 冒烟集的一部分，不是泛化能力结论。
 
-本阶段尚不能标为 `automated_verified`：审核通过的扩展场景、双人标注/Kappa、真实 Judge 运行和含 TestClient 的全仓回归尚未完成。隔离 MySQL 上的双设备诊断、工单草稿、越权审批拒绝与重启恢复 HTTP 验收已通过，详见 [本机 HTTP 验收](docs/evaluation/v07-local-http-validation.md)。Judge 必须由操作者显式配置，安全和审批结论始终由确定性规则及人工审核决定。当前可复现事实、命令和限制见 [v0.7 修复日志](docs/evaluation/v07-remediation-log.md) 与 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)。
+本阶段尚不能标为 `automated_verified`：审核通过的扩展场景、双人标注/Kappa 和真实 Judge 运行尚未完成。基础环境全仓 Python 回归为 286 通过、1 个可选框架测试跳过；装有 Ragas/DeepEval 的隔离环境为 287 通过。隔离 MySQL 上的双设备诊断、工单草稿、越权审批拒绝与重启恢复 HTTP 验收已通过，详见 [本机 HTTP 验收](docs/evaluation/v07-local-http-validation.md)。Judge 必须由操作者显式配置，安全和审批结论始终由确定性规则及人工审核决定。当前可复现事实、命令和限制见 [v0.7 修复日志](docs/evaluation/v07-remediation-log.md) 与 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)。
 
 ## 已实现
 
