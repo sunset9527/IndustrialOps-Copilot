@@ -15,7 +15,9 @@ jobs:
       - name: Test backend (Python 3.13)
         run: |
           python -m pip install --upgrade pip
-          python -m pip install '.[test]'
+          # Optional evaluation SDKs are exercised only by offline public fixtures;
+          # CI never configures a Judge or reads local industrial evidence packs.
+          python -m pip install '.[test,eval]'
           python -m pytest
       - uses: actions/setup-node@v4
         with:

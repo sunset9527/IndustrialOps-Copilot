@@ -22,3 +22,11 @@
 - 五类支持意图（手册、显式告警、维护、故障诊断、工单草稿）各有端到端测试，5 通过；工单意图只能返回受约束下一步，不能绕过现有审批链。
 - 纯同步回归分组为：阶段 0 为 68 通过；v0.2/v0.3（不含 HTTP TestClient）为 34 通过；v0.4（不含 HTTP TestClient）为 42 通过；v0.6/v0.7（不含 HTTP TestClient）为 45 通过、1 跳过。
 - 真实临时 Uvicorn 回环验收：`GET /health` 返回 200 与 `IndustrialOps Copilot`；未知路由返回 404 和稳定的 `not_found` 错误包。进程在验收后已停止。
+
+## 2026-11-20：after 关联、指标与前端回归
+
+- `after-guardrail-20261120` 已真实引用 `before-guardrail-20261120`；5 个 v1 守护栏案例继续全部通过，两个输入 SHA-256 在 before/after 中一致，且不存在失败样本。
+- 每个 v0.7 run 现在同时保留 `report.json`、逐案例 `cases.jsonl`、`failures.jsonl` 与不含密钥的 `environment.json`。
+- 新增确定性指标 DTO：Source/Page Hit@1/3/5、MRR、nDCG@5、检查步骤证据覆盖率及二元工业指标都输出分子、分母、案例 ID；`not_run` 不会被写成 0 分。
+- 新增无 Judge 的工作流路径契约：安全短路、终态和稳定原因码可被确定性评估，不能被 LLM Judge 覆盖。
+- 前端依赖已按 lockfile 重建；Vitest 为 **12 文件、22 测试全部通过**，Vite 生产构建通过。
