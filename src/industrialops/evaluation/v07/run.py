@@ -1,4 +1,4 @@
-"""Command-line deterministic v0.7 guardrail baseline."""
+"""Command-line entry point for v0.7 deterministic, smoke, and Judge profiles."""
 
 from __future__ import annotations
 
@@ -15,13 +15,17 @@ from industrialops.evaluation.v07.deepeval_adapter import to_trace_spans
 from industrialops.evaluation.v07.framework_smoke import build_deepeval_trace_case, build_ragas_dataset
 from industrialops.evaluation.v07.frameworks import framework_availability
 from industrialops.evaluation.v07.judge_environment import load_judge_settings
-from industrialops.evaluation.v07.judge_runner import load_judge_case_results
+from industrialops.evaluation.v07.judge_runner import (
+    execute_live_judge_suite,
+    load_judge_case_results,
+    summarize_framework_results,
+)
 from industrialops.evaluation.v07.ragas_adapter import to_ragas_row
 from industrialops.evaluation.v07.runner import run_deterministic_evaluation
 from industrialops.diagnosis.schemas import WorkflowEvent
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", type=Path, default=Path.cwd())
     parser.add_argument("--run-id", required=True)
@@ -29,8 +33,9 @@ def main() -> None:
     parser.add_argument("--profile", choices=("deterministic", "framework-smoke", "judge"), default="deterministic")
     parser.add_argument("--judge-env-file", type=Path, default=None)
     parser.add_argument("--judge-metrics-file", type=Path, default=None)
+    parser.add_argument("--judge-suite-file", type=Path, default=None)
     parser.add_argument("--before-run-id", default=None)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     root = args.project_root.resolve()
     frozen_inputs = (root / "data/evaluation/scenario_eval_v1.jsonl", root / "data/evaluation/guardrail_eval_v1.jsonl")
     if args.profile == "framework-smoke":
@@ -46,10 +51,33 @@ def main() -> None:
         )
         return
     if args.profile == "judge":
-        load_explicit_judge_configuration(args.judge_env_file)
-        if args.judge_metrics_file is None:
-            raise SystemExit("EVALUATION_JUDGE_METRICS_FILE_REQUIRED")
-        run_deterministic_evaluation(output_root=root / args.output_root, run_id=args.run_id, frozen_inputs=frozen_inputs, case_results=load_judge_case_results(args.judge_metrics_file), profile="judge", framework_results={"ragas": "completed", "deepeval": "completed"}, before_run_id=args.before_run_id)
+        settings = load_explicit_judge_configuration(args.judge_env_file)
+        if args.judge_suite_file is not None:
+            case_results = execute_live_judge_suite(
+                project_root=root,
+                suite_path=args.judge_suite_file,
+                settings=settings,
+            )
+        elif args.judge_metrics_file is not None:
+            case_results = load_judge_case_results(args.judge_metrics_file)
+        else:
+            raise SystemExit("EVALUATION_JUDGE_SUITE_FILE_REQUIRED")
+        framework_results: dict[str, object] = summarize_framework_results(case_results)
+        framework_results["judge"] = {
+            "provider": settings.evaluation_judge_provider,
+            "model": settings.evaluation_judge_model,
+            "temperature": 0,
+            "thinking": "disabled",
+        }
+        run_deterministic_evaluation(
+            output_root=root / args.output_root,
+            run_id=args.run_id,
+            frozen_inputs=frozen_inputs,
+            case_results=case_results,
+            profile="judge",
+            framework_results=framework_results,
+            before_run_id=args.before_run_id,
+        )
         return
     workflow = DiagnosisWorkflow(
         resolver=EquipmentContextResolver.from_registry_path(root / "config/equipment_pack_registry_v1.json"),

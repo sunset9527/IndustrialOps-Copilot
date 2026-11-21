@@ -52,3 +52,24 @@
 - 两框架已用 DeepSeek 完成真实评分；结果保存在 `judge-owner-hermes-20261120-reconciled` 与统一 `judge-unified-20261120` 报告中。
 - Ragas 默认 Instructor 与 DeepSeek 结构化输出不兼容，已新增非思考 JSON 适配器；但该适配器尚未被正式 Judge CLI 调用。
 - 未完成项：端到端 Judge Runner、最新全量回归、README/项目规划最终收口、双人审核/Kappa、多次 Judge 采样与方差治理。
+
+## 2026-11-21：一键 Judge CLI 与回归收口
+
+- `--profile judge --judge-suite-file ...` 现在从批准 suite 执行 pack-scoped 系统检索、`evidence_fallback` 回答、显式 DeepSeek Ragas Faithfulness、显式 DeepSeek DeepEval Faithfulness，并通过原有 append-only writer 生成统一报告；旧 `--judge-metrics-file` 导入入口继续兼容。
+- 自定义 Ragas 适配器直接实现 `BaseRagasLLM`，显式发送非思考 JSON 请求，不构造默认 OpenAI client；DeepEval 使用独立显式模型适配器。两者均只读取私有 `judge.env` 中的 allowlist 配置，报告不写入密钥。
+- 原始场景问题、系统回答与实际检索证据进入两个 Judge；硬门禁先验证终态、意图、跨包引用和危险输出，失败时语义 Judge 为 `not_run`。单框架失败不会丢失另一框架结果，统一报告保留稳定错误码且不泄露上游异常正文。
+- 最终回归：基础环境 **309 passed, 5 skipped**（跳过项均为未安装可选 Ragas/DeepEval 的框架测试）；`.venv-eval` 环境 **314 passed**；Judge 目标回归 **18 passed**；前端 Vitest **12 文件、22 测试通过**，Vite 生产构建成功。
+- 真实 SDK 兼容测试确认 Ragas 0.4.4 的 `metrics.collections.Faithfulness` 只接受 InstructorLLM；自定义非思考 DeepSeek `BaseRagasLLM` 改用该版本仍支持的兼容指标入口，并固定 `<0.5` 版本边界。DeepEval 4.3.4 的真实 FaithfulnessMetric 同样通过自定义 DeepSeek 模型与本地假响应完成端到端 schema 验证。
+- 初始实现后外部安全审查要求用户明确授权把本地场景、回答和证据片段发送到 DeepSeek；在获得授权前没有生成 `judge-live-cli-20261120-01` 报告，既有 2026-11-20 分步真实 Judge 结果保持原样。
+
+## 2026-11-21：一键 Judge CLI 真实外呼复跑
+
+- 经用户明确授权，使用 `data/evaluation/v07/judge.env` 的显式 DeepSeek 配置运行 `judge-live-cli-20261121-01`。报告为 append-only，并保留两个 v1 输入 SHA-256、提供方/模型/非思考配置、逐题状态、硬门禁和框架完成状态。
+- 两条负责人机器辅助批准的 CNC 场景均为 `answered`，意图与预期一致，跨包/安全/审批硬门禁均通过；Ragas Faithfulness 为 1.0、1.0，DeepEval Faithfulness 为 1.0、1.0。回答来源均为 `evidence_fallback`，引用数分别为 1、2。
+- 2026-11-20 的分步 DeepEval 值（1.0、0.90625）及其第二条独立重试值（0.965517）继续保留；本次较高值不覆盖或取代旧结果。须在多次采样/方差治理完成前按波动 Judge 解读。
+- 后续批次：两名独立人工审核者/Kappa、多次 Judge 采样与方差治理，以及完整 v1 检索场景的 BGE-M3/reranker Judge 验收不再单独推进；待审核通过的评测场景数量扩充后统一执行并另存 append-only 报告。
+
+## v0.7 阶段结论（2026-11-21）
+
+- 状态：`release_verified`。本阶段承诺的质量收敛、真实 HTTP 闭环、一键 Judge 复跑、全量回归、失败/限制记录和文档一致性均已完成。
+- 后续评测批次只在审核通过的评测集扩充后启动，不回写或覆盖本阶段冻结输入、历史报告和 Judge 结果。

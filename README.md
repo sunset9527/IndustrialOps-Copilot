@@ -4,15 +4,31 @@ v0.4 已完成真实发布验证：设备台账、证据绑定工单、人工审
 
 ## v0.6 工程化与离线交付
 
-v0.6 已实现完整演示栈的 `db → bootstrap → api → web` Compose 编排：bootstrap 显式执行迁移、合成资产初始化、冻结知识包验证与本地索引准备；API 只在 bootstrap 成功后启动。知识包和模型均以只读宿主机挂载使用，不进入镜像或 CI。默认离线模式禁止外部回答器，即使环境中存在外部 API Key 也只返回本地证据约束回答。
+v0.6 已交付完整演示栈的 `db → bootstrap → api → web` Compose 编排：bootstrap 显式执行迁移、合成资产初始化、冻结知识包验证与本地索引准备；API 只在 bootstrap 成功后启动。知识包和模型均以只读宿主机挂载使用，不进入镜像或 CI。默认离线模式禁止外部回答器，即使环境中存在外部 API Key 也只返回本地证据约束回答。
 
-当前状态为 `implemented`：针对配置、离线门控、索引、bootstrap、就绪、日志、容器和 CI 的自动化契约已通过；Docker Desktop Linux 引擎尚未在本机会话中启动，镜像构建和无历史卷的真实 Docker 冷启动尚未执行，因此不能标为 `automated_verified` 或 `release_verified`。完整 Windows PowerShell 冷启动、状态排查、备份和恢复流程见 [v0.6 本地离线交付与恢复](docs/operations/v0.6-offline-delivery.md)。
+当前状态为 `release_verified`：2026-11-19 已完成 Docker 冷启动、双设备离线诊断、工单审批与重启恢复、备份恢复和 GitHub CI 验证。完整 Windows PowerShell 冷启动、状态排查、备份和恢复流程见 [v0.6 本地离线交付与恢复](docs/operations/v0.6-offline-delivery.md)。
 
-## v0.7 评测收敛（进行中）
+## v0.7 评测收敛（已完成 · release_verified · 2026-11-21）
 
-v0.7 已实现冻结输入哈希、append-only 评测报告、确定性安全/跨包/审批门禁、五类诊断意图的可观察轨迹，以及 Ragas 0.4.4 / DeepEval 4.3.4 的真实 SDK 映射和离线 smoke。2026-11-20 的 v1 守护栏 before 运行中，5 条场景均符合预期终态，且没有跨包引用、危险步骤泄露或未审批执行。该结果只是 11 条 v1 冒烟集的一部分，不是泛化能力结论。
+v0.7 已实现冻结输入哈希、append-only 评测报告、确定性安全/跨包/审批门禁、五类诊断意图的可观察轨迹，以及 Ragas 0.4.4 / DeepEval 4.3.4 的显式 DeepSeek 适配。2026-11-20 的 v1 守护栏 before/after 运行中，5 条场景均符合预期终态，且没有跨包引用、危险步骤泄露或未审批执行。该结果只是 11 条 v1 冒烟集的一部分，不是泛化能力结论。
 
-本阶段尚不能标为 `automated_verified`：审核通过的扩展场景、双人标注/Kappa 和真实 Judge 运行尚未完成。基础环境全仓 Python 回归为 286 通过、1 个可选框架测试跳过；装有 Ragas/DeepEval 的隔离环境为 287 通过。隔离 MySQL 上的双设备诊断、工单草稿、越权审批拒绝与重启恢复 HTTP 验收已通过，详见 [本机 HTTP 验收](docs/evaluation/v07-local-http-validation.md)。Judge 必须由操作者显式配置，安全和审批结论始终由确定性规则及人工审核决定。当前可复现事实、命令和限制见 [v0.7 修复日志](docs/evaluation/v07-remediation-log.md) 与 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)。
+两条具备完整证据锚点的 Hermes 场景已由项目负责人机器辅助批准，并在 2026-11-20 分别完成真实 DeepSeek Ragas/DeepEval 评分；另两条候选继续排除。2026-11-21 新增的一键 Judge CLI 会从批准 suite 运行 pack-scoped 系统检索与 `evidence_fallback` 回答，再把原始问题、系统回答和实际检索证据交给两个框架，最后写入统一报告；硬门禁失败时不会调用语义 Judge，单框架异常按稳定错误码保留。基础环境全仓回归为 **309 通过、5 个可选框架测试跳过**，装有 Ragas/DeepEval 的隔离环境为 **314 通过**；前端为 **12 文件、22 测试通过**且生产构建成功。
+
+经明确授权后，2026-11-21 已用新 CLI 真实调用 `judge.env` 配置的 DeepSeek Judge。两条负责人机器辅助批准场景均通过硬门禁，Ragas 与 DeepEval Faithfulness 均为 1.0；结果、冻结输入哈希和脱敏 Judge 配置见 [一键 Judge 报告](data/evaluation/reports/v07/judge-live-cli-20261121-01/report.json)。这只证明两条 `evidence_fallback`、pack-scoped CNC 场景的可复跑链路，不证明在线回答模型、完整 BGE/RRF/reranker 链路或工业泛化能力。
+
+当前状态为 `release_verified`：全量回归、隔离 MySQL/Uvicorn 双设备与审批恢复验收、真实 DeepSeek 一键 Judge 均已完成。双人独立审核/Kappa、多次 Judge 方差治理和完整 BGE-M3/reranker Judge 已明确移入“评测集扩充后的后续批次”，不构成本阶段遗留。隔离 MySQL 上的双设备诊断、工单草稿、越权审批拒绝与重启恢复事实见 [本机 HTTP 验收](docs/evaluation/v07-local-http-validation.md)；范围、报告和后续批次见 [v0.7 修复日志](docs/evaluation/v07-remediation-log.md) 与 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)。
+
+Judge 会把批准场景的问题、系统回答和检索证据片段发送到 `judge.env` 显式配置的外部服务；执行前必须确认资料出站边界。下面的命令不会读取系统环境中的隐式 Judge，也不会回退到默认 OpenAI 提供方：
+
+```powershell
+.\.venv-eval\Scripts\python.exe -m industrialops.evaluation.v07.run `
+  --project-root . `
+  --profile judge `
+  --run-id judge-live-20261121-01 `
+  --judge-env-file data\evaluation\v07\judge.env `
+  --judge-suite-file data\evaluation\v07\hermes_owner_approved_v1.jsonl `
+  --output-root data\evaluation\reports\v07
+```
 
 ## 已实现
 

@@ -6,16 +6,17 @@
 
 ## 当前阶段
 
-- 状态：`v0.7_in_progress`。v0.7 的冻结输入、报告、硬门禁、五意图、结构化事件及 Ragas/DeepEval SDK smoke 已实现；隔离 MySQL 的双设备、审批和重启恢复 HTTP 验收、基础全仓 286 通过和评测环境全仓 287 通过也已完成。尚未完成审核扩展集和 Judge，因此不能标为 `automated_verified` 或 `release_verified`。
+- 状态：`v0.7_release_verified`（2026-11-21）。冻结输入、报告、硬门禁、五意图、结构化事件、Ragas/DeepEval SDK、隔离 MySQL 的双设备/审批/重启恢复 HTTP 验收及真实 DeepSeek 一键 Judge 均已完成。基础全仓为 309 通过、5 个可选框架跳过；评测环境全仓为 314 通过；前端 22 项测试和生产构建通过。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
 - 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
 
-## v0.7 剩余分片
+## v0.7 后续评测批次（不阻塞 v0.7 完成）
 
-1. `[pending]` 由两名审核者基于冻结手册完成非同义改写的扩展场景与证据标注，随后冻结为独立 suite 并计算一致性。
-2. `[pending]` 在显式 Judge/embedding 配置下分别运行 Ragas 和 DeepEval Judge，记录模型、版本、成本、错误与同源偏差；不影响确定性硬门禁。
+1. `[deferred]` 待审核通过的评测场景数量扩充后，由两名审核者基于冻结手册完成非同义改写的扩展场景与证据标注，随后冻结为独立 suite 并计算一致性。
+2. `[deferred]` 随扩充后的评测集运行多次 Ragas/DeepEval Judge 与完整 BGE-M3/reranker Judge，记录模型、版本、成本、错误、方差与同源偏差；不影响确定性硬门禁。
 3. `[complete]` 在隔离 MySQL 上运行 bootstrap；完成 CNC 告警、真空泵维护、跨包引用隔离、草稿、普通用户 403、approver 批准和 Uvicorn 重启恢复的真实 HTTP 验收。记录见 `docs/evaluation/v07-local-http-validation.md`。
-4. `[complete]` 在具备本机 socket 权限的基础环境运行全仓 pytest（286 通过、1 可选依赖跳过）；在 Ragas/DeepEval 隔离环境运行全仓 pytest（287 通过）；前端 Vitest 22 通过和生产构建通过。
+4. `[complete]` 在具备本机 socket 权限的基础环境运行全仓 pytest（309 通过、5 个可选依赖跳过）；在 Ragas/DeepEval 隔离环境运行全仓 pytest（314 通过）；前端 Vitest 22 通过和生产构建通过。
+5. `[complete]` 对 2 条负责人机器辅助批准场景执行真实 DeepSeek 一键 Judge；硬门禁均通过，Ragas/DeepEval Faithfulness 均为 1.0，报告为 `judge-live-cli-20261121-01`。
 
 ## v0.6 分片计划
 
