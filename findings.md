@@ -1,5 +1,12 @@
 # IndustrialOps Copilot 实施发现
 
+## 2026-11-21（v0.8 发布候选验收）
+
+- 现有 `readiness` 已对数据库、迁移、冻结包、索引、本地模型和离线策略执行只读检查，但对包/模型内部错误收敛为 `PACK_UNAVAILABLE` 与 `MODEL_UNAVAILABLE`；v0.8 预检需保留这些运行边界，并额外在启动前提供不泄露私有路径的配置缺失原因码。
+- 现有 v0.7 仅能创建不可覆盖的运行目录；v0.8 新核心补充了独立 Compose 所有权、报告原子发布、递归脱敏、无阈值基线和故障恢复判定，测试先红后绿。
+- 仓库存在 README、`docs/operations/v0.6-offline-delivery.md`、`THIRD_PARTY_NOTICES.md` 与阶段 0 数据边界说明，但没有独立架构说明文件；v0.8 必须新增可审计架构说明，不能把旧设计规格或关键词命中当成交付文档。
+- v0.6 Compose 相关测试实际位于 `tests/v06/test_container_delivery.py` 与 `test_ci_delivery.py`，不是最初假定的 `test_compose_delivery.py`。
+
 ## 2026-11-11（v0.4 实施起点）
 
 - v0.4 设计已由用户确认并提交为 `efa2c8c`；审批人为新增 `approver`，`admin` 也允许批准或拒绝。

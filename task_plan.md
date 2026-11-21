@@ -12,8 +12,8 @@
 
 ## v0.8 分片计划
 
-1. `[in_progress]` 建立测试先行的 RC 验收核心：运行隔离、报告原子追加、脱敏、故障判定和基线统计。
-2. `[pending]` 实现预检与 README/API/架构/许可证/数据声明的真实性审计。
+1. `[complete]` 建立测试先行的 RC 验收核心：运行隔离、报告原子追加、脱敏、故障判定和基线统计；v0.8 定向回归 5 项通过。
+2. `[in_progress]` 实现预检与 README/API/架构/许可证/数据声明的真实性审计；预检已覆盖离线、包、模型、端口和发布材料存在性，下一步补声明到真实证据的映射与独立架构说明。
 3. `[pending]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理。
 4. `[pending]` 实现真实 HTTP 主链路、离线诱饵、受控故障注入与恢复验证。
 5. `[pending]` 实现浏览器验收与延迟、资源、并发基线采样。
@@ -97,3 +97,4 @@
 | 2026-11-11 | 沙箱内 FastAPI `TestClient` 在 Windows Proactor 内部 `socketpair` 的 `accept()` 阻塞 | 已用 faulthandler 定位；相同测试在沙箱外通过。后续含 TestClient 的 pytest 使用已授权的 `python -m pytest` 沙箱外执行。 |
 | 2026-11-21 | 初次读取 v0.7 报告测试时假定存在 `tests/v07/test_run_store.py` | 文件实际不存在，相关覆盖位于 `tests/v07/test_v07_reporting.py`；已改用实际测试文件，不重复该路径。 |
 | 2026-11-21 | v0.8 首次 RED 命令使用 `./.venv/Scripts/python.exe`，但项目根目录不存在 `.venv` | pytest 未启动，不能作为 RED 证据；定位项目现有虚拟环境或可用 Python 后再执行同一测试。 |
+| 2026-11-21 | 初次读取 v0.6 Compose 测试时假定存在 `tests/v06/test_compose_delivery.py` | 文件实际不存在；Compose 相关覆盖位于 `test_container_delivery.py` 与 `test_ci_delivery.py`，后续按真实路径读取。 |

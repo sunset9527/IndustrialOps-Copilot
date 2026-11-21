@@ -171,3 +171,4 @@
 - 当前环境没有 `writing-plans` 技能；按既有项目实践，已创建持久实施计划 `docs/superpowers/plans/2026-11-21-v0.8-release-candidate-plan.md`，保持测试先行。
 - 开始阶段 1：先实现不接触 Docker、私有知识包或模型的 RC 验收纯逻辑核心（资源隔离、报告、脱敏、基线和故障判定）。
 - v0.8 核心 RED：因 `industrialops.evaluation.v08` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：5 项新测试通过，联同 v0.7 报告回归共 7 项通过。根目录没有 `.venv`，已改用具备 pytest 的 `.venv-eval`；pytest-asyncio 输出既有配置弃用警告，未被本阶段引入。
+- v0.8 预检 RED：因 `industrialops.evaluation.v08.preflight` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：新增 4 项预检测试，与核心合计 9 项通过。预检只检查离线模式、两个冻结包目录、模型 `config.json`、端口和必要发布材料的存在性；不读取私有资料/权重、不连接数据库、不启动 Docker，且不向报告写入私有路径。
