@@ -20,6 +20,10 @@ v0.7 已实现冻结输入哈希、append-only 评测报告、确定性安全/�
 
 Judge 会把批准场景的问题、系统回答和检索证据片段发送到 `judge.env` 显式配置的外部服务；执行前必须确认资料出站边界。下面的命令不会读取系统环境中的隐式 Judge，也不会回退到默认 OpenAI 提供方：
 
+## v0.8 Release Candidate 验收（实施中）
+
+v0.8 不增加产品功能，使用独立 Compose 项目名、端口、卷和不可覆盖的本地报告验证“首次获取项目”是否能完成预检、无缓存启动与后续演示。当前已实现脱敏预检、发布材料真实性审计、独立端口/项目名、无缓存冷启动观测和失败保留；HTTP、故障矩阵、性能基线和浏览器验收尚未完成，不能标记为 `release_verified`。从零执行命令、隔离规则和当前边界见 [v0.8 RC 验收运行手册](docs/operations/v0.8-release-candidate.md)。
+
 ```powershell
 .\.venv-eval\Scripts\python.exe -m industrialops.evaluation.v07.run `
   --project-root . `

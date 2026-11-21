@@ -14,7 +14,7 @@
 
 1. `[complete]` 建立测试先行的 RC 验收核心：运行隔离、报告原子追加、脱敏、故障判定和基线统计；v0.8 定向回归 5 项通过。
 2. `[complete]` 实现预检与 README/API/架构/许可证/数据声明的真实性审计；预检覆盖离线、包、模型、端口和发布材料，5 条关键公开主张均以版本化清单绑定代码/测试/Compose 配置证据，新增 `docs/architecture.md`。
-3. `[in_progress]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理。
+3. `[in_progress]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理；自动化契约完成，2026-11-21 真实预检通过，但 Docker Desktop Linux Engine 未运行，真实无缓存 build 被安全停止并保留独立失败报告。
 4. `[pending]` 实现真实 HTTP 主链路、离线诱饵、受控故障注入与恢复验证。
 5. `[pending]` 实现浏览器验收与延迟、资源、并发基线采样。
 6. `[pending]` 在真实 Docker 环境运行无缓存 RC 验收，按 README 从零复现并保存不可覆盖报告。
@@ -99,3 +99,4 @@
 | 2026-11-21 | v0.8 首次 RED 命令使用 `./.venv/Scripts/python.exe`，但项目根目录不存在 `.venv` | pytest 未启动，不能作为 RED 证据；定位项目现有虚拟环境或可用 Python 后再执行同一测试。 |
 | 2026-11-21 | 初次读取 v0.6 Compose 测试时假定存在 `tests/v06/test_compose_delivery.py` | 文件实际不存在；Compose 相关覆盖位于 `test_container_delivery.py` 与 `test_ci_delivery.py`，后续按真实路径读取。 |
 | 2026-11-21 | Compose 测试使用仓库内固定 `reports/20261121-env`，第二次运行触发正确的不可覆盖保护 | 改用 pytest `tmp_path`；已核对并删除本测试创建的空目录，后续测试不再写入仓库报告路径。 |
+| 2026-11-21 | v0.8 真实无缓存 Docker cold-start 无法连接 `dockerDesktopLinuxEngine`，并返回受限 Docker 构建访问错误 | CLI 已在 build 阶段 fail-closed，未执行 `up` 或清理；报告为本地忽略文件 `v08-cold-20261121-01`。需启动 Docker Desktop Linux Engine 后使用新 run ID 重新运行。 |
