@@ -6,9 +6,18 @@
 
 ## 当前阶段
 
-- 状态：`v0.7_release_verified`（2026-11-21）。冻结输入、报告、硬门禁、五意图、结构化事件、Ragas/DeepEval SDK、隔离 MySQL 的双设备/审批/重启恢复 HTTP 验收及真实 DeepSeek 一键 Judge 均已完成。基础全仓为 309 通过、5 个可选框架跳过；评测环境全仓为 314 通过；前端 22 项测试和生产构建通过。
+- 状态：`v0.8_in_progress`（2026-11-21）。已确认并提交 RC 验收设计 `6e20c4f`；实施计划位于 `docs/superpowers/plans/2026-11-21-v0.8-release-candidate-plan.md`。冻结输入、报告、硬门禁、五意图、结构化事件、Ragas/DeepEval SDK、隔离 MySQL 的双设备/审批/重启恢复 HTTP 验收及真实 DeepSeek 一键 Judge 均已完成。基础全仓为 309 通过、5 个可选框架跳过；评测环境全仓为 314 通过；前端 22 项测试和生产构建通过。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
 - 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
+
+## v0.8 分片计划
+
+1. `[in_progress]` 建立测试先行的 RC 验收核心：运行隔离、报告原子追加、脱敏、故障判定和基线统计。
+2. `[pending]` 实现预检与 README/API/架构/许可证/数据声明的真实性审计。
+3. `[pending]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理。
+4. `[pending]` 实现真实 HTTP 主链路、离线诱饵、受控故障注入与恢复验证。
+5. `[pending]` 实现浏览器验收与延迟、资源、并发基线采样。
+6. `[pending]` 在真实 Docker 环境运行无缓存 RC 验收，按 README 从零复现并保存不可覆盖报告。
 
 ## v0.7 后续评测批次（不阻塞 v0.7 完成）
 
@@ -86,3 +95,5 @@
 | 2026-11-09 | Docker Engine 初始不可用 | 用户启动 Docker Desktop 后，以桌面账号权限完成镜像构建、容器启动与健康端点验证。 |
 | 2026-11-11 | 首次更新 v0.4 持久计划的补丁未找到 `progress.md` 预期标题 | 未写入任何文件；读取准确标题后使用小范围补丁追加，不重复使用原补丁。 |
 | 2026-11-11 | 沙箱内 FastAPI `TestClient` 在 Windows Proactor 内部 `socketpair` 的 `accept()` 阻塞 | 已用 faulthandler 定位；相同测试在沙箱外通过。后续含 TestClient 的 pytest 使用已授权的 `python -m pytest` 沙箱外执行。 |
+| 2026-11-21 | 初次读取 v0.7 报告测试时假定存在 `tests/v07/test_run_store.py` | 文件实际不存在，相关覆盖位于 `tests/v07/test_v07_reporting.py`；已改用实际测试文件，不重复该路径。 |
+| 2026-11-21 | v0.8 首次 RED 命令使用 `./.venv/Scripts/python.exe`，但项目根目录不存在 `.venv` | pytest 未启动，不能作为 RED 证据；定位项目现有虚拟环境或可用 Python 后再执行同一测试。 |
