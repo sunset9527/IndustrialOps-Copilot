@@ -98,3 +98,4 @@
 | 2026-11-21 | 初次读取 v0.7 报告测试时假定存在 `tests/v07/test_run_store.py` | 文件实际不存在，相关覆盖位于 `tests/v07/test_v07_reporting.py`；已改用实际测试文件，不重复该路径。 |
 | 2026-11-21 | v0.8 首次 RED 命令使用 `./.venv/Scripts/python.exe`，但项目根目录不存在 `.venv` | pytest 未启动，不能作为 RED 证据；定位项目现有虚拟环境或可用 Python 后再执行同一测试。 |
 | 2026-11-21 | 初次读取 v0.6 Compose 测试时假定存在 `tests/v06/test_compose_delivery.py` | 文件实际不存在；Compose 相关覆盖位于 `test_container_delivery.py` 与 `test_ci_delivery.py`，后续按真实路径读取。 |
+| 2026-11-21 | Compose 测试使用仓库内固定 `reports/20261121-env`，第二次运行触发正确的不可覆盖保护 | 改用 pytest `tmp_path`；已核对并删除本测试创建的空目录，后续测试不再写入仓库报告路径。 |

@@ -53,7 +53,7 @@ services:
       dockerfile: Dockerfile
     environment: *api-environment
     ports:
-      - "127.0.0.1:8100:8100"
+      - "127.0.0.1:${INDUSTRIALOPS_API_PORT:-8100}:8100"
     volumes:
       - "${INDUSTRIALOPS_PACKS_PATH:?Set INDUSTRIALOPS_PACKS_PATH in .env}:/local/packs:ro"
       - "${INDUSTRIALOPS_BGE_MODEL_PATH:?Set INDUSTRIALOPS_BGE_MODEL_PATH in .env}:/local/models/bge-m3:ro"
@@ -73,7 +73,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:5174:80"
+      - "127.0.0.1:${INDUSTRIALOPS_FRONTEND_PORT:-5174}:80"
     depends_on:
       api:
         condition: service_healthy

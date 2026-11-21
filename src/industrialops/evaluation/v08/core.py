@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 import math
+import os
 from pathlib import Path
 import re
 from uuid import uuid4
@@ -67,6 +68,18 @@ def write_report_atomically(run: RcRun, report: dict[str, object]) -> Path:
         if temporary_path.exists():
             temporary_path.unlink()
     return report_path
+
+
+def append_event(run: RcRun, event: dict[str, object]) -> Path:
+    """Append one sanitized stage event so partial RC evidence survives later failures."""
+
+    event_path = run.report_directory / "events.jsonl"
+    line = json.dumps(_sanitize_value(event), ensure_ascii=False) + "\n"
+    with event_path.open("a", encoding="utf-8") as stream:
+        stream.write(line)
+        stream.flush()
+        os.fsync(stream.fileno())
+    return event_path
 
 
 def summarize_latency_ms(samples: list[float]) -> dict[str, float | int]:

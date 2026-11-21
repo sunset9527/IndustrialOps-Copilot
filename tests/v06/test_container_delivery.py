@@ -15,8 +15,8 @@ def test_compose_defines_the_complete_local_delivery_stack_with_bootstrap_gate()
     assert "ports" not in compose["services"]["db"]
     assert compose["services"]["api"]["depends_on"]["bootstrap"]["condition"] == "service_completed_successfully"
     assert compose["services"]["web"]["depends_on"]["api"]["condition"] == "service_healthy"
-    assert compose["services"]["api"]["ports"] == ["127.0.0.1:8100:8100"]
-    assert compose["services"]["web"]["ports"] == ["127.0.0.1:5174:80"]
+    assert compose["services"]["api"]["ports"] == ["127.0.0.1:${INDUSTRIALOPS_API_PORT:-8100}:8100"]
+    assert compose["services"]["web"]["ports"] == ["127.0.0.1:${INDUSTRIALOPS_FRONTEND_PORT:-5174}:80"]
     assert compose["services"]["bootstrap"]["command"] == ["python", "-m", "industrialops.bootstrap"]
     assert all(volume.endswith(":ro") for volume in compose["services"]["bootstrap"]["volumes"][:3])
     environment = compose["services"]["bootstrap"]["environment"]

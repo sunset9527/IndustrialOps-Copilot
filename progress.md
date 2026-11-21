@@ -173,3 +173,4 @@
 - v0.8 核心 RED：因 `industrialops.evaluation.v08` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：5 项新测试通过，联同 v0.7 报告回归共 7 项通过。根目录没有 `.venv`，已改用具备 pytest 的 `.venv-eval`；pytest-asyncio 输出既有配置弃用警告，未被本阶段引入。
 - v0.8 预检 RED：因 `industrialops.evaluation.v08.preflight` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：新增 4 项预检测试，与核心合计 9 项通过。预检只检查离线模式、两个冻结包目录、模型 `config.json`、端口和必要发布材料的存在性；不读取私有资料/权重、不连接数据库、不启动 Docker，且不向报告写入私有路径。
 - v0.8 真实性审计 RED：因 `industrialops.evaluation.v08.truth_audit` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：新增通用审计和项目清单测试，与既有 v0.8 测试合计 12 项通过。新增 `config/release_truth_audit_v08.json`，将 Compose、离线回答、人工审批恢复、架构拓扑和私有资料边界分别绑定到公开文档及精确代码/测试/配置锚点；新增独立 `docs/architecture.md`。
+- v0.8 Compose 隔离 RED：因 `industrialops.evaluation.v08.compose` 尚不存在而产生预期 `ModuleNotFoundError`；GREEN：新增命令作用域、端口覆盖和显式清理确认测试，Compose 端口改为保持 8100/5174 默认值的环境变量。事件报告新增追加式 JSONL 写入；组合回归 12 项通过。一次测试夹具把固定报告目录写入仓库后，被不可覆盖保护拒绝；已改为 `tmp_path` 并删除该测试创建的空目录。

@@ -7,6 +7,7 @@ import pytest
 
 from industrialops.evaluation.v08.core import (
     RcRunError,
+    append_event,
     assess_fault_scenario,
     create_rc_run,
     summarize_latency_ms,
@@ -55,6 +56,19 @@ def test_atomic_report_write_redacts_sensitive_values_and_refuses_replacement(tm
 
     with pytest.raises(RcRunError, match="RC_REPORT_ALREADY_EXISTS"):
         write_report_atomically(run, {"run_id": run.run_id})
+
+
+def test_event_stream_is_append_only_and_redacts_each_partial_result(tmp_path: Path) -> None:
+    run = create_rc_run(tmp_path, "20261121-events")
+
+    event_path = append_event(run, {"stage": "preflight", "status": "passed"})
+    append_event(run, {"stage": "cold_start", "status": "failed", "error": "Bearer partial-secret"})
+
+    events = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
+    assert events == [
+        {"stage": "preflight", "status": "passed"},
+        {"stage": "cold_start", "status": "failed", "error": "[REDACTED_TOKEN]"},
+    ]
 
 
 def test_latency_summary_uses_documented_nearest_rank_percentile_without_threshold() -> None:
