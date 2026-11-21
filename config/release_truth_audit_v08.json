@@ -1,0 +1,75 @@
+{
+  "format_version": 1,
+  "claims": [
+    {
+      "claim_id": "compose-topology",
+      "public_document": "README.md",
+      "public_marker": "`db → bootstrap → api → web`",
+      "evidence": [
+        {
+          "kind": "compose",
+          "path": "docker-compose.yml",
+          "required_markers": ["  db:", "  bootstrap:", "  api:", "  web:", "condition: service_completed_successfully"]
+        }
+      ]
+    },
+    {
+      "claim_id": "offline-answer-policy",
+      "public_document": "README.md",
+      "public_marker": "默认离线模式禁止外部回答器",
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "src/industrialops/diagnosis/deepseek.py",
+          "required_markers": ["if self._offline_mode:", "OFFLINE_MODE_ENABLED"]
+        },
+        {
+          "kind": "compose",
+          "path": "docker-compose.yml",
+          "required_markers": ["INDUSTRIALOPS_OFFLINE: \"${INDUSTRIALOPS_OFFLINE:-true}\""]
+        }
+      ]
+    },
+    {
+      "claim_id": "human-approval-recovery",
+      "public_document": "README.md",
+      "public_marker": "工单与审批",
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "src/industrialops/workflow/approval.py",
+          "required_markers": ["resume = interrupt(", "return graph.compile(checkpointer=checkpointer)"]
+        },
+        {
+          "kind": "test",
+          "path": "tests/v04/test_approval_workflow.py",
+          "required_markers": ["Command(resume={\"decision\": \"approved\"})"]
+        }
+      ]
+    },
+    {
+      "claim_id": "architecture-topology",
+      "public_document": "docs/architecture.md",
+      "public_marker": "## 部署拓扑",
+      "evidence": [
+        {
+          "kind": "compose",
+          "path": "docker-compose.yml",
+          "required_markers": ["  db:", "  bootstrap:", "  api:", "  web:"]
+        }
+      ]
+    },
+    {
+      "claim_id": "private-evidence-boundary",
+      "public_document": "README.md",
+      "public_marker": "local_evidence_only",
+      "evidence": [
+        {
+          "kind": "configuration",
+          "path": ".gitignore",
+          "required_markers": ["data/raw_archive/", "data/packs/", ".env"]
+        }
+      ]
+    }
+  ]
+}
