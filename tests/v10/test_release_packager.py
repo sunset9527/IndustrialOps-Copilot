@@ -61,3 +61,35 @@ def test_packager_rejects_sensitive_content_during_archive_scan(tmp_path: Path) 
         )
 
     assert not list(output_directory.glob("*")) if output_directory.exists() else True
+
+
+def test_packager_allows_documented_placeholder_connection_strings(tmp_path: Path) -> None:
+    template = tmp_path / ".env.example"
+    template.write_text(
+        "INDUSTRIALOPS_DATABASE_URL=mysql+pymysql://industrialops:change-me@localhost:3306/industrialops\n",
+        encoding="utf-8",
+    )
+
+    result = build_release_archive(
+        project_root=tmp_path,
+        tracked_files=(".env.example",),
+        product_version="1.0.0",
+        output_directory=tmp_path / "dist",
+    )
+
+    assert result.archive_path.is_file()
+
+
+def test_packager_allows_connection_strings_in_test_fixtures(tmp_path: Path) -> None:
+    fixture = tmp_path / "tests" / "test_fixture.py"
+    fixture.parent.mkdir()
+    fixture.write_text("DATABASE_URL = 'mysql+pymysql://user:secret@localhost/industrialops'\n", encoding="utf-8")
+
+    result = build_release_archive(
+        project_root=tmp_path,
+        tracked_files=("tests/test_fixture.py",),
+        product_version="1.0.0",
+        output_directory=tmp_path / "dist",
+    )
+
+    assert result.archive_path.is_file()

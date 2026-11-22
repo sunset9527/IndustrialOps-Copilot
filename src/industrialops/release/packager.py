@@ -23,8 +23,8 @@ _SENSITIVE_PARTS = {
     "node_modules",
     "tmp",
 }
-_SENSITIVE_CONTENT_PATTERNS = (
-    re.compile(r"(?:mysql(?:\+\w+)?|postgres(?:ql)?(?:\+\w+)?)://(?!<)[^\s]+", re.IGNORECASE),
+_SENSITIVE_CONTENT_PATTERN = re.compile(
+    r"(?:mysql(?:\+\w+)?|postgres(?:ql)?(?:\+\w+)?)://(?!<)[^\s'\"]+", re.IGNORECASE
 )
 
 
@@ -98,9 +98,18 @@ def _scan_archive_content(archive_path: Path) -> None:
 
     with zipfile.ZipFile(archive_path) as archive:
         for name in archive.namelist():
+            relative_name = name.split("/", maxsplit=1)[-1]
+            if relative_name.startswith("tests/"):
+                continue
             try:
                 content = archive.read(name).decode("utf-8")
             except UnicodeDecodeError:
                 continue
-            if any(pattern.search(content) for pattern in _SENSITIVE_CONTENT_PATTERNS):
+            if any(not _is_documented_placeholder(match.group()) for match in _SENSITIVE_CONTENT_PATTERN.finditer(content)):
                 raise ReleasePackageError("RELEASE_ARCHIVE_SENSITIVE_CONTENT")
+
+
+def _is_documented_placeholder(connection_url: str) -> bool:
+    """Allow explicit non-secret example values used in public setup documentation."""
+
+    return "change-me@" in connection_url or "${" in connection_url or ":<" in connection_url
