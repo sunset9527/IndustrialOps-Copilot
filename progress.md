@@ -1,12 +1,13 @@
 # IndustrialOps Copilot 实施日志
 
-## 2026-11-22（v1.0 正式发布，本地准备中）
+## 2026-11-22（v1.0 正式发布，自动化门禁已完成）
 
 - 已确认 v1.0 只做冻结和发布材料整理；不新增产品能力、不变更冻结知识包或评测集。Git 推送、`v1.0.0` 标签、GitHub Release 和演示视频均不由本阶段自动执行；视频按项目负责人决定明确跳过。
 - 已新增 v1.0 设计、实施计划、发布说明、数据/版权边界、评测摘要、人工抽查清单和本地发布手册；所有公开主张保留 v0.7/v0.8 的适用边界。
-- 已按 TDD 实现本地发布清单校验器、仅 Git 跟踪文件的 ZIP 构建器、真实连接串扫描、SHA-256 输出和干净工作树门禁。v1.0 定向测试当前 9 项通过，冻结清单校验通过。
-- 已完成前端 12 文件/22 测试和生产构建、Compose 配置解析；全仓 Python 回归在 `tests/v03/test_diagnosis_api.py::test_diagnosis_query_route_invokes_the_injected_workflow_and_returns_the_stable_contract` 可重复挂起。该路径使用 FastAPI `TestClient`，与既有 Windows 受限 socket 环境限制一致；本次没有将中断写成通过。
-- 待在具备正常 socket 权限的本机环境完成：全仓 Python 回归、人工抽查复核、本地 ZIP 构建与归档扫描。完成前状态保持 `v1.0_release_preparing`，不得标记 `v1.0_release_ready`。
+- 已按 TDD 实现本地发布清单校验器、仅 Git 跟踪文件的 ZIP 构建器、敏感路径/连接串扫描、SHA-256 输出和干净工作树门禁。修复历史遗留的 Git 跟踪派生语料，以及模板连接串被误报的问题；v1.0 定向测试为 12 项通过，冻结清单校验通过。
+- 2026-11-22 在正常本机环境完成全仓 Python 回归：**346 passed, 5 skipped, 1 warning**；前端 12 文件/22 测试、生产构建和 Compose 配置解析已通过。
+- 已成功生成本地发布产物：`dist/IndustrialOps-Copilot-v1.0.0.zip`、对应 `.sha256` 与 `v1.0.0-release-build-report.json`；报告为 `overall_status: passed`，并如实记录演示视频跳过项。
+- 待完成：按 v1.0 人工抽查清单复核已保存的五条主链路事实；之后可标记 `v1.0_release_ready`。Git 推送、`v1.0.0` 标签和 GitHub Release 仍由项目负责人亲自执行。
 
 ## 2026-11-22（v0.8 Release Candidate，已完成 · release_verified）
 

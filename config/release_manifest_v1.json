@@ -7,8 +7,8 @@
     "dry_vacuum_pump_pack_v1.0.0"
   ],
   "frozen_files": [
-    {"path": "README.md", "sha256": "4488b4738d4dd263977a11f051582d8b68c6b7cbc6e154421d7549563955688d"},
-    {"path": "RELEASE_NOTES_v1.0.0.md", "sha256": "2daf1541754a8d915a69034eb561aab60be33faaf8d7875a35e9aabef533c2c6"},
+    {"path": "README.md", "sha256": "2cab60667af1b7b77203e2e64c7fa3044fe2f0110c69bb671a68dd092b51247a"},
+    {"path": "RELEASE_NOTES_v1.0.0.md", "sha256": "5aea735ec2fc8e372e09054834a8d5619aeb9d79fd8aa95f9f81d16445a4d1b5"},
     {"path": "THIRD_PARTY_NOTICES.md", "sha256": "948f8e4dc66a34df11521c5031aa182c8b462c8581ba7e432f46213131b2207a"},
     {"path": "pyproject.toml", "sha256": "0e042e694bb2fd7fbcb15c13221ded1ec3d2854d0fb72978be3af7815b797db1"},
     {"path": "docker-compose.yml", "sha256": "224a60efe5bc53bd445ba0034c67dfb205a0cf37e3d7f4886a7b2a0f53c13e14"},

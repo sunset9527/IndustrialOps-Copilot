@@ -1,6 +1,6 @@
 # IndustrialOps Copilot v1.0.0 发布说明
 
-**发布状态：** 本地发布准备中；尚未推送标签或创建 GitHub Release。  
+**发布状态：** 自动化门禁已完成，待人工抽查复核；尚未推送标签或创建 GitHub Release。
 **范围基线：** v0.8 `release_verified`（2026-11-22）。
 
 ## 已验证能力
@@ -21,6 +21,8 @@
 ## 评测与已知限制
 
 发布候选验收事实见 [v0.8 RC 本机发布验收](docs/evaluation/v08-release-validation.md)，完整限制见 [v0.7 已知限制](docs/evaluation/v07-known-limitations.md)，v1.0 汇总见 [v1.0 评测摘要](docs/evaluation/v1.0-release-summary.md)。
+
+2026-11-22 已完成全仓 Python 回归（346 passed、5 skipped、1 warning）、前端 12 文件/22 测试与生产构建、Compose 配置检查，以及本地 ZIP/SHA-256/构建报告生成。构建报告为 `overall_status: passed`；最终发布就绪仍要求完成[人工抽查清单](docs/evaluation/v1.0-manual-checklist.md)。
 
 ## 本次跳过项
 
