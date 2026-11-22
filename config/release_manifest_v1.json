@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "product_version": "1.0.0",
+  "migration_head": "v04_assets_work_orders",
+  "equipment_pack_ids": [
+    "cnc_pack_v1.0.0",
+    "dry_vacuum_pump_pack_v1.0.0"
+  ],
+  "frozen_files": [
+    {"path": "README.md", "sha256": "4488b4738d4dd263977a11f051582d8b68c6b7cbc6e154421d7549563955688d"},
+    {"path": "RELEASE_NOTES_v1.0.0.md", "sha256": "2daf1541754a8d915a69034eb561aab60be33faaf8d7875a35e9aabef533c2c6"},
+    {"path": "THIRD_PARTY_NOTICES.md", "sha256": "948f8e4dc66a34df11521c5031aa182c8b462c8581ba7e432f46213131b2207a"},
+    {"path": "pyproject.toml", "sha256": "0e042e694bb2fd7fbcb15c13221ded1ec3d2854d0fb72978be3af7815b797db1"},
+    {"path": "docker-compose.yml", "sha256": "224a60efe5bc53bd445ba0034c67dfb205a0cf37e3d7f4886a7b2a0f53c13e14"},
+    {"path": "config/equipment_pack_registry_v1.json", "sha256": "256f6fc5664daf5be83410c35453959156ba3cdac2a01997031e3d48a577f143"},
+    {"path": "docs/architecture.md", "sha256": "f4685e182a97c55d6a0565d1c25e470d2aa369bc833de9dbb199333cbc3ccecf"},
+    {"path": "docs/data/v1.0-release-data-boundary.md", "sha256": "e7a89cabf0817155f4ffd5c0a5f6a85199d288a4dcdfcdc431f52fd1d07327ad"},
+    {"path": "docs/evaluation/v1.0-release-summary.md", "sha256": "af65edc540e3463a21e490b2250bbe8bdab21f042a6fa21468be46207e56d27f"},
+    {"path": "docs/evaluation/v07-known-limitations.md", "sha256": "985f43cfb181c6144d77707c98bb0c4101e9e37bbb1e3382f5fe42c3108dfa40"},
+    {"path": "docs/evaluation/v08-release-validation.md", "sha256": "1555cac2bc98c114d9be41fe3f9dee3fe77f24edf3021d3391ec14588b58e6db"},
+    {"path": "docs/evaluation/v1.0-manual-checklist.md", "sha256": "1bfa875c09dccc56e6191149a43ed76665eb70c736de554ad6fc0c1e18ea47f8"},
+    {"path": "docs/operations/v1.0-release-readiness.md", "sha256": "3ba50516668ca4d70ba7ed3b85ab16fbb0f97fd09a505793d296744be1d8cd70"},
+    {"path": "data/evaluation/guardrail_eval_v1.jsonl", "sha256": "cb81259dbf5e943b5c44c5539d5f9ef720e0409b898b94f3d6c6be7efd1d601e"},
+    {"path": "data/evaluation/scenario_eval_v1.jsonl", "sha256": "799e33a59ff8520880d85b99c6497aa1cdc80f9c96c1a075ad00315deed2ff6e"}
+  ],
+  "required_documents": [
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/architecture.md"
+  ],
+  "skipped_items": [
+    "demo_video_recording_by_user_decision"
+  ]
+}

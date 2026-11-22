@@ -23,7 +23,7 @@ def test_release_metadata_declares_the_application_and_test_dependencies() -> No
     metadata = tomllib.loads(read_project_file("pyproject.toml"))
     project = metadata["project"]
     assert project["name"] == "industrialops-copilot"
-    assert project["version"] == "0.1.0"
+    assert project["version"] == "1.0.0"
     assert metadata["build-system"]["build-backend"] == "setuptools.build_meta"
     dependency_name = re.compile(r"^[\w-]+")
     assert {dependency_name.match(spec)[0].lower() for spec in project["dependencies"]} >= {

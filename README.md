@@ -1,6 +1,12 @@
 # IndustrialOps Copilot
 
-v0.4 已完成真实发布验证：设备台账、证据绑定工单、人工审批中断/恢复、确定性状态流转和审计链路均已接入后端 API，并在本机 MySQL + Uvicorn 重启恢复链路中验证。当前状态为 `release_verified`。
+## v1.0 正式发布（本地准备中）
+
+IndustrialOps Copilot 是面向 Haas VF-2（NGC）与 Edwards nXDS 标准型号的本地工业运维演示平台。项目以两个冻结设备知识包支持资料查询、告警解释、证据约束诊断、安全门控和人工审批的工单草稿；不控制真实设备，也不将合成演示数据描述为现场数据。
+
+v0.8 已完成独立 Release Candidate 验收。v1.0 只执行版本冻结、最终回归、公开材料核对与本地发布包构建，不新增功能。当前状态为 `v1.0_release_preparing`：尚未推送 Git 标签或创建 GitHub Release。发布范围、边界与后续命令见 [v1.0 发布说明](RELEASE_NOTES_v1.0.0.md)、[数据与版权边界](docs/data/v1.0-release-data-boundary.md) 和 [本地发布就绪手册](docs/operations/v1.0-release-readiness.md)。
+
+演示录屏由项目负责人决定本次跳过；这不影响已完成的 v0.8 HTTP/浏览器验收，也不代表项目已交付视频演示。
 
 ## v0.6 工程化与离线交付
 

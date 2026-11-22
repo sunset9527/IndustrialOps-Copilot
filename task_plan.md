@@ -6,9 +6,17 @@
 
 ## 当前阶段
 
-- 状态：`v0.8_release_verified`（2026-11-22）。已确认并提交 RC 验收设计 `6e20c4f`；实施计划位于 `docs/superpowers/plans/2026-11-21-v0.8-release-candidate-plan.md`。本次 RC 在独立 Compose 项目、端口与卷上完成冷启动、双设备诊断、审批恢复、受控故障、浏览器、基线、真实性审计和回归；脱敏本地报告为 `data/evaluation/reports/v08/v08-full-20261122-01/report.json`。
+- 状态：`v1.0_release_preparing`（2026-11-22）。v0.8 已 `release_verified`；v1.0 仅冻结版本、运行最终门禁、整理公开材料和生成本地发布包。不会自动推送、打标签、创建 GitHub Release 或录制视频。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
 - 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
+
+## v1.0 发布冻结计划
+
+1. `[complete]` 提交 v1.0 设计规格与实施计划；明确本地发布就绪不等于 GitHub 已发布，且演示视频由负责人决定跳过。
+2. `[complete]` 按 TDD 建立发布清单校验、版本/Alembic head/公开文件哈希门禁、Git 跟踪文件打包、敏感路径/连接串扫描、SHA-256 和干净工作树拒绝；v1.0 定向测试 9 项通过。
+3. `[complete]` 编写发布说明、数据边界、评测摘要、人工抽查清单和本地发布手册；公开材料保留已知限制与合成数据标识。
+4. `[blocked_by_environment]` 前端 12 文件/22 测试、生产构建和 Compose 配置已通过；受限 Windows socket 环境在 `tests/v03/test_diagnosis_api.py::test_diagnosis_query_route_invokes_the_injected_workflow_and_returns_the_stable_contract` 可复现挂起，因此未将全仓 Python 回归或发布包标为通过。需在正常本机环境继续完成 Python/人工抽查/归档验证。
+5. `[pending]` 所有门禁通过后标记 `v1.0_release_ready`，提交本地代码与文档，并仅提供由负责人执行的推送、标签和 GitHub Release 命令。
 
 ## v0.8 分片计划
 
