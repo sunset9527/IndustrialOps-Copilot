@@ -37,3 +37,5 @@ Docker Compose 的服务顺序为 `db → bootstrap → api → web`。知识包
 ## 发布与验收
 
 v0.8 使用独立 Compose 项目名、端口和卷执行发布候选验收，避免接触既有 `industrialops` 资源。验收记录冷启动、主链路、离线行为、受控故障恢复、资源/延迟/并发观察值和浏览器操作结果；报告追加式生成并统一脱敏。只有真实无缓存部署、HTTP、浏览器、故障矩阵和文档真实性审计都通过，才能标记为 `release_verified`。
+
+2026-11-22 的独立本机 RC 已满足上述条件并标记为 `release_verified`；逐项结果与边界见 [v0.8 本机发布验收](evaluation/v08-release-validation.md)。

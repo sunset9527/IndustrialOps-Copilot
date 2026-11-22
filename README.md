@@ -22,7 +22,7 @@ Judge 会把批准场景的问题、系统回答和检索证据片段发送到 `
 
 ## v0.8 Release Candidate 验收（已完成 · release_verified · 2026-11-22）
 
-v0.8 不增加产品功能，使用独立 Compose 项目名、端口、卷和不可覆盖的本地报告验证“首次获取项目”能否完成预检、无缓存启动与后续演示。本机 RC 已完成隔离冷启动、双设备 HTTP 与浏览器演练、草稿/越权拒绝/approver 审批/API 重启恢复、7 项受控故障矩阵、无阈值延迟与并发观测、声明真实性审计及全仓回归。最终脱敏报告为本地忽略文件 `data/evaluation/reports/v08/v08-full-20261122-01/report.json`；它不含模型、知识包或会话凭据。可复现命令和隔离规则见 [v0.8 RC 验收运行手册](docs/operations/v0.8-release-candidate.md)。
+v0.8 不增加产品功能，使用独立 Compose 项目名、端口、卷和不可覆盖的本地报告验证“首次获取项目”能否完成预检、无缓存启动与后续演示。本机 RC 已完成隔离冷启动、双设备 HTTP 与浏览器演练、草稿/越权拒绝/approver 审批/API 重启恢复、7 项受控故障矩阵、无阈值延迟与并发观测、声明真实性审计及全仓回归。最终脱敏报告为本地忽略文件 `data/evaluation/reports/v08/v08-full-20261122-01/report.json`；它不含模型、知识包或会话凭据。可复现命令和隔离规则见 [v0.8 RC 验收运行手册](docs/operations/v0.8-release-candidate.md)，逐项事实见 [v0.8 本机发布验收](docs/evaluation/v08-release-validation.md)。
 
 ```powershell
 .\.venv-eval\Scripts\python.exe -m industrialops.evaluation.v07.run `
