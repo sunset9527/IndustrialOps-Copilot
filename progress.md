@@ -1,5 +1,12 @@
 # IndustrialOps Copilot 实施日志
 
+## 2026-11-22（v0.8 Release Candidate，已完成 · release_verified）
+
+- 完成独立 Docker RC：无缓存镜像构建、bootstrap、API 和 Web 就绪；`/health` 与 `/ready` 均为成功，离线策略、本地模型、冻结包和索引均就绪。
+- 完成真实浏览器/HTTP 链路：CNC 552 与 nXDS10i 维护诊断均显示同设备知识包引用；创建草稿、普通用户 403、approver 批准和 API 重启后的 `approved` 状态均已验证。
+- 完成 7 项故障矩阵、10 样本无阈值延迟基线与 3 并发只读请求；本地不可覆盖最终报告为 `data/evaluation/reports/v08/v08-full-20261122-01/report.json`。
+- 新增 fail-closed 最终汇总器与测试；v0.8 测试 28 项通过。修正了因端口覆盖引入的陈旧 v0.1 Compose 断言；前端 12 文件/22 测试和生产构建通过。全仓 Python 回归在本机权限环境完成；受限沙箱的 FastAPI TestClient socketpair 阻塞为既有环境限制。
+
 ## 2026-11-21（v0.7 评测收敛，已完成 · release_verified）
 
 - 已完成冻结输入哈希、append-only 报告、跨包/危险步骤/审批绕过硬门禁、五类意图端到端覆盖、结构化工作流事件和审批快照门禁；v1 守护栏 before/after 的 5 条案例均符合预期终态。

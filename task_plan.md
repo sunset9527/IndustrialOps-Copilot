@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-- 状态：`v0.8_in_progress`（2026-11-21）。已确认并提交 RC 验收设计 `6e20c4f`；实施计划位于 `docs/superpowers/plans/2026-11-21-v0.8-release-candidate-plan.md`。冻结输入、报告、硬门禁、五意图、结构化事件、Ragas/DeepEval SDK、隔离 MySQL 的双设备/审批/重启恢复 HTTP 验收及真实 DeepSeek 一键 Judge 均已完成。基础全仓为 309 通过、5 个可选框架跳过；评测环境全仓为 314 通过；前端 22 项测试和生产构建通过。
+- 状态：`v0.8_release_verified`（2026-11-22）。已确认并提交 RC 验收设计 `6e20c4f`；实施计划位于 `docs/superpowers/plans/2026-11-21-v0.8-release-candidate-plan.md`。本次 RC 在独立 Compose 项目、端口与卷上完成冷启动、双设备诊断、审批恢复、受控故障、浏览器、基线、真实性审计和回归；脱敏本地报告为 `data/evaluation/reports/v08/v08-full-20261122-01/report.json`。
 - 当前门禁：阶段 0 已完成并冻结；后续工作不得修改冻结包，新增资料或规则须创建新版本。v0.6 不增加设备资料或诊断产品功能。
 - 设计依据：`docs/superpowers/specs/2026-11-18-v0.6-engineering-offline-delivery-design.md`（提交 `6abe424`）与 `docs/superpowers/plans/2026-11-18-v0.6-engineering-offline-delivery-plan.md`。
 
@@ -14,10 +14,10 @@
 
 1. `[complete]` 建立测试先行的 RC 验收核心：运行隔离、报告原子追加、脱敏、故障判定和基线统计；v0.8 定向回归 5 项通过。
 2. `[complete]` 实现预检与 README/API/架构/许可证/数据声明的真实性审计；预检覆盖离线、包、模型、端口和发布材料，5 条关键公开主张均以版本化清单绑定代码/测试/Compose 配置证据，新增 `docs/architecture.md`。
-3. `[in_progress]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理；自动化契约完成，2026-11-21 真实预检通过，但 Docker Desktop Linux Engine 未运行，真实无缓存 build 被安全停止并保留独立失败报告。
-4. `[in_progress]` 实现真实 HTTP 主链路、离线诱饵、受控故障注入与恢复验证；故障矩阵已以 7 个必须场景的 fail-closed 契约落地，真实容器注入待 Docker 可用。
-5. `[in_progress]` 实现浏览器验收与延迟、资源、并发基线采样；当前先实现不依赖 Docker 的采样与浏览器契约。
-6. `[pending]` 在真实 Docker 环境运行无缓存 RC 验收，按 README 从零复现并保存不可覆盖报告。
+3. `[complete]` 实现隔离 Compose 覆盖、资源所有权、无缓存冷启动观测及安全保留/清理；2026-11-22 Docker Desktop Linux Engine 上完成独立 RC 构建、bootstrap、API 与 Web 启动。
+4. `[complete]` 完成真实 HTTP 主链路、离线诱饵、受控故障注入与恢复验证；7 项故障矩阵均以稳定原因码通过并恢复。
+5. `[complete]` 完成浏览器验收与延迟、资源、并发基线采样；两台设备、来源引用、草稿/审批和恢复均在 CDP 浏览器中观察。
+6. `[complete]` 在真实 Docker 环境完成 RC 验收、全仓 Python 与前端回归，并保存不可覆盖报告。
 
 ## v0.7 后续评测批次（不阻塞 v0.7 完成）
 

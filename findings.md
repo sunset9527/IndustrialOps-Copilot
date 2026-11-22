@@ -8,6 +8,14 @@
 - v0.6 Compose 相关测试实际位于 `tests/v06/test_container_delivery.py` 与 `test_ci_delivery.py`，不是最初假定的 `test_compose_delivery.py`。
 - README 已可精确声明 Compose 拓扑、离线回答政策与工单/审批主链路；对应实证分别位于 `docker-compose.yml`、`DeepSeekAnswerGenerator.generate()` 的 `self._offline_mode` 短路、以及 `ApprovalWorkflow` 的 `interrupt()` 和 v0.4 恢复测试。v0.8 审计清单将把这些锚点显式绑定。
 
+## 2026-11-22（v0.8 RC 真实验收）
+
+- Docker Desktop Linux Engine 可用后，独立项目 `industrialops_rc_v08_full_20261122_01` 在 `18100/15174` 完成无缓存构建、bootstrap、API/Web 就绪；默认 `industrialops` 项目未被触碰。
+- RC 浏览器演练验证 CNC 552 与 nXDS10i maintenance 两条诊断及各自 pack-scoped 引用；普通用户审批返回 403，隔离 approver 批准草稿后 API 重启仍返回 `approved`。
+- 受控容器检查分别观察到 `MODEL_UNAVAILABLE`、`PACK_UNAVAILABLE`、`INDEX_UNAVAILABLE` 与 `DATABASE_UNAVAILABLE`，数据库恢复后 `/ready` 恢复；MockTransport 契约覆盖 `DEEPSEEK_UNAVAILABLE`、`DEEPSEEK_REQUEST_REJECTED` 与离线零出站。
+- `/ready` 十次观测没有通过阈值：最小 698.87 ms、中位 723.24 ms、p95 873.95 ms；3 个并发只读请求均为 200。
+- 全仓回归发现 v0.8 为端口隔离把 Compose 映射改为环境变量后，v0.1 交付测试仍断言固定端口。根因是旧测试契约遗漏同步更新；已改为断言保留默认值的环境表达式并完成定向回归。
+
 ## 2026-11-11（v0.4 实施起点）
 
 - v0.4 设计已由用户确认并提交为 `efa2c8c`；审批人为新增 `approver`，`admin` 也允许批准或拒绝。

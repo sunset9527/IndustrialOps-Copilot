@@ -75,9 +75,9 @@ def test_compose_runs_the_complete_industrialops_stack_on_loopback_ports() -> No
     assert set(compose["services"]) == {"db", "bootstrap", "api", "web"}
     api = compose["services"]["api"]
     assert api["build"]["dockerfile"] == "Dockerfile"
-    assert api["ports"] == ["127.0.0.1:8100:8100"]
+    assert api["ports"] == ["127.0.0.1:${INDUSTRIALOPS_API_PORT:-8100}:8100"]
     assert api["depends_on"]["bootstrap"]["condition"] == "service_completed_successfully"
-    assert compose["services"]["web"]["ports"] == ["127.0.0.1:5174:80"]
+    assert compose["services"]["web"]["ports"] == ["127.0.0.1:${INDUSTRIALOPS_FRONTEND_PORT:-5174}:80"]
     assert "ports" not in compose["services"]["db"]
     assert re.search(r"\bport:\s*5174\b", read_project_file("frontend/vite.config.js"))
 
